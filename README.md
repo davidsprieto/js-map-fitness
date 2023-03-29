@@ -1,2 +1,1 @@
 # Mapty
-# mapty
