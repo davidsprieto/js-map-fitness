@@ -11,3 +11,39 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    function (position) {
+      console.log(position);
+      const {latitude, longitude} = position.coords;
+
+      const coords = [latitude, longitude];
+
+      const map = L.map('map').setView(coords, 10);
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      map.on('click', function (mapEvent) {
+
+        const {lat, lng} = mapEvent.latlng;
+
+        L.marker([lat, lng], {
+          draggable: true
+        })
+          .addTo(map)
+          .bindPopup(L.popup({
+            maxWidth: 250,
+            minWidth: 100,
+            className: 'running-popup'
+          }))
+          .setPopupContent('Workout')
+          .openPopup();
+      });
+    },
+    function () {
+      alert('Could not get your location!');
+    });
+}
+
