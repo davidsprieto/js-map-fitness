@@ -88,7 +88,7 @@ class App {
     this._getLocalStorage();
 
     // Attach event handlers
-    deleteButton.addEventListener('click', this._reset);
+    deleteButton.addEventListener('click', this._deleteAllWorkouts);
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
@@ -121,6 +121,7 @@ class App {
     });
   }
 
+  // After user clicks on map to create a marker, display the workout form
   _showForm(mapE) {
     console.log(mapE);
     this.#mapEvent = mapE;
@@ -248,10 +249,21 @@ class App {
     });
   }
 
+  // Display the delete all workouts button
+  _showDeleteAllWorkoutsButton() {
+    deleteButton.classList.remove('hidden');
+  }
+
+  // Hide the delete all workouts button
+  _hideDeleteAllWorkoutsButton() {
+    deleteButton.classList.add('hidden');
+  }
+
   // Delete workouts from local storage
-  _reset() {
+  _deleteAllWorkouts() {
     localStorage.removeItem("workouts");
     location.reload();
+    this._hideDeleteAllWorkoutsButton();
   }
 
   // Create a new workout object when the user submits the form
@@ -312,6 +324,9 @@ class App {
 
     // Store workouts in local storage
     this._setLocalStorage();
+
+    // Display the delete all workouts button
+    this._showDeleteAllWorkoutsButton();
   }
 }
 
