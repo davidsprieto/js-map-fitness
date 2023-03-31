@@ -1,5 +1,8 @@
 "use strict";
 
+///////////////////////////////////////////////////////////////
+// APPLICATION CLASSES
+
 class Workout {
   date = new Date();
   id = crypto.randomUUID();
@@ -18,6 +21,8 @@ class Workout {
     this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`;
   }
 
+  // Used to log the amount of times a workout is clicked
+  // *** NOTE: AN OBJECT RETRIEVED FROM LOCAL STORAGE WILL NOT INCLUDE ALL THE METHODS IT INHERITED WHEN IT WAS ORIGINALLY CREATED ***
   clicked() {
     this.clicks++;
   }
@@ -60,6 +65,7 @@ class Cycling extends Workout {
 ///////////////////////////////////////////////////////////////
 // APPLICATION ARCHITECTURE
 
+const deleteButton = document.querySelector('.delete__workouts');
 const form = document.querySelector('.form');
 const containerWorkouts = document.querySelector('.workouts');
 const inputType = document.querySelector('.form__input--type');
@@ -75,7 +81,14 @@ class App {
   #mapZoomView = 10;
 
   constructor() {
+    // Get user's location
     this._getPosition();
+
+    // Get data from local storage
+    this._getLocalStorage();
+
+    // Attach event handlers
+    deleteButton.addEventListener('click', this._reset);
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
@@ -101,6 +114,11 @@ class App {
 
     // Handling clicks on the map
     this.#map.on('click', this._showForm.bind(this));
+
+    // After the map loads, get workouts from local storage and display them on the map
+    this.#workouts.forEach(workout => {
+      this._renderWorkoutMarker(workout);
+    });
   }
 
   _showForm(mapE) {
@@ -143,63 +161,6 @@ class App {
 
     // Using the public interface
     workout.clicked();
-  }
-
-  // Create a new workout object when the user submits the form
-  _newWorkout(e) {
-    // Form input validation helper functions
-    const validInputs = (...inputs) => {
-      return inputs.every(input => Number.isFinite(input));
-    }
-    const allPositive = (...inputs) => {
-      return inputs.every(input => input > 0);
-    }
-
-    // Prevent form submission (page reload)
-    e.preventDefault();
-
-    // Get data from form fields
-    const input = inputType.value;
-    const distance = +inputDistance.value;
-    const duration = +inputDuration.value;
-
-    // Coordinates variables containing coords data when user clicks on the map
-    const {lat, lng} = this.#mapEvent.latlng;
-
-    // Declare workout variable
-    let workout;
-
-    // If running workout, create a running object
-    if (input === 'running') {
-      const cadence = +inputCadence.value;
-      // Check if data is valid
-      if (!validInputs(distance, duration, cadence) || !allPositive(distance, duration, cadence)) {
-        return alert("Input must be a positive number!");
-      }
-      workout = new Running([lat, lng], distance, duration, cadence);
-    }
-
-    // If cycling workout, create a cycling object
-    if (input === 'cycling') {
-      const elevation = +inputElevation.value;
-      // Check if data is valid
-      if (!validInputs(distance, duration, elevation) || !allPositive(distance, duration)) {
-        return alert("Input must be a positive number!");
-      }
-      workout = new Cycling([lat, lng], distance, duration, elevation);
-    }
-
-    // Add new object to workout array
-    this.#workouts.push(workout);
-
-    // Render workout on map as marker
-    this._renderWorkoutMarker(workout);
-
-    // Render workout on list
-    this._renderWorkout(workout);
-
-    // Clear the form input fields && Hide form
-    this._hideForm();
   }
 
   // Render workout on map as marker
@@ -267,6 +228,90 @@ class App {
     }
 
     form.insertAdjacentHTML('afterend', html);
+  }
+
+  // Store workouts in local storage
+  _setLocalStorage() {
+    localStorage.setItem("workouts", JSON.stringify(this.#workouts));
+  }
+
+  // Get workouts from local storage
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem("workouts"));
+
+    if (!data) return;
+
+    this.#workouts = data;
+
+    this.#workouts.forEach(workout => {
+      this._renderWorkout(workout);
+    });
+  }
+
+  // Delete workouts from local storage
+  _reset() {
+    localStorage.removeItem("workouts");
+    location.reload();
+  }
+
+  // Create a new workout object when the user submits the form
+  _newWorkout(e) {
+    // Form input validation helper functions
+    const validInputs = (...inputs) => {
+      return inputs.every(input => Number.isFinite(input));
+    }
+    const allPositive = (...inputs) => {
+      return inputs.every(input => input > 0);
+    }
+
+    // Prevent page reload
+    e.preventDefault();
+
+    // Get data from form fields
+    const input = inputType.value;
+    const distance = +inputDistance.value;
+    const duration = +inputDuration.value;
+
+    // Coordinates variables containing coords data when user clicks on the map
+    const {lat, lng} = this.#mapEvent.latlng;
+
+    // Declare workout variable
+    let workout;
+
+    // If running workout, create a running object
+    if (input === 'running') {
+      const cadence = +inputCadence.value;
+      // Check if data is valid
+      if (!validInputs(distance, duration, cadence) || !allPositive(distance, duration, cadence)) {
+        return alert("Input must be a positive number!");
+      }
+      workout = new Running([lat, lng], distance, duration, cadence);
+    }
+
+    // If cycling workout, create a cycling object
+    if (input === 'cycling') {
+      const elevation = +inputElevation.value;
+      // Check if data is valid
+      if (!validInputs(distance, duration, elevation) || !allPositive(distance, duration)) {
+        return alert("Input must be a positive number!");
+      }
+      workout = new Cycling([lat, lng], distance, duration, elevation);
+    }
+
+    // Add new object to workout array
+    this.#workouts.push(workout);
+
+    // Render workout on map as marker
+    this._renderWorkoutMarker(workout);
+
+    // Render workout on list
+    this._renderWorkout(workout);
+
+    // Clear the form input fields && Hide form
+    this._hideForm();
+
+    // Store workouts in local storage
+    this._setLocalStorage();
   }
 }
 

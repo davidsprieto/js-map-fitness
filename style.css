@@ -40,6 +40,16 @@ a:visited {
   color: var(--color-brand--1);
 }
 
+.delete__workouts {
+  align-self: center;
+  border-radius: 15px;
+  border: none;
+  padding: 5px 5px;
+  margin-bottom: 5px;
+  background-color: var(--color-brand--2);
+  width: 75%;
+}
+
 /* SIDEBAR */
 .sidebar {
   flex-basis: 50rem;
