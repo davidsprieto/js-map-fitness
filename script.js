@@ -316,3 +316,15 @@ class App {
 }
 
 const app = new App();
+
+// Additional Features:
+// TODO:
+//  Ability to edit a workout
+//  Ability to delete a specific workout
+//  Ability to sort workouts by a certain field (distance, duration, etc.)
+//  Re-build Running and Cycling objects retrieved from local storage to fix the error where the 'clicked' function gets removed from the object
+//  More error and confirmation messages
+//  Ability to position the map to show all workouts on the map
+//  Ability to draw lines/shapes instead of just points
+//  Geocode location from coordinates ("Run in {insert location from coordinates}")
+//  Display weather data for workout time and place
