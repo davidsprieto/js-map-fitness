@@ -1,8 +1,9 @@
-'use strict';
+"use strict";
 
 class Workout {
   date = new Date();
   id = crypto.randomUUID();
+  clicks = 0;
 
   constructor(coords, distance, duration) {
     this.coords = coords; // [lat, lng]
@@ -15,6 +16,10 @@ class Workout {
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`;
+  }
+
+  clicked() {
+    this.clicks++;
   }
 }
 
@@ -67,11 +72,13 @@ class App {
   #map;
   #mapEvent;
   #workouts = [];
+  #mapZoomView = 10;
 
   constructor() {
     this._getPosition();
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
   }
 
   _getPosition() {
@@ -86,7 +93,7 @@ class App {
     const {latitude, longitude} = position.coords;
     const coords = [latitude, longitude];
 
-    this.#map = L.map('map').setView(coords, 10);
+    this.#map = L.map('map').setView(coords, this.#mapZoomView);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -97,6 +104,7 @@ class App {
   }
 
   _showForm(mapE) {
+    console.log(mapE);
     this.#mapEvent = mapE;
     form.classList.remove('hidden');
     inputDistance.focus();
@@ -112,13 +120,34 @@ class App {
     }, 1000);
   }
 
+  // If the user selects cycling workout, display the elevation gain input field and hide the cadence input field for running
   _toggleElevationField() {
     inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
   }
 
+  // If the user clicks on a workout from the sidebar list, have the map navigate and display where that workout marker was created
+  _moveToPopup(e) {
+    const workoutElement = e.target.closest(".workout");
+
+    if (!workoutElement) return;
+
+    const workout = this.#workouts.find(workout => workout.id === workoutElement.dataset.id);
+
+    this.#map.setView(workout.coords, this.#mapZoomView, {
+      animate: true,
+      pan: {
+        duration: 1
+      }
+    });
+
+    // Using the public interface
+    workout.clicked();
+  }
+
+  // Create a new workout object when the user submits the form
   _newWorkout(e) {
-    // Helper form input validation functions
+    // Form input validation helper functions
     const validInputs = (...inputs) => {
       return inputs.every(input => Number.isFinite(input));
     }
@@ -162,7 +191,6 @@ class App {
 
     // Add new object to workout array
     this.#workouts.push(workout);
-    console.log(workout);
 
     // Render workout on map as marker
     this._renderWorkoutMarker(workout);
