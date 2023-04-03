@@ -4,9 +4,9 @@
 // APPLICATION CLASSES
 
 class Workout {
-  date = new Date();
-  id = crypto.randomUUID();
-  clicks = 0;
+  _date = new Date();
+  _id = crypto.randomUUID();
+  _clicks = 0;
 
   constructor(coords, distance, duration) {
     this.coords = coords; // [lat, lng]
@@ -18,13 +18,38 @@ class Workout {
     // prettier-ignore
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-    this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`;
+    this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this._date.getMonth()]} ${this._date.getDate()}`;
   }
 
   // Used to log the amount of times a workout is clicked
   // *** NOTE: AN OBJECT RETRIEVED FROM LOCAL STORAGE WILL NOT INCLUDE ALL THE METHODS IT INHERITED WHEN IT WAS ORIGINALLY CREATED ***
   clicked() {
-    this.clicks++;
+    this._clicks++;
+  }
+
+  // Getters & Setters
+  get date() {
+    return this._date;
+  }
+
+  set date(value) {
+    this._date = value;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  set id(value) {
+    this._id = value;
+  }
+
+  get clicks() {
+    return this._clicks;
+  }
+
+  set clicks(value) {
+    this._clicks = value;
   }
 }
 
@@ -33,12 +58,48 @@ class Running extends Workout {
 
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
-    this.cadence = cadence;
     this.calcPace();
     this._setDescription();
+    this._coords = coords;
+    this._distance = distance;
+    this._duration = duration;
+    this._cadence = cadence;
   }
 
-  // minutes/mile
+  // Getters & Setters
+  get coords() {
+    return this._coords;
+  }
+
+  set coords(value) {
+    this._coords = value;
+  }
+
+  get distance() {
+    return this._distance;
+  }
+
+  set distance(value) {
+    this._distance = value;
+  }
+
+  get duration() {
+    return this._duration;
+  }
+
+  set duration(value) {
+    this._duration = value;
+  }
+
+  get cadence() {
+    return this._cadence;
+  }
+
+  set cadence(value) {
+    this._cadence = value;
+  }
+
+// minutes/mile
   calcPace() {
     this.pace = this.duration / this.distance;
     return this.pace;
@@ -50,12 +111,48 @@ class Cycling extends Workout {
 
   constructor(coords, distance, duration, elevation) {
     super(coords, distance, duration);
-    this.elevation = elevation;
     this.calcSpeed();
     this._setDescription();
+    this._coords = coords;
+    this._distance = distance;
+    this._duration = duration;
+    this._elevation = elevation;
   }
 
-  // miles/hour
+  // Getters & Setters
+  get coords() {
+    return this._coords;
+  }
+
+  set coords(value) {
+    this._coords = value;
+  }
+
+  get distance() {
+    return this._distance;
+  }
+
+  set distance(value) {
+    this._distance = value;
+  }
+
+  get duration() {
+    return this._duration;
+  }
+
+  set duration(value) {
+    this._duration = value;
+  }
+
+  get elevation() {
+    return this._elevation;
+  }
+
+  set elevation(value) {
+    this._elevation = value;
+  }
+
+// miles/hour
   calcSpeed() {
     this.speed = this.distance / (this.duration / 60);
     return this.speed;
@@ -183,9 +280,12 @@ class App {
   _renderWorkout(workout) {
     let html = `
       <li class="workout workout--${workout.type}" data-id="${workout.id}">
-        <h2 class="workout__title">${workout.description}</h2>
+        <div class="workout__title-container">
+          <h2 class="workout__title">${workout.description}</h2>
+          <h4 class="workout__title-edit">Edit</h4>
+        </div>
         <div class="workout__details">
-          <span class="workout__icon">${workout.type === "running" ? "🏃" : "🚴‍"}‍️</span>
+          <span class="workout__icon">${workout.type === "running" ? "🏃" : "🚴‍"}</span>
           <span class="workout__value">${workout.distance}</span>
           <span class="workout__unit">miles</span>
         </div>
@@ -255,7 +355,7 @@ class App {
   }
 
   // Hide the delete all workouts button
-  _hideDeleteAllWorkoutsButton() {
+  _hideDeleteAllWorkoutsButton(e) {
     deleteButton.classList.add('hidden');
   }
 
