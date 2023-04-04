@@ -4,9 +4,13 @@
 // APPLICATION CLASSES
 
 class Workout {
-  _date = new Date();
-  _id = crypto.randomUUID();
-  _clicks = 0;
+  id = crypto.randomUUID();
+  date = new Date();
+  clicks = 0;
+  coords;
+  distance;
+  duration;
+  description;
 
   constructor(coords, distance, duration) {
     this.coords = coords; // [lat, lng]
@@ -18,89 +22,30 @@ class Workout {
     // prettier-ignore
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-    this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this._date.getMonth()]} ${this._date.getDate()}`;
+    this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`;
   }
 
   // Used to log the amount of times a workout is clicked
   // *** NOTE: AN OBJECT RETRIEVED FROM LOCAL STORAGE WILL NOT INCLUDE ALL THE METHODS IT INHERITED WHEN IT WAS ORIGINALLY CREATED ***
   clicked() {
-    this._clicks++;
-  }
-
-  // Getters & Setters
-  get date() {
-    return this._date;
-  }
-
-  set date(value) {
-    this._date = value;
-  }
-
-  get id() {
-    return this._id;
-  }
-
-  set id(value) {
-    this._id = value;
-  }
-
-  get clicks() {
-    return this._clicks;
-  }
-
-  set clicks(value) {
-    this._clicks = value;
+    this.clicks++;
   }
 }
 
 class Running extends Workout {
   type = "running";
+  cadence;
+  pace;
 
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
-    this.calcPace();
+    this._calcPace();
     this._setDescription();
-    this._coords = coords;
-    this._distance = distance;
-    this._duration = duration;
-    this._cadence = cadence;
+    this.cadence = cadence;
   }
 
-  // Getters & Setters
-  get coords() {
-    return this._coords;
-  }
-
-  set coords(value) {
-    this._coords = value;
-  }
-
-  get distance() {
-    return this._distance;
-  }
-
-  set distance(value) {
-    this._distance = value;
-  }
-
-  get duration() {
-    return this._duration;
-  }
-
-  set duration(value) {
-    this._duration = value;
-  }
-
-  get cadence() {
-    return this._cadence;
-  }
-
-  set cadence(value) {
-    this._cadence = value;
-  }
-
-// minutes/mile
-  calcPace() {
+  // minutes/mile
+  _calcPace() {
     this.pace = this.duration / this.distance;
     return this.pace;
   }
@@ -108,52 +53,18 @@ class Running extends Workout {
 
 class Cycling extends Workout {
   type = "cycling";
+  elevation;
+  speed;
 
   constructor(coords, distance, duration, elevation) {
     super(coords, distance, duration);
-    this.calcSpeed();
+    this._calcSpeed();
     this._setDescription();
-    this._coords = coords;
-    this._distance = distance;
-    this._duration = duration;
-    this._elevation = elevation;
+    this.elevation = elevation;
   }
 
-  // Getters & Setters
-  get coords() {
-    return this._coords;
-  }
-
-  set coords(value) {
-    this._coords = value;
-  }
-
-  get distance() {
-    return this._distance;
-  }
-
-  set distance(value) {
-    this._distance = value;
-  }
-
-  get duration() {
-    return this._duration;
-  }
-
-  set duration(value) {
-    this._duration = value;
-  }
-
-  get elevation() {
-    return this._elevation;
-  }
-
-  set elevation(value) {
-    this._elevation = value;
-  }
-
-// miles/hour
-  calcSpeed() {
+  // miles/hour
+  _calcSpeed() {
     this.speed = this.distance / (this.duration / 60);
     return this.speed;
   }
@@ -192,11 +103,9 @@ class App {
   }
 
   _getPosition() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), function () {
-        alert('Could not get your location!');
-      });
-    }
+    navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), function () {
+      alert('Could not get your location!');
+    });
   }
 
   _loadMap(position) {
@@ -258,15 +167,14 @@ class App {
     });
 
     // Using the public interface
-    workout.clicked();
+    // workout.clicked();
   }
 
   // Render workout on map as marker
   _renderWorkoutMarker(workout) {
     L.marker(workout.coords, {
-      draggable: true
-    })
-      .addTo(this.#map)
+      draggable: false
+    }).addTo(this.#map)
       .bindPopup(L.popup({
         maxWidth: 250,
         minWidth: 100,
@@ -376,7 +284,7 @@ class App {
   }
 
   // Hide the delete all workouts button
-  _hideDeleteAllWorkoutsButton(e) {
+  _hideDeleteAllWorkoutsButton() {
     deleteAllWorkoutsButton.classList.add('hidden');
   }
 
@@ -465,6 +373,7 @@ const app = new App();
 // TODO:
 //  Ability to edit a workout
 //  Ability to delete a specific workout
+//  Ability to drag marker to new location and update the workout object's location data to the new dragged location
 //  Ability to sort workouts by a certain field (distance, duration, etc.)
 //  Re-build Running and Cycling objects retrieved from local storage to fix the error where the 'clicked' function gets removed from the object
 //  More error and confirmation messages
