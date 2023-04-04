@@ -162,7 +162,6 @@ class Cycling extends Workout {
 ///////////////////////////////////////////////////////////////
 // APPLICATION ARCHITECTURE
 
-const deleteButton = document.querySelector('.delete__workouts');
 const form = document.querySelector('.form');
 const containerWorkouts = document.querySelector('.workouts');
 const inputType = document.querySelector('.form__input--type');
@@ -170,6 +169,7 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
+const deleteAllWorkoutsButton = document.querySelector('.workouts__modify-delete-all');
 
 class App {
   #map;
@@ -185,10 +185,10 @@ class App {
     this._getLocalStorage();
 
     // Attach event handlers
-    deleteButton.addEventListener('click', this._deleteAllWorkouts);
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+    deleteAllWorkoutsButton.addEventListener('click', this._deleteAllWorkouts);
   }
 
   _getPosition() {
@@ -276,13 +276,28 @@ class App {
       .openPopup();
   }
 
+  // Once a new workout is rendered on the page, query the DOM and attach a click event handler to the edit button
+  _renderWorkoutEditFeature() {
+    const editSpecificWorkout = document.querySelector('.workout__modify-edit');
+    editSpecificWorkout.addEventListener('click', this._editSpecificWorkout);
+  }
+
+  // Once a new workout is rendered on the page, query the DOM and attach a click event handler to the delete button
+  _renderWorkoutDeleteFeature() {
+    const deleteSpecificWorkout = document.querySelector('.workout__modify-delete');
+    deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout);
+  }
+
   // Render workout on list
   _renderWorkout(workout) {
     let html = `
       <li class="workout workout--${workout.type}" data-id="${workout.id}">
         <div class="workout__title-container">
           <h2 class="workout__title">${workout.description}</h2>
-          <h4 class="workout__title-edit">Edit</h4>
+          <div class="workout__modify-container">
+            <span class="workout__modify-edit">Edit</span>
+            <span class="workout__modify-delete">Delete</span>
+          </div>
         </div>
         <div class="workout__details">
           <span class="workout__icon">${workout.type === "running" ? "🏃" : "🚴‍"}</span>
@@ -329,6 +344,12 @@ class App {
     }
 
     form.insertAdjacentHTML('afterend', html);
+
+    // Have to wait until a new workout is created and rendered on the page before querying the DOM and attaching an event handler to the edit workout button
+    this._renderWorkoutEditFeature();
+
+    // Have to wait until a new workout is created and rendered on the page before querying the DOM and attaching an event handler to the delete workout button
+    this._renderWorkoutDeleteFeature();
   }
 
   // Store workouts in local storage
@@ -351,12 +372,12 @@ class App {
 
   // Display the delete all workouts button
   _showDeleteAllWorkoutsButton() {
-    deleteButton.classList.remove('hidden');
+    deleteAllWorkoutsButton.classList.remove('hidden');
   }
 
   // Hide the delete all workouts button
   _hideDeleteAllWorkoutsButton(e) {
-    deleteButton.classList.add('hidden');
+    deleteAllWorkoutsButton.classList.add('hidden');
   }
 
   // Delete workouts from local storage
@@ -364,6 +385,14 @@ class App {
     localStorage.removeItem("workouts");
     location.reload();
     this._hideDeleteAllWorkoutsButton();
+  }
+
+  _deleteSpecificWorkout() {
+    console.log("deleted");
+  }
+
+  _editSpecificWorkout() {
+    console.log("edited");
   }
 
   // Create a new workout object when the user submits the form
