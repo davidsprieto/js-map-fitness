@@ -30,6 +30,63 @@ class Workout {
   clicked() {
     this.clicks++;
   }
+
+  // Getters & Setters
+  get id() {
+    return this.id;
+  }
+
+  set id(id) {
+    this.id = id;
+  }
+
+  get date() {
+    return this.date;
+  }
+
+  set date(date) {
+    this.date = date;
+  }
+
+  get clicks() {
+    return this.clicks;
+  }
+
+  set clicks(clicks) {
+    this.clicks = clicks;
+  }
+
+  get coords() {
+    return this.coords;
+  }
+
+  set coords(coords) {
+    this.coords = coords;
+  }
+
+  get distance() {
+    return this.distance;
+  }
+
+  set distance(distance) {
+    this.distance = distance;
+  }
+
+  get duration() {
+    return this.duration;
+  }
+
+  set duration(duration) {
+    this.duration = duration;
+  }
+
+  get description() {
+    return this.description;
+  }
+
+  set description(description) {
+    this.description = description;
+  }
 }
 
 class Running extends Workout {
@@ -48,6 +105,31 @@ class Running extends Workout {
   _calcPace() {
     this.pace = this.duration / this.distance;
     return this.pace;
+  }
+
+  // Getters & Setters
+  get type() {
+    return this.type;
+  }
+
+  set type(type) {
+    this.type = type;
+  }
+
+  get cadence() {
+    return this.cadence;
+  }
+
+  set cadence(cadence) {
+    this.cadence = cadence;
+  }
+
+  get pace() {
+    return this.pace;
+  }
+
+  set pace(pace) {
+    this.pace = pace;
   }
 }
 
@@ -68,6 +150,31 @@ class Cycling extends Workout {
     this.speed = this.distance / (this.duration / 60);
     return this.speed;
   }
+
+  // Getters & Setters
+  get type() {
+    return this.type;
+  }
+
+  set type(type) {
+    this.type = type;
+  }
+
+  get elevation() {
+    return this.elevation;
+  }
+
+  set elevation(elevation) {
+    this.elevation = elevation;
+  }
+
+  get speed() {
+    return this.speed;
+  }
+
+  set speed(speed) {
+    this.speed = speed;
+  }
 }
 
 ///////////////////////////////////////////////////////////////
@@ -85,6 +192,7 @@ const deleteAllWorkoutsButton = document.querySelector('.workouts__modify-delete
 class App {
   #map;
   #mapEvent;
+  #markers = [];
   #workouts = [];
   #mapZoomView = 10;
 
@@ -129,7 +237,6 @@ class App {
 
   // After user clicks on map to create a marker, display the workout form
   _showForm(mapE) {
-    console.log(mapE);
     this.#mapEvent = mapE;
     form.classList.remove('hidden');
     inputDistance.focus();
@@ -151,13 +258,25 @@ class App {
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
   }
 
+  // Function to find workout in the workouts array by comparing it to its id and HTML data-id
+  _findWorkoutByElementId(id) {
+    return this.#workouts.find(workout => workout.id === id);
+  }
+
+  // Function to retrieve the workout HTML element by traversing the DOM towards the document root to find the matching inputted class selector string
+  _findHTMLWorkoutElement(e) {
+    return e.target.closest(".workout");
+  }
+
   // If the user clicks on a workout from the sidebar list, have the map navigate and display where that workout marker was created
   _moveToPopup(e) {
-    const workoutElement = e.target.closest(".workout");
+    const workoutElement = this._findHTMLWorkoutElement(e);
 
     if (!workoutElement) return;
 
-    const workout = this.#workouts.find(workout => workout.id === workoutElement.dataset.id);
+    const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
+
+    this._renderWorkoutMarker(workout);
 
     this.#map.setView(workout.coords, this.#mapZoomView, {
       animate: true,
@@ -172,28 +291,31 @@ class App {
 
   // Render workout on map as marker
   _renderWorkoutMarker(workout) {
-    L.marker(workout.coords, {
+    let marker = new L.marker(workout.coords, {
       draggable: false
-    }).addTo(this.#map)
-      .bindPopup(L.popup({
+    });
+
+    marker.addTo(this.#map).bindPopup(L.popup({
         maxWidth: 250,
         minWidth: 100,
         className: `${workout.type}-popup`
       }))
       .setPopupContent(`${workout.type === "running" ? "🏃" : "🚴‍"} ${workout.description}`)
       .openPopup();
+
+    this.#markers.push(marker);
   }
 
   // Once a new workout is rendered on the page, query the DOM and attach a click event handler to the edit button
   _renderWorkoutEditFeature() {
     const editSpecificWorkout = document.querySelector('.workout__modify-edit');
-    editSpecificWorkout.addEventListener('click', this._editSpecificWorkout);
+    editSpecificWorkout.addEventListener('click', this._editSpecificWorkout.bind(this));
   }
 
   // Once a new workout is rendered on the page, query the DOM and attach a click event handler to the delete button
   _renderWorkoutDeleteFeature() {
     const deleteSpecificWorkout = document.querySelector('.workout__modify-delete');
-    deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout);
+    deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
   }
 
   // Render workout on list
@@ -250,7 +372,6 @@ class App {
         </li>
       `;
     }
-
     form.insertAdjacentHTML('afterend', html);
 
     // Have to wait until a new workout is created and rendered on the page before querying the DOM and attaching an event handler to the edit workout button
@@ -288,19 +409,44 @@ class App {
     deleteAllWorkoutsButton.classList.add('hidden');
   }
 
-  // Delete workouts from local storage
+  // Delete all workouts from local storage
   _deleteAllWorkouts() {
     localStorage.removeItem("workouts");
     location.reload();
     this._hideDeleteAllWorkoutsButton();
   }
 
-  _deleteSpecificWorkout() {
-    console.log("deleted");
+  // Edit a specific workout from the list of entered workouts
+  _editSpecificWorkout(e) {
+    const workoutElement = this._findHTMLWorkoutElement(e);
+
   }
 
-  _editSpecificWorkout() {
-    console.log("edited");
+  // Delete specific workout from the list of entered workouts
+  _deleteSpecificWorkout(e) {
+    const workoutElement = this._findHTMLWorkoutElement(e);
+    const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
+    const layer = this.#markers.find(marker => (workout.coords[0] === marker._latlng.lat) && (workout.coords[1] === marker._latlng.lng));
+
+    // Remove the deleted workout from the sidebar list of workouts
+    containerWorkouts.removeChild(workoutElement);
+
+    // Remove the deleted workout marker from the map
+    this.#map.removeLayer(layer);
+
+    // Remove the deleted workout from the array of workouts
+    this.#workouts = this.#workouts.filter(workout => workout.id !== workoutElement.dataset.id);
+
+    // Remove the delete marker from the array of markers
+    this.#markers = this.#markers.filter(marker => (workout.coords[0] !== marker._latlng.lat) && (workout.coords[1] !== marker._latlng.lng));
+
+    // If the length of the workouts array is 0 then hide the delete all workouts button as there are no workouts to display
+    if (this.#workouts.length < 1) {
+      this._hideDeleteAllWorkoutsButton();
+    }
+
+    // Reset the local storage of workouts so that it's updated with the new array of workouts with the deleted workout removed
+    this._setLocalStorage();
   }
 
   // Create a new workout object when the user submits the form
@@ -371,8 +517,8 @@ const app = new App();
 
 // Additional Features:
 // TODO:
+//  Ability to delete a specific workout ✅
 //  Ability to edit a workout
-//  Ability to delete a specific workout
 //  Ability to drag marker to new location and update the workout object's location data to the new dragged location
 //  Ability to sort workouts by a certain field (distance, duration, etc.)
 //  Re-build Running and Cycling objects retrieved from local storage to fix the error where the 'clicked' function gets removed from the object
