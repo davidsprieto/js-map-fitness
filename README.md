@@ -1,4 +1,5 @@
 # Mapty - Track Your Workouts by Location on a Map!
+
 Single-page web application developed using:
 
 Markup Language:
