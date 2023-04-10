@@ -208,6 +208,7 @@ class App {
     inputType.addEventListener('change', this._toggleElevationField);
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
     deleteAllWorkoutsButton.addEventListener('click', this._deleteAllWorkouts);
+    document.addEventListener('click', this._closeModalOnBackgroundClick.bind(this));
   }
 
   _getPosition() {
@@ -258,6 +259,25 @@ class App {
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
   }
 
+  // open modal by id
+  _openModal() {
+    document.getElementById('edit-modal').classList.add('open');
+    document.body.classList.add('edit-modal-open');
+  }
+
+  // close modal
+  _closeModal() {
+    document.querySelector('.edit-modal.open').classList.remove('open');
+    document.body.classList.remove('edit-modal-open');
+  }
+
+  // close modal on background click
+  _closeModalOnBackgroundClick(e) {
+    if (e.target.classList.contains('edit-modal')) {
+      this._closeModal();
+    }
+  }
+
   // Function to find workout in the workouts array by comparing it to its id and HTML data-id
   _findWorkoutByElementId(id) {
     return this.#workouts.find(workout => workout.id === id);
@@ -296,10 +316,10 @@ class App {
     });
 
     marker.addTo(this.#map).bindPopup(L.popup({
-        maxWidth: 250,
-        minWidth: 100,
-        className: `${workout.type}-popup`
-      }))
+      maxWidth: 250,
+      minWidth: 100,
+      className: `${workout.type}-popup`
+    }))
       .setPopupContent(`${workout.type === "running" ? "🏃" : "🚴‍"} ${workout.description}`)
       .openPopup();
 
@@ -419,14 +439,18 @@ class App {
   // Edit a specific workout from the list of entered workouts
   _editSpecificWorkout(e) {
     const workoutElement = this._findHTMLWorkoutElement(e);
-
+    console.log(workoutElement);
+    this._openModal();
+    console.log(workoutElement);
   }
 
   // Delete specific workout from the list of entered workouts
   _deleteSpecificWorkout(e) {
     const workoutElement = this._findHTMLWorkoutElement(e);
     const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
-    const layer = this.#markers.find(marker => (workout.coords[0] === marker._latlng.lat) && (workout.coords[1] === marker._latlng.lng));
+    const lat = workout.coords[0];
+    const lng = workout.coords[1];
+    const layer = this.#markers.find(marker => (lat === marker._latlng.lat) && (lng === marker._latlng.lng));
 
     // Remove the deleted workout from the sidebar list of workouts
     containerWorkouts.removeChild(workoutElement);
@@ -437,8 +461,8 @@ class App {
     // Remove the deleted workout from the array of workouts
     this.#workouts = this.#workouts.filter(workout => workout.id !== workoutElement.dataset.id);
 
-    // Remove the delete marker from the array of markers
-    this.#markers = this.#markers.filter(marker => (workout.coords[0] !== marker._latlng.lat) && (workout.coords[1] !== marker._latlng.lng));
+    // Remove the deleted marker from the array of markers
+    this.#markers = this.#markers.filter(marker => (lat !== marker._latlng.lat) && (lng !== marker._latlng.lng));
 
     // If the length of the workouts array is 0 then hide the delete all workouts button as there are no workouts to display
     if (this.#workouts.length < 1) {

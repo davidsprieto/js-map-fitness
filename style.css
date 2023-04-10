@@ -282,3 +282,26 @@ a:visited {
 .cycling-popup .leaflet-popup-content-wrapper {
     border-left: 5px solid var(--color-brand--1);
 }
+
+.edit-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background-color: rgba(0, 0, 0, 0.75);
+    padding: 40px;
+    overflow: auto;
+}
+
+.edit-modal.open {
+    display: block;
+}
+
+.edit-modal-body {
+    padding: 20px;
+    background: #fff;
+}
+
+body.edit-modal-open {
+    overflow: hidden;
+}

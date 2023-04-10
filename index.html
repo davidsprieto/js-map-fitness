@@ -7,16 +7,14 @@
     <link rel="shortcut icon" type="image/png" href="./assets/icon.png"/>
     <!-- Google Fonts API -->
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet"/>
-    <!-- Custom CSS File -->
-    <link rel="stylesheet" href="style.css"/>
     <!-- Leaflet Map CDN CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-          integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
+    <!-- Custom CSS File -->
+    <link rel="stylesheet" href="./style.css"/>
     <!-- Leaflet Map CDN JS -->
-    <script defer src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
-            integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    <script defer src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
     <!-- Custom JS File -->
-    <script defer src="main.js"></script>
+    <script defer src="./main.js"></script>
     <title>Mapty // Map Your Workouts</title>
 </head>
 <body>
@@ -100,6 +98,13 @@
           </div>
         </li> -->
     </ul>
+
+    <div id="edit-modal" class="edit-modal">
+        <div class="edit-modal-body">
+            <h1>Test</h1>
+            <button onclick="_closeModal()">Close</button>
+        </div>
+    </div>
 
     <p class="copyright">
         &copy; Base Project Created by
