@@ -181,6 +181,8 @@ class Cycling extends Workout {
 // APPLICATION ARCHITECTURE
 
 const form = document.querySelector('.form');
+const modal = document.querySelector('.modal');
+const closeModalBtn = document.querySelector('.close__modal--btn');
 const containerWorkouts = document.querySelector('.workouts');
 const inputType = document.querySelector('.form__input--type');
 const inputDistance = document.querySelector('.form__input--distance');
@@ -208,7 +210,7 @@ class App {
     inputType.addEventListener('change', this._toggleElevationField);
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
     deleteAllWorkoutsButton.addEventListener('click', this._deleteAllWorkouts);
-    document.addEventListener('click', this._closeModalOnBackgroundClick.bind(this));
+    closeModalBtn.addEventListener('click', this._closeModal);
   }
 
   _getPosition() {
@@ -259,23 +261,18 @@ class App {
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
   }
 
-  // open modal by id
+  // open modal
   _openModal() {
-    document.getElementById('edit-modal').classList.add('open');
-    document.body.classList.add('edit-modal-open');
+    modal.classList.remove('hidden');
   }
 
-  // close modal
+  // close modal on button click
   _closeModal() {
-    document.querySelector('.edit-modal.open').classList.remove('open');
-    document.body.classList.remove('edit-modal-open');
-  }
-
-  // close modal on background click
-  _closeModalOnBackgroundClick(e) {
-    if (e.target.classList.contains('edit-modal')) {
-      this._closeModal();
-    }
+    modal.style.display = "none";
+    modal.classList.add('hidden');
+    setTimeout(() => {
+      modal.style.display = "grid";
+    }, 1000);
   }
 
   // Function to find workout in the workouts array by comparing it to its id and HTML data-id

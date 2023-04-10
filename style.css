@@ -283,25 +283,48 @@ a:visited {
     border-left: 5px solid var(--color-brand--1);
 }
 
-.edit-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 10000;
-    background-color: rgba(0, 0, 0, 0.75);
-    padding: 40px;
+.modal {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
     overflow: auto;
+    position: fixed;
+
+    border-radius: 5px;
+    padding: 1.5rem 2.75rem;
+    background-color: var(--color-dark--2);
+
+    display: flex;
+    gap: 0.5rem 2.5rem;
+    flex-direction: column;
+
+    /* Match height and activity boxes */
+    height: 25rem;
+    box-shadow: 5px 5px 5px #888;
+    transition: all 0.5s, transform 1ms;
 }
 
-.edit-modal.open {
-    display: block;
+.modal.hidden {
+    transform: translateY(-30rem);
+    height: 0;
+    padding: 0 2.25rem;
+    margin-bottom: 0;
+    opacity: 0;
 }
 
-.edit-modal-body {
-    padding: 20px;
-    background: #fff;
+.modal__header--container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
-body.edit-modal-open {
-    overflow: hidden;
+.modal__header--label {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.close__modal--btn {
+    font-size: 2rem;
+    cursor: pointer;
 }
