@@ -303,10 +303,10 @@ class App {
 
     const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
 
-    // Open the popup that's been bound to this workout marker
-    this.#map._layers[workout.id].openPopup();
-
     try {
+      // Open the popup that's been bound to this workout marker
+      this.#map._layers[workout.id].openPopup();
+
       this.#map.setView(workout.coords, this.#mapZoomView, {
         animate: true,
         pan: {
@@ -465,24 +465,22 @@ class App {
   _deleteSpecificWorkout(e) {
     const workoutElement = this._findHTMLWorkoutElement(e);
     const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
-    const lat = workout.coords[0];
-    const lng = workout.coords[1];
-    const layer = this.#markers.find(marker => (lat === marker._latlng.lat) && (lng === marker._latlng.lng));
+    const layer = this.#markers.find(marker => marker._leaflet_id === workout.id);
 
     // Check if the edit workout modal is open when a user decides to delete a workout
     this._isModalOpen();
 
-    // Remove the deleted workout from the sidebar list of workouts
+    // Remove the selected workout to be deleted from the sidebar list of workouts
     containerWorkouts.removeChild(workoutElement);
 
-    // Remove the deleted workout marker from the map
+    // Remove the workout marker bound to the selected workout to be deleted from the map
     this.#map.removeLayer(layer);
 
-    // Remove the deleted workout from the array of workouts
+    // Remove the selected workout to be deleted from the array of workouts
     this.#workouts = this.#workouts.filter(workout => workout.id !== workoutElement.dataset.id);
 
-    // Remove the deleted marker from the array of markers
-    this.#markers = this.#markers.filter(marker => (lat !== marker._latlng.lat) && (lng !== marker._latlng.lng));
+    // Remove the workout marker bound to the selected workout to be deleted from the array of markers
+    this.#markers = this.#markers.filter(marker => marker._leaflet_id !== workout.id);
 
     // If the length of the workouts array is 0 then hide the delete all workouts button as there are no workouts to display
     if (this.#workouts.length < 1) {
