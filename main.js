@@ -197,6 +197,7 @@ class App {
   #markers = [];
   #workouts = [];
   #mapZoomView = 10;
+  modalOpen = false;
 
   constructor() {
     // Get user's location
@@ -263,16 +264,25 @@ class App {
 
   // open modal
   _openModal() {
+    this.modalOpen = true;
     modal.classList.remove('hidden');
   }
 
   // close modal on button click
   _closeModal() {
+    this.modalOpen = false;
     modal.style.display = "none";
     modal.classList.add('hidden');
     setTimeout(() => {
       modal.style.display = "grid";
     }, 1000);
+  }
+
+  // Check if the edit workout modal is open, if it is then close it
+  _isModalOpen() {
+    if (this.modalOpen) {
+      this._closeModal();
+    }
   }
 
   // Function to find workout in the workouts array by comparing it to its id and HTML data-id
@@ -293,14 +303,19 @@ class App {
 
     const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
 
-    this._renderWorkoutMarker(workout);
+    // Open the popup that's been bound to this workout marker
+    this.#map._layers[workout.id].openPopup();
 
-    this.#map.setView(workout.coords, this.#mapZoomView, {
-      animate: true,
-      pan: {
-        duration: 1
-      }
-    });
+    try {
+      this.#map.setView(workout.coords, this.#mapZoomView, {
+        animate: true,
+        pan: {
+          duration: 1
+        }
+      });
+    } catch {
+      console.log("Marker removed");
+    }
 
     // Using the public interface
     // workout.clicked();
@@ -312,7 +327,11 @@ class App {
       draggable: false
     });
 
-    marker.addTo(this.#map).bindPopup(L.popup({
+    // Set leaflet id of the marker to be the same as the workout id so that events/features can be added/accessed later on (such as opening the popup on click)
+    marker._leaflet_id = workout.id;
+
+    this.#map.addLayer(marker);
+      marker.bindPopup(L.popup({
       maxWidth: 250,
       minWidth: 100,
       className: `${workout.type}-popup`
@@ -438,7 +457,8 @@ class App {
     const workoutElement = this._findHTMLWorkoutElement(e);
     console.log(workoutElement);
     this._openModal();
-    console.log(workoutElement);
+
+
   }
 
   // Delete specific workout from the list of entered workouts
@@ -448,6 +468,9 @@ class App {
     const lat = workout.coords[0];
     const lng = workout.coords[1];
     const layer = this.#markers.find(marker => (lat === marker._latlng.lat) && (lng === marker._latlng.lng));
+
+    // Check if the edit workout modal is open when a user decides to delete a workout
+    this._isModalOpen();
 
     // Remove the deleted workout from the sidebar list of workouts
     containerWorkouts.removeChild(workoutElement);

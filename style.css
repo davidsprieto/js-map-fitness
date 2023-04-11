@@ -299,7 +299,6 @@ a:visited {
     gap: 0.5rem 2.5rem;
     flex-direction: column;
 
-    /* Match height and activity boxes */
     height: 25rem;
     box-shadow: 5px 5px 5px #888;
     transition: all 0.5s, transform 1ms;
