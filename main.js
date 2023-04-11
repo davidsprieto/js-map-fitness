@@ -180,16 +180,17 @@ class Cycling extends Workout {
 ///////////////////////////////////////////////////////////////
 // APPLICATION ARCHITECTURE
 
+const containerWorkouts = document.querySelector('.workouts');
+const noWorkoutsListedHeader = document.querySelector('.workouts__header--none-listed');
+const deleteAllWorkoutsButton = document.querySelector('.workouts__modify--delete-all');
 const form = document.querySelector('.form');
 const modal = document.querySelector('.modal');
 const closeModalBtn = document.querySelector('.close__modal--btn');
-const containerWorkouts = document.querySelector('.workouts');
 const inputType = document.querySelector('.form__input--type');
 const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
-const deleteAllWorkoutsButton = document.querySelector('.workouts__modify-delete-all');
 
 class App {
   #map;
@@ -285,6 +286,35 @@ class App {
     }
   }
 
+  // Display the delete all workouts button
+  _showDeleteAllWorkoutsButton() {
+    deleteAllWorkoutsButton.classList.remove('hidden');
+  }
+
+  // Hide the delete all workouts button
+  _hideDeleteAllWorkoutsButton() {
+    deleteAllWorkoutsButton.classList.add('hidden');
+  }
+
+  // Display the no workouts listed header
+  _showNoWorkoutsListedHeader() {
+    noWorkoutsListedHeader.classList.remove('hidden');
+  }
+
+  // Hide the no workouts listed header
+  _hideNoWorkoutsListedHeader() {
+    noWorkoutsListedHeader.classList.add('hidden');
+  }
+
+  // If the length of the workouts array is 0 then hide the delete all workouts button as there are no workouts to display,
+  // else display the no workouts listed header
+  _areWorkoutsListed() {
+    if (this.#workouts.length < 1) {
+      this._hideDeleteAllWorkoutsButton();
+      this._showNoWorkoutsListedHeader();
+    }
+  }
+
   // Function to find workout in the workouts array by comparing it to its id and HTML data-id
   _findWorkoutByElementId(id) {
     return this.#workouts.find(workout => workout.id === id);
@@ -307,6 +337,7 @@ class App {
       // Open the popup that's been bound to this workout marker
       this.#map._layers[workout.id].openPopup();
 
+      // Set the map view on the selected workout
       this.#map.setView(workout.coords, this.#mapZoomView, {
         animate: true,
         pan: {
@@ -331,7 +362,7 @@ class App {
     marker._leaflet_id = workout.id;
 
     this.#map.addLayer(marker);
-      marker.bindPopup(L.popup({
+    marker.bindPopup(L.popup({
       maxWidth: 250,
       minWidth: 100,
       className: `${workout.type}-popup`
@@ -426,7 +457,11 @@ class App {
   _getLocalStorage() {
     const data = JSON.parse(localStorage.getItem("workouts"));
 
-    if (!data) return;
+    if (data.length === 0) {
+      return this._showNoWorkoutsListedHeader();
+    }
+
+    this._showDeleteAllWorkoutsButton();
 
     this.#workouts = data;
 
@@ -435,21 +470,12 @@ class App {
     });
   }
 
-  // Display the delete all workouts button
-  _showDeleteAllWorkoutsButton() {
-    deleteAllWorkoutsButton.classList.remove('hidden');
-  }
-
-  // Hide the delete all workouts button
-  _hideDeleteAllWorkoutsButton() {
-    deleteAllWorkoutsButton.classList.add('hidden');
-  }
-
   // Delete all workouts from local storage
   _deleteAllWorkouts() {
     localStorage.removeItem("workouts");
     location.reload();
     this._hideDeleteAllWorkoutsButton();
+    this._showNoWorkoutsListedHeader();
   }
 
   // Edit a specific workout from the list of entered workouts
@@ -465,7 +491,7 @@ class App {
   _deleteSpecificWorkout(e) {
     const workoutElement = this._findHTMLWorkoutElement(e);
     const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
-    const layer = this.#markers.find(marker => marker._leaflet_id === workout.id);
+    const marker = this.#markers.find(marker => marker._leaflet_id === workout.id);
 
     // Check if the edit workout modal is open when a user decides to delete a workout
     this._isModalOpen();
@@ -474,7 +500,7 @@ class App {
     containerWorkouts.removeChild(workoutElement);
 
     // Remove the workout marker bound to the selected workout to be deleted from the map
-    this.#map.removeLayer(layer);
+    this.#map.removeLayer(marker);
 
     // Remove the selected workout to be deleted from the array of workouts
     this.#workouts = this.#workouts.filter(workout => workout.id !== workoutElement.dataset.id);
@@ -482,10 +508,8 @@ class App {
     // Remove the workout marker bound to the selected workout to be deleted from the array of markers
     this.#markers = this.#markers.filter(marker => marker._leaflet_id !== workout.id);
 
-    // If the length of the workouts array is 0 then hide the delete all workouts button as there are no workouts to display
-    if (this.#workouts.length < 1) {
-      this._hideDeleteAllWorkoutsButton();
-    }
+    // Check if the workouts array is empty
+    this._areWorkoutsListed();
 
     // Reset the local storage of workouts so that it's updated with the new array of workouts with the deleted workout removed
     this._setLocalStorage();
@@ -552,6 +576,9 @@ class App {
 
     // Display the delete all workouts button
     this._showDeleteAllWorkoutsButton();
+
+    // Hide the no workouts listed header
+    this._hideNoWorkoutsListedHeader();
   }
 }
 

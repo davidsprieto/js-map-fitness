@@ -40,11 +40,11 @@ a:visited {
     color: var(--color-brand--1);
 }
 
-.workouts__label-none-listed {
+.workouts__header--none-listed {
     font-size: 1.55rem;
 }
 
-.workouts__label-none-listed.hidden {
+.workouts__header--none-listed.hidden {
     transform: translateY(-30rem);
     height: 0;
     padding: 0 2.25rem;
@@ -52,7 +52,7 @@ a:visited {
     opacity: 0;
 }
 
-.workouts__modify-delete-all {
+.workouts__modify--delete-all {
     cursor: pointer;
     align-self: center;
     border-radius: 15px;
@@ -63,7 +63,7 @@ a:visited {
     width: 50%;
 }
 
-.workouts__modify-delete-all.hidden {
+.workouts__modify--delete-all.hidden {
     transform: translateY(-30rem);
     height: 0;
     padding: 0 2.25rem;
@@ -71,15 +71,15 @@ a:visited {
     opacity: 0;
 }
 
-.workouts__modify-delete-all:hover span {
+.workouts__modify--delete-all:hover span {
     display: none;
 }
 
-.workouts__modify-delete-all:hover {
+.workouts__modify--delete-all:hover {
     background-color: var(--color-brand--1);
 }
 
-.workouts__modify-delete-all:hover:before {
+.workouts__modify--delete-all:hover:before {
     font-size: 15px;
     content: "🗑️";
 }
