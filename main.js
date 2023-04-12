@@ -391,6 +391,7 @@ class App {
     // Set leaflet id of the marker to be the same as the workout id so that events/features can be added/accessed later on (such as opening the popup on click)
     marker._leaflet_id = workout.id;
 
+    // Add the marker to the map and bind a popup to it
     this.#map.addLayer(marker);
     marker.bindPopup(L.popup({
       maxWidth: 250,
@@ -400,6 +401,7 @@ class App {
       .setPopupContent(`${workout.type === "running" ? "🏃" : "🚴‍"} ${workout.description}`)
       .openPopup();
 
+    // Add the marker to the list of markers array
     this.#markers.push(marker);
   }
 
