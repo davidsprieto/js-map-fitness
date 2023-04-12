@@ -207,7 +207,10 @@ class App {
   #markers = [];
   #workouts = [];
   #mapZoomView = 10;
+  #workoutToEdit;
+  #workoutElementToEdit;
   isModalOpen = false;
+  isNewWorkout = false;
 
   constructor() {
     // Get user's location
@@ -217,12 +220,13 @@ class App {
     this._getLocalStorage();
 
     // Attach event handlers
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
     newWorkoutForm.addEventListener('submit', this._newWorkout.bind(this));
     newWorkoutInputType.addEventListener('change', this._toggleNewWorkoutTypeField);
-    editWorkoutInputType.addEventListener('change', this._toggleEditWorkoutTypeField.bind(this));
-    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
     deleteAllWorkoutsButton.addEventListener('click', this._deleteAllWorkouts);
     closeModalBtn.addEventListener('click', this._closeModal);
+    editWorkoutModalForm.addEventListener('submit', this._editSpecificWorkout.bind(this));
+    editWorkoutInputType.addEventListener('change', this._toggleEditWorkoutTypeField.bind(this));
   }
 
   _getPosition() {
@@ -257,13 +261,29 @@ class App {
     newWorkoutInputDistance.focus();
   }
 
-  // Clear the form input fields && hide form
+  // Clear the form input fields & hide form
   _hideForm() {
     newWorkoutInputDistance.value = newWorkoutInputDuration.value = newWorkoutInputCadence.value = newWorkoutInputElevation.value = "";
     newWorkoutForm.style.display = "none";
     newWorkoutForm.classList.add('hidden');
     setTimeout(() => {
       newWorkoutForm.style.display = "flex";
+    }, 1000);
+  }
+
+  // open modal when the edit button is clicked
+  _openModal() {
+    this.isModalOpen = true;
+    editWorkoutModalForm.classList.remove('hidden');
+  }
+
+  // close modal on button click & clear the form input fields
+  _closeModal() {
+    this.isModalOpen = false;
+    editWorkoutModalForm.style.display = "none";
+    editWorkoutModalForm.classList.add('hidden');
+    setTimeout(() => {
+      editWorkoutModalForm.style.display = "flex";
     }, 1000);
   }
 
@@ -286,22 +306,6 @@ class App {
     if (type === "cycling") {
       this._showEditWorkoutElevationField();
     }
-  }
-
-  // open modal
-  _openModal() {
-    this.isModalOpen = true;
-    editWorkoutModalForm.classList.remove('hidden');
-  }
-
-  // close modal on button click
-  _closeModal() {
-    this.isModalOpen = false;
-    editWorkoutModalForm.style.display = "none";
-    editWorkoutModalForm.classList.add('hidden');
-    setTimeout(() => {
-      editWorkoutModalForm.style.display = "flex";
-    }, 1000);
   }
 
   // Display the delete all workouts button
@@ -355,6 +359,16 @@ class App {
     return e.target.closest(".workout");
   }
 
+  // Form input validation helper function - function determines if user input is a number
+  _validInputs = (...inputs) => {
+    return inputs.every(input => Number.isFinite(input));
+  }
+
+  // Form input validation helper function - function determines if user input is greater than 0
+  _allPositive = (...inputs) => {
+    return inputs.every(input => input > 0);
+  }
+
   // If the user clicks on a workout from the sidebar list, have the map navigate and display where that workout marker was created
   _moveToPopup(e) {
     const workoutElement = this._findHTMLWorkoutElement(e);
@@ -405,22 +419,21 @@ class App {
     this.#markers.push(marker);
   }
 
-  // Once a new workout is rendered on the page, query the DOM and attach a click event handler to the edit button
-  _renderWorkoutEditFeature() {
+  // Once a new workout is created or a workout is edited then rendered on the page, query the DOM and attach a click event handler to the edit & delete buttons
+  _renderWorkoutEditAndDeleteOperationS() {
     const editSpecificWorkout = document.querySelector('.workout__modify-edit');
-    editSpecificWorkout.addEventListener('click', this._editSpecificWorkout.bind(this));
-  }
+    editSpecificWorkout.addEventListener('click', this._openEditWorkoutModalForm.bind(this));
 
-  // Once a new workout is rendered on the page, query the DOM and attach a click event handler to the delete button
-  _renderWorkoutDeleteFeature() {
     const deleteSpecificWorkout = document.querySelector('.workout__modify-delete');
     deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
   }
 
-  // Render workout on list
+  // Render workout on sidebar list
   _renderWorkout(workout) {
+    const element = document.createElement('li');
+
     let html = `
-      <li class="workout workout--${workout.type}" data-id="${workout.id}">
+      <div class="workout workout--${workout.type}" data-id="${workout.id}">
         <div class="workout__title-container">
           <h2 class="workout__title">${workout.description}</h2>
           <div class="workout__modify-container">
@@ -468,16 +481,19 @@ class App {
           <span class="workout__value">${workout.elevation}</span>
           <span class="workout__unit">m</span>
         </div>
-        </li>
+        </div>
       `;
     }
-    newWorkoutForm.insertAdjacentHTML('afterend', html);
+    element.innerHTML = html;
 
-    // Have to wait until a new workout is created and rendered on the page before querying the DOM and attaching an event handler to the edit workout button
-    this._renderWorkoutEditFeature();
+    if (!this.isNewWorkout) {
+      return element;
+    }
 
-    // Have to wait until a new workout is created and rendered on the page before querying the DOM and attaching an event handler to the delete workout button
-    this._renderWorkoutDeleteFeature();
+    newWorkoutForm.insertAdjacentElement('afterend', element);
+
+    // Have to wait until a new workout is created and rendered on the page before querying the DOM and attaching an event handler to the edit & delete workout buttons
+    this._renderWorkoutEditAndDeleteOperationS();
   }
 
   // Store workouts in local storage
@@ -510,37 +526,6 @@ class App {
     this._showNoWorkoutsListedHeader();
   }
 
-  // Edit a specific workout from the list of entered workouts
-  _editSpecificWorkout(e) {
-    editWorkoutInputType.value = editWorkoutInputDistance.value = editWorkoutInputDuration.value = editWorkoutInputCadence.value = editWorkoutInputElevation.value = "";
-
-    this._openModal();
-    const workoutElement = this._findHTMLWorkoutElement(e);
-    const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
-
-    // Get the values from the selected workout
-    const type = workout.type;
-    const distance = workout.distance;
-    const duration = workout.duration;
-    const cadence = workout.cadence;
-    const elevation = workout.elevation;
-
-    // Set the current values in the edit workout modal form
-    if (cadence) {
-      this._showEditWorkoutCadenceField();
-      editWorkoutInputCadence.value = cadence;
-    }
-    if (elevation) {
-      this._showEditWorkoutElevationField();
-      editWorkoutInputElevation.value = elevation;
-    }
-    editWorkoutInputType.value = type;
-    editWorkoutInputDistance.value = distance;
-    editWorkoutInputDuration.value = duration;
-
-
-  }
-
   // Delete specific workout from the list of entered workouts
   _deleteSpecificWorkout(e) {
     const workoutElement = this._findHTMLWorkoutElement(e);
@@ -553,7 +538,7 @@ class App {
     }
 
     // Remove the selected workout to be deleted from the sidebar list of workouts
-    containerWorkouts.removeChild(workoutElement);
+    workoutElement.remove();
 
     // Remove the workout marker bound to the selected workout to be deleted from the map
     this.#map.removeLayer(marker);
@@ -571,21 +556,103 @@ class App {
     this._setLocalStorage();
   }
 
-  // Create a new workout object when the user submits the form
-  _newWorkout(e) {
-    // Form input validation helper functions
-    const validInputs = (...inputs) => {
-      return inputs.every(input => Number.isFinite(input));
-    }
-    const allPositive = (...inputs) => {
-      return inputs.every(input => input > 0);
-    }
+  // Open the edit workout modal form and set the values in the form with the clicked workout data
+  _openEditWorkoutModalForm(e) {
+    editWorkoutInputType.value = editWorkoutInputDistance.value = editWorkoutInputDuration.value = editWorkoutInputCadence.value = editWorkoutInputElevation.value = "";
+    this.#workoutToEdit = this.#workoutElementToEdit = "";
 
+    this._openModal();
+    this.#workoutElementToEdit = this._findHTMLWorkoutElement(e);
+    this.#workoutToEdit = this._findWorkoutByElementId(this.#workoutElementToEdit.dataset.id);
+
+    // Get the values from the selected workout
+    const type = this.#workoutToEdit.type;
+    const distance = this.#workoutToEdit.distance;
+    const duration = this.#workoutToEdit.duration;
+    const cadence = this.#workoutToEdit.cadence;
+    const elevation = this.#workoutToEdit.elevation;
+
+    // Set the current values in the edit workout modal form
+    editWorkoutInputType.value = type;
+    editWorkoutInputDistance.value = distance;
+    editWorkoutInputDuration.value = duration;
+
+    if (cadence) {
+      this._showEditWorkoutCadenceField();
+      editWorkoutInputCadence.value = cadence;
+    }
+    if (elevation) {
+      this._showEditWorkoutElevationField();
+      editWorkoutInputElevation.value = elevation;
+    }
+  }
+
+  // Edit a specific workout from the list of entered workouts
+  _editSpecificWorkout(e) {
     // Prevent page reload
     e.preventDefault();
 
+    this.isNewWorkout = false;
+
+    // Get selected workout to be edited id value & coordinates values
+    const id = this.#workoutToEdit.id;
+    const lat = this.#workoutToEdit.coords[0];
+    const lng = this.#workoutToEdit.coords[1];
+
+    // Get edit workout modal form values
+    const type = editWorkoutInputType.value;
+    const distance = +editWorkoutInputDistance.value;
+    const duration = +editWorkoutInputDuration.value;
+
+    // If the workout is of running type, create a new running object but keep the same id & coords
+    if (type === "running") {
+      const cadence = +editWorkoutInputCadence.value;
+      // Check if data is valid
+      if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
+        return alert("Input must be a positive number!");
+      }
+      this.#workoutToEdit = new Running([lat, lng], distance, duration, cadence);
+      this.#workoutToEdit.id = id;
+    }
+
+    // If the workout is of cycling type, create a new cycling object but keep the same id & coords
+    if (type === 'cycling') {
+      const elevation = +editWorkoutInputElevation.value;
+      // Check if data is valid
+      if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
+        return alert("Input must be a positive number!");
+      }
+      this.#workoutToEdit = new Cycling([lat, lng], distance, duration, elevation);
+      this.#workoutToEdit.id = id;
+    }
+
+    // Update the selected workout to be edited in the workouts array with the new workout values
+    const index = this.#workouts.findIndex(workout => workout.id === this.#workoutToEdit.id);
+    this.#workouts[index] = this.#workoutToEdit;
+
+    // Update the workout element in the sidebar with the new values
+    const updatedHtmlElement = this._renderWorkout(this.#workoutToEdit);
+    this.#workoutElementToEdit.replaceWith(updatedHtmlElement);
+
+    // Reset the local storage of workouts so that it's updated with the edited workout object
+    this._setLocalStorage();
+
+    // Close the edit workout modal
+    this._closeModal();
+
+    // Have to wait until a new workout is created and rendered on the page before querying the DOM and attaching an event handler to the edit & delete workout buttons
+    this._renderWorkoutEditAndDeleteOperationS();
+  }
+
+  // Create a new workout object when the user submits the form
+  _newWorkout(e) {
+    // Prevent page reload
+    e.preventDefault();
+
+    this.isNewWorkout = true;
+
     // Get data from form fields
-    const input = newWorkoutInputType.value;
+    const type = newWorkoutInputType.value;
     const distance = +newWorkoutInputDistance.value;
     const duration = +newWorkoutInputDuration.value;
 
@@ -596,20 +663,20 @@ class App {
     let workout;
 
     // If running workout, create a running object
-    if (input === 'running') {
+    if (type === 'running') {
       const cadence = +newWorkoutInputCadence.value;
       // Check if data is valid
-      if (!validInputs(distance, duration, cadence) || !allPositive(distance, duration, cadence)) {
+      if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
         return alert("Input must be a positive number!");
       }
       workout = new Running([lat, lng], distance, duration, cadence);
     }
 
     // If cycling workout, create a cycling object
-    if (input === 'cycling') {
+    if (type === 'cycling') {
       const elevation = +newWorkoutInputElevation.value;
       // Check if data is valid
-      if (!validInputs(distance, duration, elevation) || !allPositive(distance, duration)) {
+      if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
         return alert("Input must be a positive number!");
       }
       workout = new Cycling([lat, lng], distance, duration, elevation);
@@ -635,6 +702,8 @@ class App {
 
     // Hide the no workouts listed header
     this._hideNoWorkoutsListedHeader();
+
+    this.isNewWorkout = false;
   }
 }
 
