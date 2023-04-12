@@ -29,28 +29,28 @@
         <form class="form hidden">
             <div class="form__row">
                 <label class="form__label">Type</label>
-                <select class="form__input form__input--type">
+                <select class="form__input new__workout--form-input-type">
                     <option value="running">Running</option>
                     <option value="cycling">Cycling</option>
                 </select>
             </div>
             <div class="form__row">
                 <label class="form__label">Distance</label>
-                <input class="form__input form__input--distance" placeholder="miles"/>
+                <input class="form__input new__workout--form-input-distance" placeholder="miles"/>
             </div>
             <div class="form__row">
                 <label class="form__label">Duration</label>
-                <input class="form__input form__input--duration" placeholder="minutes"/>
+                <input class="form__input new__workout--form-input-duration" placeholder="minutes"/>
             </div>
             <div class="form__row">
                 <label class="form__label">Cadence</label>
-                <input class="form__input form__input--cadence" placeholder="steps/min"/>
+                <input class="form__input new__workout--form-input-cadence" placeholder="steps/min"/>
             </div>
             <div class="form__row form__row--hidden">
                 <label class="form__label">Elev. Gain</label>
-                <input class="form__input form__input--elevation" placeholder="meters"/>
+                <input class="form__input new__workout--form-input-elevation" placeholder="meters"/>
             </div>
-            <button class="form__btn">OK</button>
+            <button class="new__workout-form-btn">Submit</button>
         </form>
 
         <!-- <li class="workout workout--running" data-id="1234567890">
@@ -102,7 +102,7 @@
         </li> -->
     </ul>
 
-    <div class="modal hidden">
+    <div class="modal__edit--workout-form hidden">
         <div class="modal__header--container">
             <div class="modal__header--label">Edit Workout</div>
             <div class="close__modal--btn">X</div>
@@ -110,28 +110,28 @@
         <br/>
         <div class="form__row">
             <label class="form__label">Type</label>
-            <select class="form__input form__input--type">
+            <select class="form__input modal__edit--workout-form-input-type">
                 <option value="running">Running</option>
                 <option value="cycling">Cycling</option>
             </select>
         </div>
         <div class="form__row">
             <label class="form__label">Distance</label>
-            <input class="form__input form__input--distance" placeholder="miles"/>
+            <input class="form__input modal__edit--workout-form-input-distance" placeholder="miles"/>
         </div>
         <div class="form__row">
             <label class="form__label">Duration</label>
-            <input class="form__input form__input--duration" placeholder="minutes"/>
+            <input class="form__input modal__edit--workout-form-input-duration" placeholder="minutes"/>
         </div>
-        <div class="form__row">
+        <div class="form__row hidden cadence__form-row">
             <label class="form__label">Cadence</label>
-            <input class="form__input form__input--cadence" placeholder="steps/min"/>
+            <input class="form__input modal__edit--workout-form-input-cadence" placeholder="steps/min"/>
         </div>
-        <div class="form__row form__row--hidden">
+        <div class="form__row hidden elevation__form-row">
             <label class="form__label">Elev. Gain</label>
-            <input class="form__input form__input--elevation" placeholder="meters"/>
+            <input class="form__input modal__edit--workout-form-input-elevation" placeholder="meters"/>
         </div>
-        <button class="form__btn">OK</button>
+        <button class="modal__edit--workout-form-btn">Edit</button>
     </div>
 
     <!--    <p class="copyright">-->
