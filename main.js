@@ -122,7 +122,7 @@ class App {
   #mapZoomView = 10;
   workoutToEdit;
   workoutElementToEdit;
-  isWorkoutToList = false;
+  isWorkoutToAddToList = false;
   isModalOpen = false;
   isFormOpen = false;
 
@@ -182,7 +182,7 @@ class App {
 
   // Clear the form input fields & hide form
   _hideForm() {
-    newWorkoutInputDistance.value = newWorkoutInputDuration.value = newWorkoutInputCadence.value = newWorkoutInputElevation.value = "";
+    newWorkoutForm.reset();
     newWorkoutForm.style.display = "none";
     newWorkoutForm.classList.add('hidden');
     this.isFormOpen = false;
@@ -203,7 +203,7 @@ class App {
 
   // close modal on button click & clear the form input fields
   _closeModal() {
-    editWorkoutInputType.value = editWorkoutInputDistance.value = editWorkoutInputDuration.value = editWorkoutInputCadence.value = editWorkoutInputElevation.value = "";
+    editWorkoutModalForm.reset();
     this.workoutToEdit = this.workoutElementToEdit = "";
     editWorkoutModalForm.style.display = "none";
     editWorkoutModalForm.classList.add('hidden');
@@ -412,7 +412,7 @@ class App {
     }
     element.innerHTML = html;
 
-    if (this.isWorkoutToList) {
+    if (this.isWorkoutToAddToList) {
       newWorkoutForm.insertAdjacentElement('afterend', element);
       return this._renderWorkoutEditAndDeleteOperations();
     }
@@ -432,7 +432,7 @@ class App {
       return this._showNoWorkoutsListedHeader();
     }
 
-    this.isWorkoutToList = true;
+    this.isWorkoutToAddToList = true;
 
     this._showDeleteAllWorkoutsButton();
 
@@ -483,10 +483,6 @@ class App {
 
   // Open the edit workout modal form and set the values in the form with the clicked workout data
   _openEditWorkoutModalForm(e) {
-    // The user may click the edit button on a different workout before closing the modal so have to clear the input fields every time the edit button on a workout is clicked
-    editWorkoutInputType.value = editWorkoutInputDistance.value = editWorkoutInputDuration.value = editWorkoutInputCadence.value = editWorkoutInputElevation.value = "";
-    this.workoutToEdit = this.workoutElementToEdit = "";
-
     this._openModal();
     this.workoutElementToEdit = this._findHTMLWorkoutElement(e);
     this.workoutToEdit = this._findWorkoutByElementId(this.workoutElementToEdit.dataset.id);
@@ -518,7 +514,7 @@ class App {
     // Prevent page reload
     e.preventDefault();
 
-    this.isWorkoutToList = false;
+    this.isWorkoutToAddToList = false;
 
     // Get selected workout to be edited id value & coordinates values
     const id = this.workoutToEdit.id;
@@ -584,7 +580,7 @@ class App {
     // Prevent page reload
     e.preventDefault();
 
-    this.isWorkoutToList = true;
+    this.isWorkoutToAddToList = true;
 
     // Get data from form fields
     const type = newWorkoutInputType.value;
@@ -645,7 +641,7 @@ const app = new App();
 // Additional Features:
 // TODO:
 //  Ability to delete a specific workout ✅
-//  Ability to edit a workout
+//  Ability to edit a workout ✅
 //  Ability to drag marker to new location and update the workout object's location data to the new dragged location
 //  Ability to sort workouts by a certain field (distance, duration, etc.)
 //  Re-build Running and Cycling objects retrieved from local storage to fix the error where the 'clicked' function gets removed from the object
