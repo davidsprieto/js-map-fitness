@@ -44,16 +44,6 @@ class Running extends Workout {
     this._setDescription();
   }
 
-  _constructRunningObject(id, coords, distance, duration, cadence) {
-    this.id = id;
-    this.coords = coords;
-    this.distance = distance;
-    this.duration = duration;
-    this.cadence = cadence;
-    this._calcPace();
-    this._setDescription();
-  }
-
   // minutes/mile
   _calcPace() {
     this.pace = this.duration / this.distance;
@@ -68,16 +58,6 @@ class Cycling extends Workout {
 
   constructor(coords, distance, duration, elevation) {
     super(coords, distance, duration);
-    this.elevation = elevation;
-    this._calcSpeed();
-    this._setDescription();
-  }
-
-  _constructCyclingObject(id, coords, distance, duration, elevation) {
-    this.id = id;
-    this.coords = coords;
-    this.distance = distance;
-    this.duration = duration;
     this.elevation = elevation;
     this._calcSpeed();
     this._setDescription();
@@ -494,11 +474,9 @@ class App {
     const cadence = this.workoutToEdit.cadence;
     const elevation = this.workoutToEdit.elevation;
 
-    // Set the current values in the edit workout modal form
-    editWorkoutInputType.value = type;
-    editWorkoutInputDistance.value = distance;
-    editWorkoutInputDuration.value = duration;
+    editWorkoutModalForm.reset();
 
+    // Set the current values in the edit workout modal form
     if (type === "running") {
       this._showEditWorkoutCadenceField();
       editWorkoutInputCadence.value = cadence;
@@ -507,6 +485,9 @@ class App {
       this._showEditWorkoutElevationField();
       editWorkoutInputElevation.value = elevation;
     }
+    editWorkoutInputType.value = type;
+    editWorkoutInputDistance.value = distance;
+    editWorkoutInputDuration.value = duration;
   }
 
   // Edit a specific workout from the list of entered workouts
@@ -533,8 +514,8 @@ class App {
       if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
         return alert("Input must be a positive number!");
       }
-      this.workoutToEdit = new Running();
-      this.workoutToEdit._constructRunningObject(id, [lat, lng], distance, duration, cadence);
+      this.workoutToEdit = new Running([lat, lng], distance, duration, cadence);
+      this.workoutToEdit.id = id;
     }
 
     // If the workout is of cycling type, create a new cycling object but keep the same id & coords
@@ -544,8 +525,8 @@ class App {
       if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
         return alert("Input must be a positive number!");
       }
-      this.workoutToEdit = new Cycling();
-      this.workoutToEdit._constructCyclingObject(id, [lat, lng], distance, duration, elevation);
+      this.workoutToEdit = new Cycling([lat, lng], distance, duration, elevation);
+      this.workoutToEdit.id = id;
     }
 
     // Update the selected workout to be edited in the workouts array with the new workout values
