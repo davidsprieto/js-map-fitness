@@ -89,9 +89,9 @@ const editWorkoutInputType = document.querySelector('.modal__edit--workout-form-
 const editWorkoutInputDistance = document.querySelector('.modal__edit--workout-form-input-distance');
 const editWorkoutInputDuration = document.querySelector('.modal__edit--workout-form-input-duration');
 const editWorkoutInputCadence = document.querySelector('.modal__edit--workout-form-input-cadence');
-const editWorkoutCadenceField = document.querySelector('.cadence__form-row');
+const editWorkoutCadenceField = document.querySelector('.modal__edit-cadence-form-row');
 const editWorkoutInputElevation = document.querySelector('.modal__edit--workout-form-input-elevation');
-const editWorkoutElevationField = document.querySelector('.elevation__form-row');
+const editWorkoutElevationField = document.querySelector('.modal__edit-elevation-form-row');
 const closeModalBtn = document.querySelector('.close__modal--btn');
 
 class App {
@@ -102,7 +102,6 @@ class App {
   #mapZoomView = 10;
   workoutToEdit;
   workoutElementToEdit;
-  isWorkoutToAddToList = false;
   isModalOpen = false;
   isFormOpen = false;
 
@@ -162,7 +161,7 @@ class App {
 
   // Clear the form input fields & hide form
   _hideForm() {
-    newWorkoutForm.reset();
+    newWorkoutInputDistance.value = newWorkoutInputDuration.value = newWorkoutInputCadence.value = newWorkoutInputElevation.value = "";
     newWorkoutForm.style.display = "none";
     newWorkoutForm.classList.add('hidden');
     this.isFormOpen = false;
@@ -183,8 +182,7 @@ class App {
 
   // close modal on button click & clear the form input fields
   _closeModal() {
-    editWorkoutModalForm.reset();
-    this.workoutToEdit = this.workoutElementToEdit = "";
+    editWorkoutInputDistance.value = editWorkoutInputDuration.value = editWorkoutInputCadence.value = editWorkoutInputElevation.value = "";
     editWorkoutModalForm.style.display = "none";
     editWorkoutModalForm.classList.add('hidden');
     this.isModalOpen = false;
@@ -194,7 +192,8 @@ class App {
   }
 
   // For the new workout form:
-  // If the user selects cycling workout, display the elevation gain input field and hide the cadence input field for running
+  // If the user selects running workout, display the cadence input field
+  // If the user selects cycling workout, display the elevation gain input field
   _toggleNewWorkoutTypeField() {
     newWorkoutInputElevation.closest('.form__row').classList.toggle('form__row--hidden');
     newWorkoutInputCadence.closest('.form__row').classList.toggle('form__row--hidden');
@@ -236,14 +235,14 @@ class App {
 
   // Show the edit workouts modal cadence field & hide the elevation field
   _showEditWorkoutCadenceField() {
-    editWorkoutCadenceField.classList.remove('hidden');
     editWorkoutElevationField.classList.add('hidden');
+    editWorkoutCadenceField.classList.remove('hidden');
   }
 
   // Show the edit workouts modal elevation field & hide the cadence field
   _showEditWorkoutElevationField() {
-    editWorkoutElevationField.classList.remove('hidden');
     editWorkoutCadenceField.classList.add('hidden');
+    editWorkoutElevationField.classList.remove('hidden');
   }
 
   // If the length of the workouts array is 0 then hide the delete all workouts button as there are no workouts to display,
@@ -336,8 +335,8 @@ class App {
   }
 
   // Render workout on sidebar list
-  _renderWorkout(workout) {
-    let element = document.createElement('li');
+  _renderWorkoutElement(workout) {
+    const element = document.createElement('li');
     element.classList.add(`workout`, `workout--${workout.type}`);
     element.setAttribute("data-id", `${workout.id}`);
 
@@ -392,11 +391,14 @@ class App {
     }
     element.innerHTML = html;
 
-    if (this.isWorkoutToAddToList) {
-      newWorkoutForm.insertAdjacentElement('afterend', element);
-      return this._renderWorkoutEditAndDeleteOperations();
-    }
     return element;
+  }
+
+  _renderWorkoutToPage(workout) {
+    const element = this._renderWorkoutElement(workout);
+    newWorkoutForm.insertAdjacentElement('afterend', element);
+    // Render edit and delete workout operations since the DOM is updated
+    this._renderWorkoutEditAndDeleteOperations();
   }
 
   // Store workouts in local storage
@@ -412,14 +414,12 @@ class App {
       return this._showNoWorkoutsListedHeader();
     }
 
-    this.isWorkoutToAddToList = true;
-
     this._showDeleteAllWorkoutsButton();
 
     this.#workouts = data;
 
     this.#workouts.forEach(workout => {
-      this._renderWorkout(workout);
+      this._renderWorkoutToPage(workout);
     });
   }
 
@@ -467,23 +467,21 @@ class App {
     this.workoutElementToEdit = this._findHTMLWorkoutElement(e);
     this.workoutToEdit = this._findWorkoutByElementId(this.workoutElementToEdit.dataset.id);
 
+    editWorkoutInputDistance.value = editWorkoutInputDuration.value = editWorkoutInputCadence.value = editWorkoutInputElevation.value = "";
+
     // Get the values from the selected workout
     const type = this.workoutToEdit.type;
     const distance = this.workoutToEdit.distance;
     const duration = this.workoutToEdit.duration;
-    const cadence = this.workoutToEdit.cadence;
-    const elevation = this.workoutToEdit.elevation;
-
-    editWorkoutModalForm.reset();
 
     // Set the current values in the edit workout modal form
     if (type === "running") {
       this._showEditWorkoutCadenceField();
-      editWorkoutInputCadence.value = cadence;
+      editWorkoutInputCadence.value = this.workoutToEdit.cadence;
     }
     if (type === "cycling") {
       this._showEditWorkoutElevationField();
-      editWorkoutInputElevation.value = elevation;
+      editWorkoutInputElevation.value = this.workoutToEdit.elevation;
     }
     editWorkoutInputType.value = type;
     editWorkoutInputDistance.value = distance;
@@ -494,8 +492,6 @@ class App {
   _editSpecificWorkout(e) {
     // Prevent page reload
     e.preventDefault();
-
-    this.isWorkoutToAddToList = false;
 
     // Get selected workout to be edited id value & coordinates values
     const id = this.workoutToEdit.id;
@@ -543,10 +539,12 @@ class App {
       .openPopup();
 
     // Update the workout element in the sidebar with the new values
-    const updatedHtmlElement = this._renderWorkout(this.workoutToEdit);
-    this.workoutElementToEdit.replaceWith(updatedHtmlElement);
+    const pointer = this.workoutElementToEdit;
+    const element = this._renderWorkoutElement(this.workoutToEdit);
+    this.workoutElementToEdit = element;
+    pointer.replaceWith(element);
 
-    // Rerender edit and delete workout operations since the DOM is updated
+    // Render edit and delete workout operations since the DOM is updated
     this._renderWorkoutEditAndDeleteOperations();
 
     // Reset the local storage of workouts so that it's updated with the edited workout object
@@ -560,8 +558,6 @@ class App {
   _newWorkout(e) {
     // Prevent page reload
     e.preventDefault();
-
-    this.isWorkoutToAddToList = true;
 
     // Get data from form fields
     const type = newWorkoutInputType.value;
@@ -600,8 +596,8 @@ class App {
     // Render workout on map as marker
     this._renderWorkoutMarker(workout);
 
-    // Render workout on list
-    this._renderWorkout(workout);
+    // Render workout to the list on the page
+    this._renderWorkoutToPage(workout);
 
     // Store workouts in local storage
     this._setLocalStorage();

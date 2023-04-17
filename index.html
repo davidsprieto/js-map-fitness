@@ -20,7 +20,7 @@
     <title>Mapty // Map Your Workouts</title>
 </head>
 <body>
-<div class="sidebar">
+<div id="sidebar" class="sidebar">
     <img src="./assets/logo.png" alt="Logo" class="logo"/>
     <div class="workouts__header--none-listed hidden">Click a location on the map to log where you worked out!</div>
     <button class="workouts__modify--delete-all hidden"><span>Delete Workouts</span></button>
@@ -123,11 +123,11 @@
             <label class="form__label">Duration</label>
             <input class="form__input modal__edit--workout-form-input-duration" placeholder="minutes"/>
         </div>
-        <div class="form__row hidden cadence__form-row">
+        <div class="form__row modal__edit-cadence-form-row hidden">
             <label class="form__label">Cadence</label>
             <input class="form__input modal__edit--workout-form-input-cadence" placeholder="steps/min"/>
         </div>
-        <div class="form__row hidden elevation__form-row">
+        <div class="form__row modal__edit-elevation-form-row hidden">
             <label class="form__label">Elev. Gain</label>
             <input class="form__input modal__edit--workout-form-input-elevation" placeholder="meters"/>
         </div>
