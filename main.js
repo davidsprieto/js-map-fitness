@@ -312,7 +312,7 @@ class App {
 
     this.workoutId = workout.id;
 
-    // If the user clicks on a different workout from the list while the edit workout modal is open from clicking on a previous workout to edit then close the modal
+    // If the user clicks on a different workout from the list while the edit workout modal is open from clicking on a previous workout to edit, then close the modal
     if (id !== this.workoutId && this.isModalOpen && id !== undefined) {
       this._closeModal();
     }
@@ -339,10 +339,11 @@ class App {
   // Render workout on map as marker
   _renderWorkoutMarker(workout) {
     let marker = new L.marker(workout.coords, {
-      draggable: false
+      draggable: true
     });
 
-    // Set leaflet id of the marker to be the same as the workout id so that events/features can be added/accessed later on (such as opening the popup on click)
+    // Set leaflet id of the marker to be the same as the workout id so that events/features can be added/accessed later on
+    // Such as opening the popup on click & reassigning the coords values if the marker is dragged to a new location
     marker._leaflet_id = workout.id;
 
     // Add the marker to the map and bind a popup to it
@@ -357,6 +358,29 @@ class App {
 
     // Add the marker to the list of markers array
     this.#markers.push(marker);
+
+    // Update the coordinates of the selected workout marker on drag end
+    marker.on('dragend', (e) => {
+      // Get the new coordinates from when the marker has stopped being dragged event
+      const {lat, lng} = e.target._latlng;
+
+      // Find the marker that was dragged in the array of markers and update its coordinates
+      const marker = this.#markers.find(marker => marker._leaflet_id === e.target._leaflet_id);
+      marker.coords = [lat, lng];
+
+      // Find the workout bound to the dragged marker and update its coordinates
+      const workout = this.#workouts.find(workout => workout.id === e.target._leaflet_id);
+      workout.coords = [lat, lng];
+
+      // Reset local storage to reflect the updated workouts coordinates
+      this._setLocalStorage();
+
+      // Check if the edited workout stored in local storage is the marker that was just dragged and had its coordinates updated
+      // If so update the coords values
+      if (this.#editedWorkout.id === marker._leaflet_id) {
+        this.#editedWorkout.coords = [lat,lng];
+      }
+    });
   }
 
   // Once a new workout is created or a workout is edited then rendered on the page, query the DOM and attach a click event handler to the edit & delete buttons
@@ -691,7 +715,7 @@ const app = new App();
 // TODO:
 //  Ability to delete a specific workout ✅
 //  Ability to edit a workout ✅
-//  Ability to drag marker to new location and update the workout object's location data to the new dragged location
+//  Ability to drag marker to new location and update the workout object's location data to the new dragged location ✅
 //  Ability to sort workouts by a certain field (distance, duration, etc.)
 //  Re-build Running and Cycling objects retrieved from local storage to fix the error where the 'clicked' function gets removed from the object
 //  More error and confirmation messages
