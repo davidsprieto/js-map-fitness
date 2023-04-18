@@ -25,8 +25,13 @@
     <div class="workouts__header--none-listed hidden">Click a location on the map to log where you worked out!</div>
     <button class="workouts__modify--delete-all hidden"><span>Delete Workouts</span></button>
 
-    <ul class="workouts">
-        <form class="form hidden">
+    <ul id="workouts" class="workouts">
+        <form class="new__workout--form hidden">
+            <div class="new__workout--form-header-container">
+                <div class="new__workout--form-header-label">Add Workout</div>
+                <div class="new__workout--close-form-btn">X</div>
+            </div>
+            <br/>
             <div class="form__row">
                 <label class="form__label">Type</label>
                 <select class="form__input new__workout--form-input-type">
@@ -50,9 +55,8 @@
                 <label class="form__label">Elev. Gain</label>
                 <input class="form__input new__workout--form-input-elevation" placeholder="meters"/>
             </div>
-            <button class="new__workout-form-btn">Submit</button>
+            <button class="new__workout-form-submit-btn">Add</button>
         </form>
-
         <!-- <li class="workout workout--running" data-id="1234567890">
           <h2 class="workout__title">Running on April 14</h2>
           <div class="workout__details">
@@ -103,9 +107,9 @@
     </ul>
 
     <form class="modal__edit--workout-form hidden">
-        <div class="modal__header--container">
-            <div class="modal__header--label">Edit Workout</div>
-            <div class="close__modal--btn">X</div>
+        <div class="modal__edit--workout-header-container">
+            <div class="modal__edit--workout-header-label">Edit Workout</div>
+            <div class="modal__edit--workout-close-form-btn">X</div>
         </div>
         <br/>
         <div class="form__row">
@@ -131,9 +135,8 @@
             <label class="form__label">Elev. Gain</label>
             <input class="form__input modal__edit--workout-form-input-elevation" placeholder="meters"/>
         </div>
-        <button class="modal__edit--workout-form-btn">Edit</button>
+        <button class="modal__edit--workout-form-submit-btn">Edit</button>
     </form>
-
     <!--    <p class="copyright">-->
     <!--        &copy; Base Project Created by-->
     <!--        <a class="twitter-link" target="_blank" href="https://twitter.com/jonasschmedtman">Jonas Schmedtmann</a> in the-->
@@ -145,6 +148,6 @@
     <!--    </p>-->
 </div>
 
-<div id="map"></div>
+<div id="map" class="map"></div>
 </body>
 </html>

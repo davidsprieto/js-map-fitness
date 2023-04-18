@@ -73,26 +73,35 @@ class Cycling extends Workout {
 ///////////////////////////////////////////////////////////////
 // APPLICATION ARCHITECTURE
 
+// New workout form
 const containerWorkouts = document.querySelector('.workouts');
-const newWorkoutForm = document.querySelector('.form');
+const newWorkoutForm = document.querySelector('.new__workout--form');
 const newWorkoutInputType = document.querySelector('.new__workout--form-input-type');
 const newWorkoutInputDistance = document.querySelector('.new__workout--form-input-distance');
 const newWorkoutInputDuration = document.querySelector('.new__workout--form-input-duration');
 const newWorkoutInputCadence = document.querySelector('.new__workout--form-input-cadence');
 const newWorkoutInputElevation = document.querySelector('.new__workout--form-input-elevation');
 
+// Display delete all workouts button or no workouts listed header
 const noWorkoutsListedHeader = document.querySelector('.workouts__header--none-listed');
 const deleteAllWorkoutsButton = document.querySelector('.workouts__modify--delete-all');
 
+// Edit workout form
 const editWorkoutModalForm = document.querySelector('.modal__edit--workout-form');
 const editWorkoutInputType = document.querySelector('.modal__edit--workout-form-input-type');
 const editWorkoutInputDistance = document.querySelector('.modal__edit--workout-form-input-distance');
 const editWorkoutInputDuration = document.querySelector('.modal__edit--workout-form-input-duration');
 const editWorkoutInputCadence = document.querySelector('.modal__edit--workout-form-input-cadence');
-const editWorkoutCadenceField = document.querySelector('.modal__edit-cadence-form-row');
 const editWorkoutInputElevation = document.querySelector('.modal__edit--workout-form-input-elevation');
+
+// Display edit workout form fields
+const editWorkoutCadenceField = document.querySelector('.modal__edit-cadence-form-row');
 const editWorkoutElevationField = document.querySelector('.modal__edit-elevation-form-row');
-const closeModalBtn = document.querySelector('.close__modal--btn');
+
+// Close modal or form
+const editWorkoutCloseModalBtn = document.querySelector('.modal__edit--workout-close-form-btn');
+const newWorkoutCloseFormBtn = document.querySelector('.new__workout--close-form-btn');
+
 
 class App {
   #map;
@@ -115,9 +124,10 @@ class App {
     // Attach event handlers
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
     newWorkoutForm.addEventListener('submit', this._newWorkout.bind(this));
+    newWorkoutCloseFormBtn.addEventListener('click', this._hideForm);
     newWorkoutInputType.addEventListener('change', this._toggleNewWorkoutTypeField);
     deleteAllWorkoutsButton.addEventListener('click', this._deleteAllWorkouts);
-    closeModalBtn.addEventListener('click', this._closeModal);
+    editWorkoutCloseModalBtn.addEventListener('click', this._closeModal);
     editWorkoutModalForm.addEventListener('submit', this._editSpecificWorkout.bind(this));
     editWorkoutInputType.addEventListener('change', this._toggleEditWorkoutTypeField.bind(this));
   }

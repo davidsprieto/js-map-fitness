@@ -42,13 +42,13 @@ a:visited {
 
 .workouts__header--none-listed {
     font-size: 1.55rem;
+    margin-bottom: 1rem;
 }
 
 .workouts__header--none-listed.hidden {
     transform: translateY(-30rem);
     height: 0;
     padding: 0 2.25rem;
-    margin-bottom: 0;
     opacity: 0;
 }
 
@@ -188,7 +188,7 @@ a:visited {
     margin-right: 0.80rem;
 }
 
-.form {
+.new__workout--form {
     background-color: var(--color-dark--2);
     border-radius: 5px;
     padding: 1.5rem 2.75rem;
@@ -199,16 +199,32 @@ a:visited {
     flex-direction: column;
 
     /* Match height and activity boxes */
-    height: 19.25rem;
+    height: 25rem;
     transition: all 0.5s, transform 1ms;
 }
 
-.form.hidden {
+.new__workout--form.hidden {
     transform: translateY(-30rem);
     height: 0;
     padding: 0 2.25rem;
     margin-bottom: 0;
     opacity: 0;
+}
+
+.new__workout--form-header-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.new__workout--form-header-label {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.new__workout--close-form-btn {
+    font-size: 2rem;
+    cursor: pointer;
 }
 
 .form__row {
@@ -246,8 +262,8 @@ a:visited {
     background-color: #fff;
 }
 
-.new__workout-form-btn,
-.modal__edit--workout-form-btn {
+.new__workout-form-submit-btn,
+.modal__edit--workout-form-submit-btn {
     cursor: pointer;
     align-self: center;
     border-radius: 15px;
@@ -258,8 +274,8 @@ a:visited {
     width: 50%;
 }
 
-.new__workout-form-btn:hover,
-.modal__edit--workout-form-btn:hover {
+.new__workout-form-submit-btn:hover,
+.modal__edit--workout-form-submit-btn:hover {
     background-color: var(--color-brand--1);
 }
 
@@ -341,18 +357,18 @@ a:visited {
     opacity: 0;
 }
 
-.modal__header--container {
+.modal__edit--workout-header-container {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
 
-.modal__header--label {
+.modal__edit--workout-header-label {
     font-size: 2rem;
     font-weight: 600;
 }
 
-.close__modal--btn {
+.modal__edit--workout-close-form-btn {
     font-size: 2rem;
     cursor: pointer;
 }
