@@ -109,10 +109,12 @@ class App {
   #markers = [];
   #workouts = [];
   #mapZoomView = 10;
+  #editedWorkout;
   #workoutToEdit;
   #workoutElementToEdit;
   isModalOpen = false;
   isFormOpen = false;
+  workoutId;
 
   constructor() {
     // Get user's location
@@ -142,7 +144,12 @@ class App {
     const {latitude, longitude} = position.coords;
     const coords = [latitude, longitude];
 
-    this.#map = L.map('map').setView(coords, this.#mapZoomView);
+    // If a workout was just edited, then get it from local storage and set the map zoom view to that edited workout marker
+    if (this.#editedWorkout) {
+      this.#map = L.map('map').setView(this.#editedWorkout.coords, this.#mapZoomView);
+    } else {
+      this.#map = L.map('map').setView(coords, this.#mapZoomView);
+    }
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -155,6 +162,11 @@ class App {
     this.#workouts.forEach(workout => {
       this._renderWorkoutMarker(workout);
     });
+
+    // After the map loads, if a workout was just edited then get it from local storage and open the popup bound to it
+    if (this.#editedWorkout) {
+      this.#map._layers[this.#editedWorkout.id].openPopup();
+    }
   }
 
   // After user clicks on map to create a marker, display the workout form
@@ -169,7 +181,7 @@ class App {
     newWorkoutInputDistance.focus();
   }
 
-  // Clear the form input fields & hide form
+  // Hide new workout form & clear the input fields
   _hideForm() {
     newWorkoutInputDistance.value = newWorkoutInputDuration.value = newWorkoutInputCadence.value = newWorkoutInputElevation.value = "";
     newWorkoutForm.style.display = "none";
@@ -190,7 +202,7 @@ class App {
     this.isModalOpen = true;
   }
 
-  // close modal on button click & clear the form input fields
+  // Hide the edit workout form & clear the input fields
   _closeModal() {
     editWorkoutInputDistance.value = editWorkoutInputDuration.value = editWorkoutInputCadence.value = editWorkoutInputElevation.value = "";
     editWorkoutModalForm.style.display = "none";
@@ -290,11 +302,20 @@ class App {
 
   // If the user clicks on a workout from the sidebar list, have the map navigate and display where that workout marker was created
   _moveToPopup(e) {
+    let id = this.workoutId;
+
     const workoutElement = this._findHTMLWorkoutElement(e);
 
     if (!workoutElement) return;
 
     const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
+
+    this.workoutId = workout.id;
+
+    // If the user clicks on a different workout from the list while the edit workout modal is open from clicking on a previous workout to edit then close the modal
+    if (id !== this.workoutId && this.isModalOpen && id !== undefined) {
+      this._closeModal();
+    }
 
     try {
       // Open the popup that's been bound to this workout marker
@@ -346,7 +367,7 @@ class App {
     deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
   }
 
-  // Render workout on sidebar list
+  // Create workout element
   _renderWorkoutElement(workout) {
     const element = document.createElement('li');
     element.classList.add(`workout`, `workout--${workout.type}`);
@@ -406,6 +427,7 @@ class App {
     return element;
   }
 
+  // Render new workout element to the sidebar list on the page
   _renderWorkoutToPage(workout) {
     let element = this._renderWorkoutElement(workout);
     newWorkoutForm.insertAdjacentElement('afterend', element);
@@ -413,30 +435,34 @@ class App {
     this._renderWorkoutEditAndDeleteOperations();
   }
 
-  // Store workouts in local storage
+  // Store edited workout & workouts in local storage
   _setLocalStorage() {
+    localStorage.setItem("editedWorkout", JSON.stringify(this.#editedWorkout));
     localStorage.setItem("workouts", JSON.stringify(this.#workouts));
   }
 
-  // Get workouts from local storage
+  // Get edited workout & workouts from local storage
   _getLocalStorage() {
+    this.#editedWorkout = JSON.parse(localStorage.getItem("editedWorkout"));
+
     const data = JSON.parse(localStorage.getItem("workouts"));
 
     if (!data || data.length === 0) {
       return this._showNoWorkoutsListedHeader();
     }
 
-    this._showDeleteAllWorkoutsButton();
-
     this.#workouts = data;
 
     this.#workouts.forEach(workout => {
       this._renderWorkoutToPage(workout);
     });
+
+    this._showDeleteAllWorkoutsButton();
   }
 
-  // Delete all workouts from local storage
+  // Delete edited workout & all workouts from local storage
   _deleteAllWorkouts() {
+    localStorage.removeItem("editedWorkout");
     localStorage.removeItem("workouts");
     location.reload();
     this._hideDeleteAllWorkoutsButton();
@@ -459,6 +485,12 @@ class App {
 
     // Remove the workout marker bound to the selected workout to be deleted from the array of markers
     this.#markers = this.#markers.filter(marker => marker._leaflet_id !== workout.id);
+
+    // If the selected workout to be deleted was the previously edited workout saved in local storage then remove it and assign the edited workout to be null
+    if (this.#editedWorkout.id === workout.id) {
+      this.#editedWorkout = null;
+      localStorage.removeItem("editedWorkout");
+    }
 
     // Remove the workout marker bound to the selected workout to be deleted from the map
     this.#map.removeLayer(marker);
@@ -580,13 +612,17 @@ class App {
     // Render edit and delete workout operations since the DOM is updated
     this._renderWorkoutEditAndDeleteOperations();
 
-    // Reset the local storage of workouts so that it's updated with the edited workout object
+    // Assign the edited workout value so that the data can be used after page reload
+    this.#editedWorkout = this.#workoutToEdit;
+
+    // Reset the local storage of edited workout & workouts so that the workouts array data is updated along with the workout just edited
+    // so that on page reload the map view can be set to that marker
     this._setLocalStorage();
 
     // Close the edit workout modal
     this._closeModal();
 
-    // Reload the page
+    // Reload the page to display the edits/changes
     location.reload();
   }
 
