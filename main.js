@@ -6,7 +6,6 @@
 class Workout {
   id = crypto.randomUUID();
   date = new Date();
-  clicks = 0;
   coords;
   distance;
   duration;
@@ -23,12 +22,6 @@ class Workout {
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`;
-  }
-
-  // Used to log the amount of times a workout is clicked
-  // *** NOTE: AN OBJECT RETRIEVED FROM LOCAL STORAGE WILL NOT INCLUDE ALL THE METHODS IT INHERITED WHEN IT WAS ORIGINALLY CREATED ***
-  clicked() {
-    this.clicks++;
   }
 }
 
@@ -134,12 +127,14 @@ class App {
     editWorkoutInputType.addEventListener('change', this._toggleEditWorkoutTypeField.bind(this));
   }
 
+  // Function to get user's location
   _getPosition() {
     navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), function () {
       alert('Could not get your location!');
     });
   }
 
+  // Function to load leaflet map
   _loadMap(position) {
     const {latitude, longitude} = position.coords;
     const coords = [latitude, longitude];
@@ -331,9 +326,6 @@ class App {
     } catch {
       console.log("Marker removed");
     }
-
-    // Using the public interface
-    // workout.clicked();
   }
 
   // Render workout on map as marker
@@ -376,9 +368,9 @@ class App {
       this._setLocalStorage();
 
       // Check if the edited workout stored in local storage is the marker that was just dragged and had its coordinates updated
-      // If so update the coords values
+      // If so, update the coords values to the new ones
       if (this.#editedWorkout.id === marker._leaflet_id) {
-        this.#editedWorkout.coords = [lat,lng];
+        this.#editedWorkout.coords = [lat, lng];
       }
     });
   }
@@ -461,7 +453,9 @@ class App {
 
   // Store edited workout & workouts in local storage
   _setLocalStorage() {
-    localStorage.setItem("editedWorkout", JSON.stringify(this.#editedWorkout));
+    if (this.#editedWorkout) {
+      localStorage.setItem("editedWorkout", JSON.stringify(this.#editedWorkout));
+    }
     localStorage.setItem("workouts", JSON.stringify(this.#workouts));
   }
 
@@ -633,11 +627,11 @@ class App {
     // Update the workout element in the sidebar with the new values
     this.#workoutElementToEdit = this._renderWorkoutElement(this.#workoutToEdit);
 
-    // Render edit and delete workout operations since the DOM is updated
-    this._renderWorkoutEditAndDeleteOperations();
-
     // Assign the edited workout value so that the data can be used after page reload
     this.#editedWorkout = this.#workoutToEdit;
+
+    // Render edit and delete workout operations since the DOM is updated
+    this._renderWorkoutEditAndDeleteOperations();
 
     // Reset the local storage of edited workout & workouts so that the workouts array data is updated along with the workout just edited
     // so that on page reload the map view can be set to that marker
@@ -701,11 +695,11 @@ class App {
     // Clear the form input fields && Hide form
     this._hideForm();
 
-    // Display the delete all workouts button
-    this._showDeleteAllWorkoutsButton();
-
     // Hide the no workouts listed header
     this._hideNoWorkoutsListedHeader();
+
+    // Display the delete all workouts button
+    this._showDeleteAllWorkoutsButton();
   }
 }
 
@@ -717,7 +711,6 @@ const app = new App();
 //  Ability to edit a workout ✅
 //  Ability to drag marker to new location and update the workout object's location data to the new dragged location ✅
 //  Ability to sort workouts by a certain field (distance, duration, etc.)
-//  Re-build Running and Cycling objects retrieved from local storage to fix the error where the 'clicked' function gets removed from the object
 //  More error and confirmation messages
 //  Ability to position the map to show all workouts on the map
 //  Ability to draw lines/shapes instead of just points
