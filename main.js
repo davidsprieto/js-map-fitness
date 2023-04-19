@@ -494,33 +494,37 @@ class App {
       this._closeModal();
     }
 
-    const workoutElement = this._findHTMLWorkoutElement(e);
-    const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
-    const marker = this._findWorkoutMarkerById(workout.id);
+    const confirmDeletion = confirm("Are you sure you want to delete this workout?");
 
-    // Remove the selected workout to be deleted from the array of workouts
-    this.#workouts = this.#workouts.filter(workout => workout.id !== workoutElement.dataset.id);
+    if (confirmDeletion) {
+      const workoutElement = this._findHTMLWorkoutElement(e);
+      const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
+      const marker = this._findWorkoutMarkerById(workout.id);
 
-    // Remove the workout marker bound to the selected workout to be deleted from the array of markers
-    this.#markers = this.#markers.filter(marker => marker._leaflet_id !== workout.id);
+      // Remove the selected workout to be deleted from the array of workouts
+      this.#workouts = this.#workouts.filter(workout => workout.id !== workoutElement.dataset.id);
 
-    // If the selected workout to be deleted was the previously edited workout saved in local storage then remove it and assign the edited workout to be null
-    if (this.#editedWorkout.id === workout.id) {
-      this.#editedWorkout = null;
-      localStorage.removeItem("editedWorkout");
+      // Remove the workout marker bound to the selected workout to be deleted from the array of markers
+      this.#markers = this.#markers.filter(marker => marker._leaflet_id !== workout.id);
+
+      // If the selected workout to be deleted was the previously edited workout saved in local storage then remove it and assign the edited workout to be null
+      if (this.#editedWorkout.id === workout.id) {
+        this.#editedWorkout = null;
+        localStorage.removeItem("editedWorkout");
+      }
+
+      // Remove the workout marker bound to the selected workout to be deleted from the map
+      this.#map.removeLayer(marker);
+
+      // Remove the selected workout to be deleted from the sidebar list of workouts
+      workoutElement.remove();
+
+      // Check if the workouts array is empty
+      this._areWorkoutsListed();
+
+      // Reset the local storage of workouts so that it's updated with the new array of workouts with the deleted workout removed
+      this._setLocalStorage();
     }
-
-    // Remove the workout marker bound to the selected workout to be deleted from the map
-    this.#map.removeLayer(marker);
-
-    // Remove the selected workout to be deleted from the sidebar list of workouts
-    workoutElement.remove();
-
-    // Check if the workouts array is empty
-    this._areWorkoutsListed();
-
-    // Reset the local storage of workouts so that it's updated with the new array of workouts with the deleted workout removed
-    this._setLocalStorage();
   }
 
   // Open the edit workout modal form and set the values in the form with the clicked workout data
@@ -710,7 +714,7 @@ const app = new App();
 //  Ability to delete a specific workout ✅
 //  Ability to edit a workout ✅
 //  Ability to drag marker to new location and update the workout object's location data to the new dragged location ✅
-//  More error and confirmation messages (confirm deletion of workout with popup)
+//  More error and confirmation messages (confirm deletion of workout with popup) ✅
 //  Ability to sort workouts by a certain field (distance, duration, etc.)
 //  Ability to position the map to show all workouts on the map
 //  Ability to draw lines/shapes instead of just points
