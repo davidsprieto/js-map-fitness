@@ -710,8 +710,8 @@ const app = new App();
 //  Ability to delete a specific workout ✅
 //  Ability to edit a workout ✅
 //  Ability to drag marker to new location and update the workout object's location data to the new dragged location ✅
+//  More error and confirmation messages (confirm deletion of workout with popup)
 //  Ability to sort workouts by a certain field (distance, duration, etc.)
-//  More error and confirmation messages
 //  Ability to position the map to show all workouts on the map
 //  Ability to draw lines/shapes instead of just points
 //  Geocode location from coordinates ("Run in {insert location from coordinates}")
