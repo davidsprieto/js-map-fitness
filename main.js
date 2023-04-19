@@ -159,8 +159,11 @@ class App {
     });
 
     // After the map loads, if a workout was just edited then get it from local storage and open the popup bound to it
+    // Then remove it from local storage and set the edited workout variable to null
     if (this.#editedWorkout) {
       this.#map._layers[this.#editedWorkout.id].openPopup();
+      localStorage.removeItem("editedWorkout");
+      this.#editedWorkout = null;
     }
   }
 
@@ -500,12 +503,6 @@ class App {
 
       // Remove the workout marker bound to the selected workout to be deleted from the array of markers
       this.#markers = this.#markers.filter(marker => marker._leaflet_id !== workout.id);
-
-      // If the selected workout to be deleted was the previously edited workout saved in local storage then remove it and assign the edited workout to be null
-      if (this.#editedWorkout.id === workout.id) {
-        this.#editedWorkout = null;
-        localStorage.removeItem("editedWorkout");
-      }
 
       // Remove the workout marker bound to the selected workout to be deleted from the map
       this.#map.removeLayer(marker);
