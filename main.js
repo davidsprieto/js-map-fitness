@@ -139,7 +139,7 @@ class App {
     const {latitude, longitude} = position.coords;
     const coords = [latitude, longitude];
 
-    // If a workout was just edited, then get it from local storage and set the map zoom view to that edited workout marker
+    // If a workout was just edited, then get it from local storage and set the map zoom view to that edited workout marker when the page is done reloading
     if (this.#editedWorkout) {
       this.#map = L.map('map').setView(this.#editedWorkout.coords, this.#mapZoomView);
     } else {
@@ -330,7 +330,7 @@ class App {
 
   // Render workout on map as marker
   _renderWorkoutMarker(workout) {
-    let marker = new L.marker(workout.coords, {
+    const marker = new L.marker(workout.coords, {
       draggable: true
     });
 
@@ -366,20 +366,14 @@ class App {
 
       // Reset local storage to reflect the updated workouts coordinates
       this._setLocalStorage();
-
-      // Check if the edited workout stored in local storage is the marker that was just dragged and had its coordinates updated
-      // If so, update the coords values to the new ones
-      if (this.#editedWorkout.id === marker._leaflet_id) {
-        this.#editedWorkout.coords = [lat, lng];
-      }
     });
   }
 
   // Once a new workout is created or a workout is edited then rendered on the page, query the DOM and attach a click event handler to the edit & delete buttons
   _renderWorkoutEditAndDeleteOperations() {
-    let editSpecificWorkout = document.querySelector('.workout__modify-edit');
+    const editSpecificWorkout = document.querySelector('.workout__modify-edit');
     editSpecificWorkout.addEventListener('click', this._openEditWorkoutModalForm.bind(this));
-    let deleteSpecificWorkout = document.querySelector('.workout__modify-delete');
+    const deleteSpecificWorkout = document.querySelector('.workout__modify-delete');
     deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
   }
 
@@ -445,7 +439,7 @@ class App {
 
   // Render new workout element to the sidebar list on the page
   _renderWorkoutToPage(workout) {
-    let element = this._renderWorkoutElement(workout);
+    const element = this._renderWorkoutElement(workout);
     newWorkoutForm.insertAdjacentElement('afterend', element);
     // Render edit and delete workout operations since the DOM is updated
     this._renderWorkoutEditAndDeleteOperations();
