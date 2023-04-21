@@ -376,8 +376,11 @@ class App {
   _renderWorkoutEditAndDeleteOperations() {
     const editSpecificWorkout = document.querySelector('.workout__modify-edit');
     editSpecificWorkout.addEventListener('click', this._openEditWorkoutModalForm.bind(this));
+
     const deleteSpecificWorkout = document.querySelector('.workout__modify-delete');
     deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
+
+
   }
 
   // Create workout element
@@ -395,13 +398,13 @@ class App {
           </div>
         </div>
         <div class="workout__details">
-          <span class="workout__icon">${workout.type === "running" ? "🏃" : "🚴‍"}</span>
-          <span class="workout__value">${workout.distance}</span>
+          <span id="type" class="workout__icon">${workout.type === "running" ? "🏃" : "🚴‍"}</span>
+          <span id="distance" class="workout__value">${workout.distance}</span>
           <span class="workout__unit">miles</span>
         </div>
         <div class="workout__details">
           <span class="workout__icon">⏱</span>
-          <span class="workout__value">${workout.duration}</span>
+          <span id="duration" class="workout__value">${workout.duration}</span>
           <span class="workout__unit">minutes</span>
         </div>
        `;
@@ -410,12 +413,12 @@ class App {
       html += `
         <div class="workout__details">
           <span class="workout__icon">⚡️</span>
-          <span class="workout__value">${workout.pace.toFixed(1)}</span>
+          <span id="pace" class="workout__value">${workout.pace.toFixed(1)}</span>
           <span class="workout__unit">min/mi</span>
         </div>
         <div class="workout__details">
           <span class="workout__icon">🦶🏼</span>
-          <span class="workout__value">${workout.cadence}</span>
+          <span id="cadence" class="workout__value">${workout.cadence}</span>
           <span class="workout__unit">spm</span>
         </div>
     `;
@@ -425,12 +428,12 @@ class App {
       html += `
         <div class="workout__details">
           <span class="workout__icon">⚡️</span>
-          <span class="workout__value">${workout.speed.toFixed(1)}</span>
+          <span id="speed" class="workout__value">${workout.speed.toFixed(1)}</span>
           <span class="workout__unit">mph</span>
         </div>
         <div class="workout__details">
           <span class="workout__icon">⛰</span>
-          <span class="workout__value">${workout.elevation}</span>
+          <span id="elevation" class="workout__value">${workout.elevation}</span>
           <span class="workout__unit">m</span>
         </div>
       `;
