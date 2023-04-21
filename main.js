@@ -75,9 +75,10 @@ const newWorkoutInputDuration = document.querySelector('.new__workout--form-inpu
 const newWorkoutInputCadence = document.querySelector('.new__workout--form-input-cadence');
 const newWorkoutInputElevation = document.querySelector('.new__workout--form-input-elevation');
 
-// Display delete all workouts button or no workouts listed header
+// Display delete all workouts button, no workouts listed header & sort button
 const noWorkoutsListedHeader = document.querySelector('.workouts__header--none-listed');
 const deleteAllWorkoutsButton = document.querySelector('.workouts__modify--delete-all');
+const sortBtn = document.querySelector('.sort');
 
 // Edit workout form
 const editWorkoutModalForm = document.querySelector('.modal__edit--workout-form');
@@ -122,6 +123,7 @@ class App {
     newWorkoutCloseFormBtn.addEventListener('click', this._hideForm);
     newWorkoutInputType.addEventListener('change', this._toggleNewWorkoutTypeField);
     deleteAllWorkoutsButton.addEventListener('click', this._deleteAllWorkouts);
+    sortBtn.addEventListener('change', this._sortElements.bind(this));
     editWorkoutCloseModalBtn.addEventListener('click', this._closeModal);
     editWorkoutModalForm.addEventListener('submit', this._editSpecificWorkout.bind(this));
     editWorkoutInputType.addEventListener('change', this._toggleEditWorkoutTypeField.bind(this));
@@ -376,11 +378,14 @@ class App {
   _renderWorkoutEditAndDeleteOperations() {
     const editSpecificWorkout = document.querySelector('.workout__modify-edit');
     editSpecificWorkout.addEventListener('click', this._openEditWorkoutModalForm.bind(this));
-
     const deleteSpecificWorkout = document.querySelector('.workout__modify-delete');
     deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
+  }
 
-
+  _sortElements(e) {
+    console.log(e.target.value);
+    const durations = containerWorkouts.querySelectorAll('.workout__value--duration');
+    console.log(durations);
   }
 
   // Create workout element
@@ -398,13 +403,13 @@ class App {
           </div>
         </div>
         <div class="workout__details">
-          <span id="type" class="workout__icon">${workout.type === "running" ? "🏃" : "🚴‍"}</span>
-          <span id="distance" class="workout__value">${workout.distance}</span>
+          <span class="workout__icon">${workout.type === "running" ? "🏃" : "🚴‍"}</span>
+          <span class="workout__value--distance">${workout.distance}</span>
           <span class="workout__unit">miles</span>
         </div>
         <div class="workout__details">
           <span class="workout__icon">⏱</span>
-          <span id="duration" class="workout__value">${workout.duration}</span>
+          <span class="workout__value--duration">${workout.duration}</span>
           <span class="workout__unit">minutes</span>
         </div>
        `;
@@ -413,12 +418,12 @@ class App {
       html += `
         <div class="workout__details">
           <span class="workout__icon">⚡️</span>
-          <span id="pace" class="workout__value">${workout.pace.toFixed(1)}</span>
+          <span class="workout__value--pace">${workout.pace.toFixed(1)}</span>
           <span class="workout__unit">min/mi</span>
         </div>
         <div class="workout__details">
           <span class="workout__icon">🦶🏼</span>
-          <span id="cadence" class="workout__value">${workout.cadence}</span>
+          <span class="workout__value--cadence">${workout.cadence}</span>
           <span class="workout__unit">spm</span>
         </div>
     `;
@@ -428,12 +433,12 @@ class App {
       html += `
         <div class="workout__details">
           <span class="workout__icon">⚡️</span>
-          <span id="speed" class="workout__value">${workout.speed.toFixed(1)}</span>
+          <span class="workout__value--speed">${workout.speed.toFixed(1)}</span>
           <span class="workout__unit">mph</span>
         </div>
         <div class="workout__details">
           <span class="workout__icon">⛰</span>
-          <span id="elevation" class="workout__value">${workout.elevation}</span>
+          <span class="workout__value--elevation">${workout.elevation}</span>
           <span class="workout__unit">m</span>
         </div>
       `;

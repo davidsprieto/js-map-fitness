@@ -8,7 +8,8 @@
     <!-- Google Fonts API -->
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet"/>
     <!-- Leaflet Map CDN CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+          integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
     <!-- Custom CSS File -->
     <link rel="stylesheet" href="./style.css"/>
     <!-- Leaflet Map CDN JS -->
@@ -21,8 +22,15 @@
 <body>
 <div id="sidebar" class="sidebar">
     <img src="./assets/logo.png" alt="Logo" class="logo"/>
+
     <div class="workouts__header--none-listed hidden">Click a location on the map to log where you worked out!</div>
+
     <button class="workouts__modify--delete-all hidden"><span>Delete Workouts</span></button>
+
+    <select class="sort">
+        <option value="distance">Distance</option>
+        <option value="duration">Duration</option>
+    </select>
 
     <ul id="workouts" class="workouts">
         <form class="new__workout--form hidden">

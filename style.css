@@ -175,7 +175,13 @@ a:visited {
     height: 0.28rem;
 }
 
-.workout__value {
+.workout__value--distance,
+.workout__value--duration,
+.workout__value--pace,
+.workout__value--cadence,
+.workout__value--speed,
+.workout__value--elevation
+{
     font-size: 1.5rem;
     margin-right: 0.25rem;
 }
