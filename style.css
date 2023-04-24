@@ -220,7 +220,7 @@ a:visited {
 
 .new__workout--form {
     background-color: var(--color-dark--2);
-    border-radius: 20px;
+    border-radius: 15px;
     padding: 1.5rem 2.75rem;
     margin-bottom: 1.75rem;
 
@@ -372,7 +372,7 @@ a:visited {
     overflow: auto;
     position: fixed;
 
-    border-radius: 20px;
+    border-radius: 15px;
     padding: 1.5rem 2.75rem;
     background-color: var(--color-dark--2);
 

@@ -401,14 +401,24 @@ class App {
     let sortBy = e.target.value.toLowerCase();
     let elements = containerWorkouts.getElementsByTagName('li');
 
-    if (sortBy === "shortest distance") {
+    if (sortBy === "shortest-distance") {
       return Array.from(elements)
         .sort((a, b) => +a.querySelector('.workout__value--distance').innerText - +b.querySelector('.workout__value--distance').innerText)
         .forEach(li => containerWorkouts.appendChild(li));
     }
-    if (sortBy === "longest distance") {
+    if (sortBy === "shortest-duration") {
+      return Array.from(elements)
+        .sort((a, b) => +a.querySelector('.workout__value--duration').innerText - +b.querySelector('.workout__value--duration').innerText)
+        .forEach(li => containerWorkouts.appendChild(li));
+    }
+    if (sortBy === "longest-distance") {
       return Array.from(elements)
         .sort((a, b) => +b.querySelector('.workout__value--distance').innerText - +a.querySelector('.workout__value--distance').innerText)
+        .forEach(li => containerWorkouts.appendChild(li));
+    }
+    if (sortBy === "longest-duration") {
+      return Array.from(elements)
+        .sort((a, b) => +b.querySelector('.workout__value--duration').innerText - +a.querySelector('.workout__value--duration').innerText)
         .forEach(li => containerWorkouts.appendChild(li));
     }
   }
