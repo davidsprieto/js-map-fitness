@@ -66,7 +66,7 @@ class Cycling extends Workout {
 ///////////////////////////////////////////////////////////////
 // APPLICATION ARCHITECTURE
 
-// New workout form
+// List of workouts sidebar container & new workout form
 const containerWorkouts = document.querySelector('.workouts');
 const newWorkoutForm = document.querySelector('.new__workout--form');
 const newWorkoutInputType = document.querySelector('.new__workout--form-input-type');
@@ -77,9 +77,9 @@ const newWorkoutInputElevation = document.querySelector('.new__workout--form-inp
 
 // Display delete all workouts button, no workouts listed header & sort option
 const noWorkoutsListedHeader = document.querySelector('.workouts__header--none-listed');
-const deleteAllWorkoutsBtn = document.querySelector('.workouts__modify--delete-all');
 const containerSortWorkouts = document.querySelector('.sort__workouts');
 const sortWorkoutsOptionsBtn = document.querySelector('.sort__workouts--by-options');
+const deleteAllWorkoutsBtn = document.querySelector('.workouts__modify--delete-all');
 
 // Edit workout form
 const editWorkoutModalForm = document.querySelector('.modal__edit--workout-form');
@@ -123,8 +123,8 @@ class App {
     newWorkoutForm.addEventListener('submit', this._newWorkout.bind(this));
     newWorkoutCloseFormBtn.addEventListener('click', this._hideForm);
     newWorkoutInputType.addEventListener('change', this._toggleNewWorkoutTypeField);
-    deleteAllWorkoutsBtn.addEventListener('click', this._deleteAllWorkouts);
     sortWorkoutsOptionsBtn.addEventListener('change', this._sortElements.bind(this));
+    deleteAllWorkoutsBtn.addEventListener('click', this._deleteAllWorkouts);
     editWorkoutCloseModalBtn.addEventListener('click', this._closeModal);
     editWorkoutModalForm.addEventListener('submit', this._editSpecificWorkout.bind(this));
     editWorkoutInputType.addEventListener('change', this._toggleEditWorkoutTypeField.bind(this));
@@ -280,8 +280,8 @@ class App {
     editWorkoutElevationField.classList.remove('hidden');
   }
 
-  // If the length of the workouts array is 0 then hide the delete all workouts button as there are no workouts to display,
-  // else display the no workouts listed header
+  // If the length of the workouts array is 0 then hide the delete all workouts button and sort workouts by options
+  // as there are no workouts to display, then display the no workouts listed header
   _areWorkoutsListed() {
     if (this.#workouts.length < 1) {
       this._hideDeleteAllWorkoutsButton();
@@ -300,6 +300,7 @@ class App {
     return this.#workouts.find(workout => workout.id === id);
   }
 
+  // Function to find the marker that's bound to the workout by comparing it to the leaflet id and workout id
   _findWorkoutMarkerById(id) {
     return this.#markers.find(marker => marker._leaflet_id === id)
   }
@@ -389,38 +390,11 @@ class App {
   }
 
   // Once a new workout is created or a workout is edited then rendered on the page, query the DOM and attach a click event handler to the edit & delete buttons
-  _renderWorkoutEditAndDeleteOperations() {
+  _renderWorkoutOperationsWhenDOMIsUpdated() {
     const editSpecificWorkout = document.querySelector('.workout__modify-edit');
     editSpecificWorkout.addEventListener('click', this._openEditWorkoutModalForm.bind(this));
     const deleteSpecificWorkout = document.querySelector('.workout__modify-delete');
     deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
-  }
-
-  // Sort elements by distance or duration
-  _sortElements(e) {
-    let sortBy = e.target.value.toLowerCase();
-    let elements = containerWorkouts.getElementsByTagName('li');
-
-    if (sortBy === "shortest-distance") {
-      return Array.from(elements)
-        .sort((a, b) => +a.querySelector('.workout__value--distance').innerText - +b.querySelector('.workout__value--distance').innerText)
-        .forEach(li => containerWorkouts.appendChild(li));
-    }
-    if (sortBy === "shortest-duration") {
-      return Array.from(elements)
-        .sort((a, b) => +a.querySelector('.workout__value--duration').innerText - +b.querySelector('.workout__value--duration').innerText)
-        .forEach(li => containerWorkouts.appendChild(li));
-    }
-    if (sortBy === "longest-distance") {
-      return Array.from(elements)
-        .sort((a, b) => +b.querySelector('.workout__value--distance').innerText - +a.querySelector('.workout__value--distance').innerText)
-        .forEach(li => containerWorkouts.appendChild(li));
-    }
-    if (sortBy === "longest-duration") {
-      return Array.from(elements)
-        .sort((a, b) => +b.querySelector('.workout__value--duration').innerText - +a.querySelector('.workout__value--duration').innerText)
-        .forEach(li => containerWorkouts.appendChild(li));
-    }
   }
 
   // Create workout element
@@ -488,36 +462,95 @@ class App {
     const element = this._renderWorkoutElement(workout);
     newWorkoutForm.insertAdjacentElement('afterend', element);
     // Render edit and delete workout operations since the DOM is updated
-    this._renderWorkoutEditAndDeleteOperations();
+    this._renderWorkoutOperationsWhenDOMIsUpdated();
   }
 
-  // Store edited workout & workouts in local storage
-  _setLocalStorage() {
-    if (this.#editedWorkout) {
-      localStorage.setItem("editedWorkout", JSON.stringify(this.#editedWorkout));
+  // Create a new workout object when the user submits the form
+  _newWorkout(e) {
+    // Prevent page reload
+    e.preventDefault();
+
+    // Get data from form fields
+    const type = newWorkoutInputType.value;
+    const distance = +newWorkoutInputDistance.value;
+    const duration = +newWorkoutInputDuration.value;
+
+    // Coordinates variables containing coords data when user clicks on the map
+    const {lat, lng} = this.#mapEvent.latlng;
+
+    // Declare workout variable
+    let workout;
+
+    // If running workout, create a running object
+    if (type === 'running') {
+      const cadence = +newWorkoutInputCadence.value;
+      // Check if data is valid
+      if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
+        return alert("Input must be a positive number!");
+      }
+      workout = new Running([lat, lng], distance, duration, cadence);
     }
-    localStorage.setItem("workouts", JSON.stringify(this.#workouts));
-  }
 
-  // Get edited workout & workouts from local storage
-  _getLocalStorage() {
-    this.#editedWorkout = JSON.parse(localStorage.getItem("editedWorkout"));
-
-    const data = JSON.parse(localStorage.getItem("workouts"));
-
-    if (!data || data.length === 0) {
-      return this._showNoWorkoutsListedHeader();
+    // If cycling workout, create a cycling object
+    if (type === 'cycling') {
+      const elevation = +newWorkoutInputElevation.value;
+      // Check if data is valid
+      if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
+        return alert("Input must be a positive number!");
+      }
+      workout = new Cycling([lat, lng], distance, duration, elevation);
     }
 
-    this.#workouts = data;
+    // Add new object to workout array
+    this.#workouts.push(workout);
 
-    this.#workouts.forEach(workout => {
-      this._renderWorkoutToPage(workout);
-    });
+    // Render workout on map as marker
+    this._renderWorkoutMarker(workout);
 
+    // Render workout to the list on the page
+    this._renderWorkoutToPage(workout);
+
+    // Store workouts in local storage
+    this._setLocalStorage();
+
+    // Clear the form input fields && Hide form
+    this._hideForm();
+
+    // Hide the no workouts listed header
+    this._hideNoWorkoutsListedHeader();
+
+    // Display the delete all workouts button
     this._showDeleteAllWorkoutsButton();
 
+    // Display the sort workouts by option
     this._showSortWorkoutsByOption();
+  }
+
+  // Sort elements by distance or duration
+  _sortElements(e) {
+    let sortBy = e.target.value.toLowerCase();
+    let elements = containerWorkouts.getElementsByTagName('li');
+
+    if (sortBy === "shortest-distance") {
+      return Array.from(elements)
+        .sort((a, b) => +a.querySelector('.workout__value--distance').innerText - +b.querySelector('.workout__value--distance').innerText)
+        .forEach(li => containerWorkouts.appendChild(li));
+    }
+    if (sortBy === "shortest-duration") {
+      return Array.from(elements)
+        .sort((a, b) => +a.querySelector('.workout__value--duration').innerText - +b.querySelector('.workout__value--duration').innerText)
+        .forEach(li => containerWorkouts.appendChild(li));
+    }
+    if (sortBy === "longest-distance") {
+      return Array.from(elements)
+        .sort((a, b) => +b.querySelector('.workout__value--distance').innerText - +a.querySelector('.workout__value--distance').innerText)
+        .forEach(li => containerWorkouts.appendChild(li));
+    }
+    if (sortBy === "longest-duration") {
+      return Array.from(elements)
+        .sort((a, b) => +b.querySelector('.workout__value--duration').innerText - +a.querySelector('.workout__value--duration').innerText)
+        .forEach(li => containerWorkouts.appendChild(li));
+    }
   }
 
   // Delete edited workout & all workouts from local storage
@@ -525,6 +558,7 @@ class App {
     localStorage.removeItem("editedWorkout");
     localStorage.removeItem("workouts");
     location.reload();
+
     this._hideDeleteAllWorkoutsButton();
     this._hideSortWorkoutsByOption();
     this._showNoWorkoutsListedHeader();
@@ -672,7 +706,7 @@ class App {
     this.#editedWorkout = this.#workoutToEdit;
 
     // Render edit and delete workout operations since the DOM is updated
-    this._renderWorkoutEditAndDeleteOperations();
+    this._renderWorkoutOperationsWhenDOMIsUpdated();
 
     // Reset the local storage of edited workout & workouts so that the workouts array data is updated along with the workout just edited
     // so that on page reload the map view can be set to that marker
@@ -685,64 +719,32 @@ class App {
     location.reload();
   }
 
-  // Create a new workout object when the user submits the form
-  _newWorkout(e) {
-    // Prevent page reload
-    e.preventDefault();
+  // Store edited workout only if one was just edited & store workouts in local storage
+  _setLocalStorage() {
+    if (this.#editedWorkout) {
+      localStorage.setItem("editedWorkout", JSON.stringify(this.#editedWorkout));
+    }
+    localStorage.setItem("workouts", JSON.stringify(this.#workouts));
+  }
 
-    // Get data from form fields
-    const type = newWorkoutInputType.value;
-    const distance = +newWorkoutInputDistance.value;
-    const duration = +newWorkoutInputDuration.value;
+  // Get edited workout & workouts from local storage
+  _getLocalStorage() {
+    this.#editedWorkout = JSON.parse(localStorage.getItem("editedWorkout"));
 
-    // Coordinates variables containing coords data when user clicks on the map
-    const {lat, lng} = this.#mapEvent.latlng;
+    const data = JSON.parse(localStorage.getItem("workouts"));
 
-    // Declare workout variable
-    let workout;
-
-    // If running workout, create a running object
-    if (type === 'running') {
-      const cadence = +newWorkoutInputCadence.value;
-      // Check if data is valid
-      if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
-        return alert("Input must be a positive number!");
-      }
-      workout = new Running([lat, lng], distance, duration, cadence);
+    if (!data || data.length === 0) {
+      return this._showNoWorkoutsListedHeader();
     }
 
-    // If cycling workout, create a cycling object
-    if (type === 'cycling') {
-      const elevation = +newWorkoutInputElevation.value;
-      // Check if data is valid
-      if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-        return alert("Input must be a positive number!");
-      }
-      workout = new Cycling([lat, lng], distance, duration, elevation);
-    }
+    this.#workouts = data;
 
-    // Add new object to workout array
-    this.#workouts.push(workout);
+    this.#workouts.forEach(workout => {
+      this._renderWorkoutToPage(workout);
+    });
 
-    // Render workout on map as marker
-    this._renderWorkoutMarker(workout);
-
-    // Render workout to the list on the page
-    this._renderWorkoutToPage(workout);
-
-    // Store workouts in local storage
-    this._setLocalStorage();
-
-    // Clear the form input fields && Hide form
-    this._hideForm();
-
-    // Hide the no workouts listed header
-    this._hideNoWorkoutsListedHeader();
-
-    // Display the delete all workouts button
     this._showDeleteAllWorkoutsButton();
 
-    // Display the sort workouts by option
     this._showSortWorkoutsByOption();
   }
 }
