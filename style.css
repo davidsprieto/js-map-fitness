@@ -257,6 +257,12 @@ a:visited {
     cursor: pointer;
 }
 
+.new__workout--close-form-btn:hover {
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--color-brand--2);
+}
+
 .form__row {
     display: flex;
     align-items: center;
@@ -401,4 +407,10 @@ a:visited {
 .modal__edit--workout-close-form-btn {
     font-size: 2rem;
     cursor: pointer;
+}
+
+.modal__edit--workout-close-form-btn:hover {
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--color-brand--2);
 }
