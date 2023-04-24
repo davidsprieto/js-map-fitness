@@ -398,17 +398,17 @@ class App {
 
   // Sort elements by distance or duration
   _sortElements(e) {
-    const sortBy = e.target.value.toLowerCase();
+    let sortBy = e.target.value.toLowerCase();
     let elements = containerWorkouts.getElementsByTagName('li');
 
     if (sortBy === "shortest distance") {
       Array.from(elements)
-        .sort((a, b) => a.textContent.localeCompare(b.textContent))
+        .sort((a, b) => +a.querySelector('.workout__value--distance').innerText - +b.querySelector('.workout__value--distance').innerText)
         .forEach(li => containerWorkouts.appendChild(li));
     }
     if (sortBy === "longest distance") {
       Array.from(elements)
-        .sort((a, b) => b.textContent.localeCompare(a.textContent))
+        .sort((a, b) => +b.querySelector('.workout__value--distance').innerText - +a.querySelector('.workout__value--distance').innerText)
         .forEach(li => containerWorkouts.appendChild(li));
     }
   }
