@@ -75,10 +75,11 @@ const newWorkoutInputDuration = document.querySelector('.new__workout--form-inpu
 const newWorkoutInputCadence = document.querySelector('.new__workout--form-input-cadence');
 const newWorkoutInputElevation = document.querySelector('.new__workout--form-input-elevation');
 
-// Display delete all workouts button, no workouts listed header & sort button
+// Display delete all workouts button, no workouts listed header & sort option
 const noWorkoutsListedHeader = document.querySelector('.workouts__header--none-listed');
-const deleteAllWorkoutsButton = document.querySelector('.workouts__modify--delete-all');
-const sortBtn = document.querySelector('.sort');
+const deleteAllWorkoutsBtn = document.querySelector('.workouts__modify--delete-all');
+const containerSortWorkouts = document.querySelector('.sort__workouts');
+const sortWorkoutsOptionsBtn = document.querySelector('.sort__workouts--by-options');
 
 // Edit workout form
 const editWorkoutModalForm = document.querySelector('.modal__edit--workout-form');
@@ -122,8 +123,8 @@ class App {
     newWorkoutForm.addEventListener('submit', this._newWorkout.bind(this));
     newWorkoutCloseFormBtn.addEventListener('click', this._hideForm);
     newWorkoutInputType.addEventListener('change', this._toggleNewWorkoutTypeField);
-    deleteAllWorkoutsButton.addEventListener('click', this._deleteAllWorkouts);
-    sortBtn.addEventListener('change', this._sortElements.bind(this));
+    deleteAllWorkoutsBtn.addEventListener('click', this._deleteAllWorkouts);
+    sortWorkoutsOptionsBtn.addEventListener('change', this._sortElements.bind(this));
     editWorkoutCloseModalBtn.addEventListener('click', this._closeModal);
     editWorkoutModalForm.addEventListener('submit', this._editSpecificWorkout.bind(this));
     editWorkoutInputType.addEventListener('change', this._toggleEditWorkoutTypeField.bind(this));
@@ -237,12 +238,12 @@ class App {
 
   // Display the delete all workouts button
   _showDeleteAllWorkoutsButton() {
-    deleteAllWorkoutsButton.classList.remove('hidden');
+    deleteAllWorkoutsBtn.classList.remove('hidden');
   }
 
   // Hide the delete all workouts button
   _hideDeleteAllWorkoutsButton() {
-    deleteAllWorkoutsButton.classList.add('hidden');
+    deleteAllWorkoutsBtn.classList.add('hidden');
   }
 
   // Display the no workouts listed header
@@ -253,6 +254,18 @@ class App {
   // Hide the no workouts listed header
   _hideNoWorkoutsListedHeader() {
     noWorkoutsListedHeader.classList.add('hidden');
+  }
+
+  // Show the sort workouts by option only if the sidebar list of workouts contains more than 1 workout
+  _showSortWorkoutsByOption() {
+    if (this.#workouts.length > 1) {
+      containerSortWorkouts.classList.remove('hidden');
+    }
+  }
+
+  // Hide the sort workouts by option
+  _hideSortWorkoutsByOption() {
+    containerSortWorkouts.classList.add('hidden');
   }
 
   // Show the edit workouts modal cadence field & hide the elevation field
@@ -272,6 +285,7 @@ class App {
   _areWorkoutsListed() {
     if (this.#workouts.length < 1) {
       this._hideDeleteAllWorkoutsButton();
+      this._hideSortWorkoutsByOption();
       this._showNoWorkoutsListedHeader();
     }
   }
@@ -382,10 +396,13 @@ class App {
     deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
   }
 
+  // Sort elements by distance or duration
   _sortElements(e) {
-    console.log(e.target.value);
-    const durations = containerWorkouts.querySelectorAll('.workout__value--duration');
-    console.log(durations);
+    let elements = containerWorkouts.getElementsByTagName('li');
+
+    Array.from(elements)
+      .sort((a, b) => a.textContent.localeCompare(b.textContent))
+      .forEach(li => containerWorkouts.appendChild(li));
   }
 
   // Create workout element
@@ -481,6 +498,8 @@ class App {
     });
 
     this._showDeleteAllWorkoutsButton();
+
+    this._showSortWorkoutsByOption();
   }
 
   // Delete edited workout & all workouts from local storage
@@ -489,6 +508,7 @@ class App {
     localStorage.removeItem("workouts");
     location.reload();
     this._hideDeleteAllWorkoutsButton();
+    this._hideSortWorkoutsByOption();
     this._showNoWorkoutsListedHeader();
   }
 
@@ -518,7 +538,7 @@ class App {
       // Remove the selected workout to be deleted from the sidebar list of workouts
       workoutElement.remove();
 
-      // Check if the workouts array is empty
+      // Check if the workouts array contains workouts data
       this._areWorkoutsListed();
 
       // Reset the local storage of workouts so that it's updated with the new array of workouts with the deleted workout removed
@@ -703,6 +723,9 @@ class App {
 
     // Display the delete all workouts button
     this._showDeleteAllWorkoutsButton();
+
+    // Display the sort workouts by option
+    this._showSortWorkoutsByOption();
   }
 }
 
@@ -714,7 +737,7 @@ const app = new App();
 //  Ability to edit a workout ✅
 //  Ability to drag marker to new location and update the workout object's location data to the new dragged location ✅
 //  More error and confirmation messages (confirm deletion of workout with popup) ✅
-//  Ability to sort workouts by a certain field (distance, duration, etc.)
+//  Ability to sort workouts by a certain field (distance, duration, etc.) ✅
 //  Ability to position the map to show all workouts on the map
 //  Ability to draw lines/shapes instead of just points
 //  Geocode location from coordinates ("Run in {insert location from coordinates}")

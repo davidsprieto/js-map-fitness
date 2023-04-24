@@ -27,10 +27,13 @@
 
     <button class="workouts__modify--delete-all hidden"><span>Delete Workouts</span></button>
 
-    <select class="sort">
-        <option value="distance">Distance</option>
-        <option value="duration">Duration</option>
-    </select>
+    <div class="sort__workouts hidden">
+        <label class="sort__workouts--by-label">Sort Workouts By:</label>
+        <select class="sort__workouts--by-options">
+            <option value="distance">Distance</option>
+            <option value="duration">Duration</option>
+        </select>
+    </div>
 
     <ul id="workouts" class="workouts">
         <form class="new__workout--form hidden">
