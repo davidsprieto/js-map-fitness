@@ -1,6 +1,6 @@
 # Mapty - Track Your Workouts by Location on a Map!
 
-<body align="center">
+<body style="text-align:center">
     Single-page web application developed using:
 
     Markup Language:
