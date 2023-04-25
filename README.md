@@ -1,6 +1,6 @@
 # Mapty - Track Your Workouts by Location on a Map!
 
-<body style="text-align:center">
+<p align="center">
     Single-page web application developed using:
 
     Markup Language:
@@ -23,4 +23,4 @@
         <a class="twitter-link" target="_blank" href="https://twitter.com/jonasschmedtman">Jonas Schmedtmann</a> in the
         Udemy Course: The Complete JavaScript Course. This project is not entirely my own. I followed along and completed this project module               portion to use for my own learning and deeper understanding of JavaScript. However, many additions and features were implemented on                 my own by reading the Leaflet documentation and experimenting with ideas that I believed would provide for a better user experience.
     </p>
-</body>
+</p>
