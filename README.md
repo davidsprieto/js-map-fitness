@@ -1,8 +1,8 @@
 <h1 align="center">Mapty - Track Your Workouts by Location on a Map!</h1>
 
-<h2 align="center">Single-page web application developed using:<h2>
+<h2 align="center">Single-page web application developed using:</h2>
 
-
+<body>
 Markup Language:
 - HTML
 
@@ -16,6 +16,7 @@ Programming language:
 
 Library:
 - Leaflet (An open-source JavaScript library for mobile-friendly interactive maps)
+</body>
 
 
 <p align="center" class="copyright">
