@@ -1,6 +1,6 @@
 <h1 align="center">Mapty - Track Your Workouts by Location on a Map!</h1>
 
-<h2 align="center">Single-page web application developed using:</h2>
+<h3 align="center">Single-page web application developed using:</h2>
 
 <p>
 Markup Language:
