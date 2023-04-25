@@ -110,6 +110,7 @@ class App {
   #workoutElementToEdit;
   isModalOpen = false;
   isFormOpen = false;
+  #placeholderMarker;
   workoutId;
 
   constructor() {
@@ -122,7 +123,7 @@ class App {
     // Attach event handlers
     containerWorkouts.addEventListener('click', this._moveToPopupAndHighlightWorkout.bind(this));
     newWorkoutForm.addEventListener('submit', this._newWorkout.bind(this));
-    newWorkoutCloseFormBtn.addEventListener('click', this._hideForm);
+    newWorkoutCloseFormBtn.addEventListener('click', this._hideForm.bind(this));
     newWorkoutInputType.addEventListener('change', this._toggleNewWorkoutTypeField);
     sortWorkoutsOptionsBtn.addEventListener('change', this._sortElements.bind(this));
     deleteAllWorkoutsBtn.addEventListener('click', this._deleteAllWorkouts);
@@ -163,35 +164,38 @@ class App {
     });
 
     // After the map loads, if a workout was just edited then get it from local storage and open the popup bound to it
-    // Then remove it from local storage and set the edited workout variable to null
+    // Then remove it from local storage and set the edited workout variable to undefined
     if (this.#editedWorkout) {
       this.#map._layers[this.#editedWorkout.id].openPopup();
       localStorage.removeItem("editedWorkout");
-      this.#editedWorkout = null;
+      this.#editedWorkout = undefined;
     }
   }
 
-  // After user clicks on map to create a marker, display the workout form
+  // After user clicks on map to create a marker, display the workout form and assign the click to the map event variable
   _showForm(mapE) {
     // First check if the edit workout modal is open when a user decides to add a new workout, if it is then close it
     if (this.isModalOpen) {
       this._closeModal();
     }
     this.#mapEvent = mapE;
+    this._renderPlaceholderMarker();
     newWorkoutForm.classList.remove('hidden');
-    this.isFormOpen = true;
     newWorkoutInputDistance.focus();
+    this.isFormOpen = true;
   }
 
-  // Hide new workout form & clear the input fields
+  // Hide new workout form, clear the input fields
   _hideForm() {
     newWorkoutInputDistance.value = newWorkoutInputDuration.value = newWorkoutInputCadence.value = newWorkoutInputElevation.value = "";
     newWorkoutForm.style.display = "none";
     newWorkoutForm.classList.add('hidden');
-    this.isFormOpen = false;
+    // Check if a placeholder marker has been created
+    this._isThereAPlaceholderMarker();
     setTimeout(() => {
       newWorkoutForm.style.display = "flex";
     }, 1000);
+    this.isFormOpen = false;
   }
 
   // open modal when the edit button is clicked
@@ -209,10 +213,10 @@ class App {
     editWorkoutInputDistance.value = editWorkoutInputDuration.value = editWorkoutInputCadence.value = editWorkoutInputElevation.value = "";
     editWorkoutModalForm.style.display = "none";
     editWorkoutModalForm.classList.add('hidden');
-    this.isModalOpen = false;
     setTimeout(() => {
       editWorkoutModalForm.style.display = "flex";
     }, 1000);
+    this.isModalOpen = false;
   }
 
   // For the new workout form:
@@ -291,6 +295,15 @@ class App {
     }
   }
 
+  // If there is a placeholder marker created, remove it from the map & set both the placeholder marker and map event variables to undefined
+  _isThereAPlaceholderMarker() {
+    if (this.#placeholderMarker) {
+      this.#map.removeLayer(this.#placeholderMarker);
+      this.#placeholderMarker = undefined;
+      this.#mapEvent = undefined;
+    }
+  }
+
   // Function to retrieve the workout HTML element by traversing the DOM towards the document root to find the matching inputted class selector string
   _findHTMLWorkoutElement(e) {
     return e.target.closest(".workout");
@@ -317,6 +330,7 @@ class App {
   }
 
   // If the user clicks on a workout from the sidebar list, have the map navigate and display where that workout marker was created
+  // And highlight the selected workout on the sidebar list of workouts
   _moveToPopupAndHighlightWorkout(e) {
     let id = this.workoutId;
 
@@ -367,8 +381,24 @@ class App {
     }
   }
 
+  // Render placeholder marker when user clicks on map
+  _renderPlaceholderMarker() {
+    // First check if the new workout form is open, if it is then alert the user to fill out the form or close it before proceeding
+    if (this.isFormOpen) {
+      return alert("Please fill out the form with your workout data or close the form!");
+    }
+    const {lat, lng} = this.#mapEvent.latlng;
+    const coords = [lat, lng];
+    this.#placeholderMarker = new L.marker(coords);
+    this.#map.addLayer(this.#placeholderMarker);
+  }
+
   // Render workout on map as marker
   _renderWorkoutMarker(workout) {
+    // First check if a placeholder marker has been created
+    this._isThereAPlaceholderMarker();
+
+    // Create a new marker variable to be added to the map
     const marker = new L.marker(workout.coords, {
       draggable: true
     });

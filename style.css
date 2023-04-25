@@ -182,7 +182,6 @@ a:visited {
 }
 
 .workout__modify-edit:hover {
-    color: antiquewhite;
     text-decoration: underline;
     /*cursor: url("./assets/icon-edit.png"), auto;*/
 }
@@ -192,7 +191,6 @@ a:visited {
 }
 
 .workout__modify-delete:hover {
-    color: antiquewhite;
     text-decoration: underline;
     /*cursor: url("./assets/icon-trash.png"), auto;*/
 }
@@ -270,7 +268,6 @@ a:visited {
 .new__workout--close-form-btn:hover {
     font-size: 2rem;
     cursor: pointer;
-    color: antiquewhite;
     text-decoration: underline;
 }
 
@@ -423,6 +420,5 @@ a:visited {
 .modal__edit--workout-close-form-btn:hover {
     font-size: 2rem;
     cursor: pointer;
-    color: antiquewhite;
     text-decoration: underline;
 }
