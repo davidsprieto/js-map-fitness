@@ -2,7 +2,7 @@
 
 <h2 align="center">Single-page web application developed using:</h2>
 
-<body>
+<p>
 Markup Language:
 - HTML
 
@@ -16,8 +16,7 @@ Programming language:
 
 Library:
 - Leaflet (An open-source JavaScript library for mobile-friendly interactive maps)
-</body>
-
+</p>
 
 <p align="center" class="copyright">
     &copy; Base Project Created by
