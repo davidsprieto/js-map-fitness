@@ -14,8 +14,6 @@ Programming language:
 Library:
 - Leaflet (An open-source JavaScript library for mobile-friendly interactive maps)
 
-<br>
-
 <p class="copyright">
     &copy; Base Project Created by
     <a class="twitter-link" target="_blank" href="https://twitter.com/jonasschmedtman">Jonas Schmedtmann</a> in the
