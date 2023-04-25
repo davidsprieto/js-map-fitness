@@ -13,3 +13,13 @@ Programming language:
 
 Library:
 - Leaflet (An open-source JavaScript library for mobile-friendly interactive maps)
+
+<p class="copyright">
+    &copy; Base Project Created by
+    <a class="twitter-link" target="_blank" href="https://twitter.com/jonasschmedtman">Jonas Schmedtmann</a> in the
+    Udemy Course: The Complete JavaScript Course.
+    This project is not entirely my own. I followed along and completed this project module portion to use for my
+    own
+    learning. HOWEVER, MANY FEATURES NOT SHOWN IN THE COURSE
+    WERE IMPLEMENTED ON MY OWN.
+</p>
