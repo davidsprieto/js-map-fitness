@@ -120,7 +120,7 @@ class App {
     this._getLocalStorage();
 
     // Attach event handlers
-    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+    containerWorkouts.addEventListener('click', this._moveToPopupAndHighlightWorkout.bind(this));
     newWorkoutForm.addEventListener('submit', this._newWorkout.bind(this));
     newWorkoutCloseFormBtn.addEventListener('click', this._hideForm);
     newWorkoutInputType.addEventListener('change', this._toggleNewWorkoutTypeField);
@@ -237,31 +237,6 @@ class App {
     }
   }
 
-  // When a user selects a workout from the sidebar list of workouts, add a class that style it with a border to let the user know of the currently selected workout from the sidebar
-  // **NOTE** : This current solution is probably not the most optimal for performance so will most likely have to refactor and figure out alternate solution
-  _toggleSelectedWorkout(e) {
-    const workoutElement = this._findHTMLWorkoutElement(e);
-    const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
-    const type = workout.type;
-
-    this.#workoutElements.map(workout => {
-      if (workout.classList.contains('workout__running--selected')) {
-        workout.classList.remove('workout__running--selected');
-      }
-      if (workout.classList.contains('workout__cycling--selected')) {
-        workout.classList.remove('workout__cycling--selected');
-      }
-    });
-
-    if (type === "running") {
-      workoutElement.classList.add('workout__running--selected');
-    }
-
-    if (type === "cycling") {
-      workoutElement.classList.add('workout__cycling--selected');
-    }
-  }
-
   // Display the delete all workouts button
   _showDeleteAllWorkoutsButton() {
     deleteAllWorkoutsBtn.classList.remove('hidden');
@@ -342,7 +317,7 @@ class App {
   }
 
   // If the user clicks on a workout from the sidebar list, have the map navigate and display where that workout marker was created
-  _moveToPopup(e) {
+  _moveToPopupAndHighlightWorkout(e) {
     let id = this.workoutId;
 
     const workoutElement = this._findHTMLWorkoutElement(e);
@@ -371,6 +346,24 @@ class App {
       });
     } catch {
       console.log("Marker removed");
+    }
+
+    // When a user selects a workout from the sidebar list of workouts, add a class that styles it with a border to let the user know of the currently selected workout from the sidebar
+    // **NOTE** : This current solution is may not be the most optimal for performance so will most likely have to refactor and figure out alternate solution
+    const type = workout.type;
+
+    this.#workoutElements.map(workout => {
+      if (workout.classList.contains('workout__running--selected')) {
+        workout.classList.remove('workout__running--selected');
+      } else {
+        workout.classList.remove('workout__cycling--selected');
+      }
+    });
+
+    if (type === "running") {
+      workoutElement.classList.add('workout__running--selected');
+    } else {
+      workoutElement.classList.add('workout__cycling--selected');
     }
   }
 
@@ -416,13 +409,11 @@ class App {
   }
 
   // Once a new workout is created or a workout is edited then rendered on the page, query the DOM and attach a click event handler to the edit & delete buttons
-  _renderWorkoutOperationsWhenDOMIsUpdated() {
+  _renderWorkoutEditAndDeleteOperations() {
     const editSpecificWorkout = document.querySelector('.workout__modify-edit');
     editSpecificWorkout.addEventListener('click', this._openEditWorkoutModalForm.bind(this));
     const deleteSpecificWorkout = document.querySelector('.workout__modify-delete');
     deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
-    const workout = document.querySelector('.workout');
-    workout.addEventListener('click', this._toggleSelectedWorkout.bind(this));
   }
 
   // Create workout element
@@ -482,6 +473,7 @@ class App {
     }
     element.innerHTML = html;
 
+    // Add the workout element to the workout elements array
     this.#workoutElements.push(element);
 
     return element;
@@ -492,7 +484,7 @@ class App {
     const element = this._renderWorkoutElement(workout);
     newWorkoutForm.insertAdjacentElement('afterend', element);
     // Render edit and delete workout operations since the DOM is updated
-    this._renderWorkoutOperationsWhenDOMIsUpdated();
+    this._renderWorkoutEditAndDeleteOperations();
   }
 
   // Create a new workout object when the user submits the form
@@ -736,7 +728,7 @@ class App {
     this.#editedWorkout = this.#workoutToEdit;
 
     // Render edit and delete workout operations since the DOM is updated
-    this._renderWorkoutOperationsWhenDOMIsUpdated();
+    this._renderWorkoutEditAndDeleteOperations();
 
     // Reset the local storage of edited workout & workouts so that the workouts array data is updated along with the workout just edited
     // so that on page reload the map view can be set to that marker
