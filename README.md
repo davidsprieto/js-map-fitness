@@ -3,21 +3,20 @@
 <h3 align="center">Single-page web application developed using:</h2>
 
 <p align="center">
-    Markup Language:
-    - HTML
+    Markup Language: HTML
 </p>
 
-Style Sheet Language:
-- CSS
+<p align="center">
+    Style Sheet Language: CSS
+</p>
 
-
-Programming language:
-- JavaScript
-
-
-Library:
-- Leaflet (An open-source JavaScript library for mobile-friendly interactive maps)
-
+<p align="center">
+    Programming language: JavaScript
+</p>
+    
+<p align="center">
+    Library: Leaflet (An open-source JavaScript library for mobile-friendly interactive maps)
+</p>
 
 <p align="center" class="copyright">
     &copy; Base Project Created by
