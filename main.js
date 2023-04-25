@@ -103,6 +103,7 @@ class App {
   #mapEvent;
   #markers = [];
   #workouts = [];
+  #workoutElements = [];
   #mapZoomView = 10;
   #editedWorkout;
   #workoutToEdit;
@@ -233,6 +234,31 @@ class App {
     }
     if (type === "cycling") {
       this._showEditWorkoutElevationField();
+    }
+  }
+
+  // When a user selects a workout from the sidebar list of workouts, add a class that style it with a border to let the user know of the currently selected workout from the sidebar
+  // **NOTE** : This current solution is probably not the most optimal for performance so will most likely have to refactor and figure out alternate solution
+  _toggleSelectedWorkout(e) {
+    const workoutElement = this._findHTMLWorkoutElement(e);
+    const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
+    const type = workout.type;
+
+    this.#workoutElements.map(workout => {
+      if (workout.classList.contains('workout__running--selected')) {
+        workout.classList.remove('workout__running--selected');
+      }
+      if (workout.classList.contains('workout__cycling--selected')) {
+        workout.classList.remove('workout__cycling--selected');
+      }
+    });
+
+    if (type === "running") {
+      workoutElement.classList.add('workout__running--selected');
+    }
+
+    if (type === "cycling") {
+      workoutElement.classList.add('workout__cycling--selected');
     }
   }
 
@@ -395,12 +421,14 @@ class App {
     editSpecificWorkout.addEventListener('click', this._openEditWorkoutModalForm.bind(this));
     const deleteSpecificWorkout = document.querySelector('.workout__modify-delete');
     deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
+    const workout = document.querySelector('.workout');
+    workout.addEventListener('click', this._toggleSelectedWorkout.bind(this));
   }
 
   // Create workout element
   _renderWorkoutElement(workout) {
     const element = document.createElement('li');
-    element.classList.add(`workout`, `workout--${workout.type}`);
+    element.classList.add(`workout`, `workout__${workout.type}`);
     element.setAttribute("data-id", `${workout.id}`);
 
     let html = `
@@ -453,6 +481,8 @@ class App {
       `;
     }
     element.innerHTML = html;
+
+    this.#workoutElements.push(element);
 
     return element;
   }

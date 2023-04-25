@@ -142,12 +142,20 @@ a:visited {
     cursor: pointer;
 }
 
-.workout--running {
+.workout__running {
     border-left: 5px solid var(--color-brand--2);
 }
 
-.workout--cycling {
+.workout__running--selected {
+    border: 5px solid var(--color-brand--2);
+}
+
+.workout__cycling {
     border-left: 5px solid var(--color-brand--1);
+}
+
+.workout__cycling--selected {
+    border: 5px solid var(--color-brand--1);
 }
 
 .workout__title-container {
