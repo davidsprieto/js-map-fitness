@@ -15,7 +15,6 @@ Library:
 - Leaflet (An open-source JavaScript library for mobile-friendly interactive maps)
 
 <br>
-<br> 
 
 <p class="copyright">
     &copy; Base Project Created by
