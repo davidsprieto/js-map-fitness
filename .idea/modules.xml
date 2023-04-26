@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Mapty.iml" filepath="$PROJECT_DIR$/.idea/Mapty.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/map-fitness.iml" filepath="$PROJECT_DIR$/.idea/map-fitness.iml" />
     </modules>
   </component>
 </project>
