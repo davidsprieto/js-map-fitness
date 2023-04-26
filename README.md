@@ -1,4 +1,4 @@
-<h1 align="center">Mapty - Track Your Workouts by Location on a Map!</h1>
+<h1 align="center">Map Fitness - Track Your Workouts by Location on a Map!</h1>
 
 <h3 align="center">Single-page web application developed using:</h2>
 
