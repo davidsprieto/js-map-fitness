@@ -17,17 +17,17 @@
             integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
     <!-- Custom JS File -->
     <script defer src="./main.js"></script>
-    <title>Mapty // Map Your Workouts</title>
+    <title>Map Fitness // Map Your Workouts</title>
 </head>
 <body>
 <div id="sidebar" class="sidebar">
-    <img src="./assets/logo.png" alt="Logo" class="logo"/>
+    <img src="./assets/map.png" alt="Logo" class="logo"/>
 
     <div class="workouts__header--none-listed hidden">Click a location on the map to log where you worked out!</div>
 
     <div class="sort__workouts hidden">
-        <label class="sort__workouts--by-label">Sort Workouts By:</label>
-        <select class="sort__workouts--by-options">
+        <label for="sort__workouts--by" class="sort__workouts--by-label">Sort Workouts By:</label>
+        <select id="sort__workouts--by" class="sort__workouts--by-options">
             <option disabled selected value="">Select an Option</option>
             <option value="shortest-distance">Shortest Distance</option>
             <option value="shortest-duration">Shortest Duration</option>
@@ -44,27 +44,27 @@
             </div>
             <br/>
             <div class="form__row">
-                <label class="form__label">Type</label>
-                <select class="form__input new__workout--form-input-type">
+                <label for="new__workout--type" class="form__label">Type</label>
+                <select id="new__workout--type" class="form__input new__workout--form-input-type">
                     <option value="running">Running</option>
                     <option value="cycling">Cycling</option>
                 </select>
             </div>
             <div class="form__row">
-                <label class="form__label">Distance</label>
-                <input class="form__input new__workout--form-input-distance" placeholder="miles"/>
+                <label for="new__workout--distance" class="form__label">Distance</label>
+                <input id="new__workout--distance" class="form__input new__workout--form-input-distance" placeholder="miles"/>
             </div>
             <div class="form__row">
-                <label class="form__label">Duration</label>
-                <input class="form__input new__workout--form-input-duration" placeholder="minutes"/>
+                <label for="new__workout--duration" class="form__label">Duration</label>
+                <input id="new__workout--duration" class="form__input new__workout--form-input-duration" placeholder="minutes"/>
             </div>
             <div class="form__row">
-                <label class="form__label">Cadence</label>
-                <input class="form__input new__workout--form-input-cadence" placeholder="steps/min"/>
+                <label for="new__workout--cadence" class="form__label">Cadence</label>
+                <input id="new__workout--cadence" class="form__input new__workout--form-input-cadence" placeholder="steps/min"/>
             </div>
             <div class="form__row form__row--hidden">
-                <label class="form__label">Elev. Gain</label>
-                <input class="form__input new__workout--form-input-elevation" placeholder="meters"/>
+                <label for="new__workout--elevation" class="form__label">Elev. Gain</label>
+                <input id="new__workout--elevation" class="form__input new__workout--form-input-elevation" placeholder="meters"/>
             </div>
             <button class="new__workout-form-submit-btn">Add</button>
         </form>
@@ -126,27 +126,27 @@
         </div>
         <br/>
         <div class="form__row">
-            <label class="form__label">Type</label>
-            <select class="form__input modal__edit--workout-form-input-type">
+            <label for="edit__workout--type" class="form__label">Type</label>
+            <select id="edit__workout--type" class="form__input modal__edit--workout-form-input-type">
                 <option value="running">Running</option>
                 <option value="cycling">Cycling</option>
             </select>
         </div>
         <div class="form__row">
-            <label class="form__label">Distance</label>
-            <input class="form__input modal__edit--workout-form-input-distance" placeholder="miles"/>
+            <label for="edit__workout--distance" class="form__label">Distance</label>
+            <input id="edit__workout--distance" class="form__input modal__edit--workout-form-input-distance" placeholder="miles"/>
         </div>
         <div class="form__row">
-            <label class="form__label">Duration</label>
-            <input class="form__input modal__edit--workout-form-input-duration" placeholder="minutes"/>
+            <label for="edit__workout--duration" class="form__label">Duration</label>
+            <input id="edit__workout--duration" class="form__input modal__edit--workout-form-input-duration" placeholder="minutes"/>
         </div>
         <div class="form__row modal__edit-cadence-form-row hidden">
-            <label class="form__label">Cadence</label>
-            <input class="form__input modal__edit--workout-form-input-cadence" placeholder="steps/min"/>
+            <label for="edit__workout--cadence" class="form__label">Cadence</label>
+            <input id="edit__workout--cadence" class="form__input modal__edit--workout-form-input-cadence" placeholder="steps/min"/>
         </div>
         <div class="form__row modal__edit-elevation-form-row hidden">
-            <label class="form__label">Elev. Gain</label>
-            <input class="form__input modal__edit--workout-form-input-elevation" placeholder="meters"/>
+            <label for="edit__workout--elevation" class="form__label">Elev. Gain</label>
+            <input id="edit__workout--elevation" class="form__input modal__edit--workout-form-input-elevation" placeholder="meters"/>
         </div>
         <button class="modal__edit--workout-form-submit-btn">Edit</button>
     </form>

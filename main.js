@@ -610,6 +610,7 @@ class App {
 
   // Delete edited workout & all workouts from local storage
   _deleteAllWorkouts() {
+    // Confirm deletion of all workouts
     const confirmDeletion = confirm("Are you sure you want to delete all of the workouts?");
 
     if (confirmDeletion) {
@@ -630,6 +631,7 @@ class App {
       this._closeModal();
     }
 
+    // Confirm deletion of workout
     const confirmDeletion = confirm("Are you sure you want to delete this workout?");
 
     if (confirmDeletion) {
