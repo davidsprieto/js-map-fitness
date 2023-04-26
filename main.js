@@ -121,7 +121,7 @@ class App {
     this._getLocalStorage();
 
     // Attach event handlers
-    containerWorkouts.addEventListener('click', this._moveToPopupAndHighlightWorkout.bind(this));
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
     newWorkoutForm.addEventListener('submit', this._newWorkout.bind(this));
     newWorkoutCloseFormBtn.addEventListener('click', this._hideForm.bind(this));
     newWorkoutInputType.addEventListener('change', this._toggleNewWorkoutTypeField);
@@ -330,8 +330,7 @@ class App {
   }
 
   // If the user clicks on a workout from the sidebar list, have the map navigate and display where that workout marker was created
-  // And highlight the selected workout on the sidebar list of workouts
-  _moveToPopupAndHighlightWorkout(e) {
+  _moveToPopup(e) {
     let id = this.workoutId;
 
     const workoutElement = this._findHTMLWorkoutElement(e);
@@ -362,7 +361,11 @@ class App {
       console.log("Marker removed");
     }
 
-    // When a user selects a workout from the sidebar list of workouts, add a class that styles it with a border to let the user know of the currently selected workout from the sidebar
+    this._highlightWorkout(workout, workoutElement);
+  }
+
+  // When a user selects a workout from the sidebar list of workouts, add a class that styles it with a border to let the user know of the currently selected workout from the sidebar
+  _highlightWorkout(workout, workoutElement) {
     try {
       const type = workout.type;
 
@@ -564,6 +567,9 @@ class App {
 
     // Render workout to the sidebar list on the page
     this._renderWorkoutToPage(workout);
+
+    // Highlight the new workout on the sidebar list of workouts
+    this._highlightWorkout(workout, this.#workoutElements.at(-1));
 
     // Store workouts in local storage
     this._setLocalStorage();
