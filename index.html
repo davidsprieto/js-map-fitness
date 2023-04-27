@@ -23,11 +23,11 @@
 <div id="sidebar" class="sidebar">
     <img src="./assets/map.png" alt="Logo" class="logo"/>
 
-    <div class="workouts__header--none-listed hidden">Click a location on the map to log where you worked out!</div>
+    <div id="workouts__header--none-listed" class="workouts__header--none-listed hidden">Click a location on the map to log where you worked out!</div>
 
-    <div class="sort__workouts hidden">
-        <label for="sort__workouts--by" class="sort__workouts--by-label">Sort Workouts By:</label>
-        <select id="sort__workouts--by" class="sort__workouts--by-options">
+    <div id="sort__workouts" class="sort__workouts hidden">
+        <label for="sort__workouts--by-options" class="sort__workouts--by-label">Sort Workouts By:</label>
+        <select id="sort__workouts--by-options" class="sort__workouts--by-options">
             <option disabled selected value="">Select an Option</option>
             <option value="shortest-distance">Shortest Distance</option>
             <option value="shortest-duration">Shortest Duration</option>
@@ -37,34 +37,34 @@
     </div>
 
     <ul id="workouts" class="workouts">
-        <form class="new__workout--form hidden">
+        <form id="new__workout--form" class="new__workout--form hidden">
             <div class="new__workout--form-header-container">
                 <div class="new__workout--form-header-label">Add Workout</div>
-                <div class="new__workout--close-form-btn">X</div>
+                <div id="new__workout--close-form-btn" class="new__workout--close-form-btn">X</div>
             </div>
             <br/>
             <div class="form__row">
-                <label for="new__workout--type" class="form__label">Type</label>
-                <select id="new__workout--type" class="form__input new__workout--form-input-type">
+                <label for="new__workout--form-input-type" class="form__label">Type</label>
+                <select id="new__workout--form-input-type" class="form__input new__workout--form-input-type">
                     <option value="running">Running</option>
                     <option value="cycling">Cycling</option>
                 </select>
             </div>
             <div class="form__row">
-                <label for="new__workout--distance" class="form__label">Distance</label>
-                <input id="new__workout--distance" class="form__input new__workout--form-input-distance" placeholder="miles"/>
+                <label for="new__workout--form-input-distance" class="form__label">Distance</label>
+                <input id="new__workout--form-input-distance" class="form__input new__workout--form-input-distance" placeholder="miles"/>
             </div>
             <div class="form__row">
-                <label for="new__workout--duration" class="form__label">Duration</label>
-                <input id="new__workout--duration" class="form__input new__workout--form-input-duration" placeholder="minutes"/>
+                <label for="new__workout--form-input-duration" class="form__label">Duration</label>
+                <input id="new__workout--form-input-duration" class="form__input new__workout--form-input-duration" placeholder="minutes"/>
             </div>
             <div class="form__row">
-                <label for="new__workout--cadence" class="form__label">Cadence</label>
-                <input id="new__workout--cadence" class="form__input new__workout--form-input-cadence" placeholder="steps/min"/>
+                <label for="new__workout--form-input-cadence" class="form__label">Cadence</label>
+                <input id="new__workout--form-input-cadence" class="form__input new__workout--form-input-cadence" placeholder="steps/min"/>
             </div>
             <div class="form__row form__row--hidden">
-                <label for="new__workout--elevation" class="form__label">Elev. Gain</label>
-                <input id="new__workout--elevation" class="form__input new__workout--form-input-elevation" placeholder="meters"/>
+                <label for="new__workout--form-input-elevation" class="form__label">Elev. Gain</label>
+                <input id="new__workout--form-input-elevation" class="form__input new__workout--form-input-elevation" placeholder="meters"/>
             </div>
             <button class="new__workout-form-submit-btn">Add</button>
         </form>
@@ -117,36 +117,36 @@
         </li> -->
     </ul>
 
-    <button class="workouts__modify--delete-all hidden"><span>Delete Workouts</span></button>
+    <button id="workouts__modify--delete-all" class="workouts__modify--delete-all hidden"><span>Delete Workouts</span></button>
 
-    <form class="modal__edit--workout-form hidden">
+    <form id="modal__edit--workout-form" class="modal__edit--workout-form hidden">
         <div class="modal__edit--workout-header-container">
             <div class="modal__edit--workout-header-label">Edit Workout</div>
-            <div class="modal__edit--workout-close-form-btn">X</div>
+            <div id="modal__edit--workout-close-form-btn" class="modal__edit--workout-close-form-btn">X</div>
         </div>
         <br/>
         <div class="form__row">
-            <label for="edit__workout--type" class="form__label">Type</label>
-            <select id="edit__workout--type" class="form__input modal__edit--workout-form-input-type">
+            <label for="modal__edit--workout-form-input-type" class="form__label">Type</label>
+            <select id="modal__edit--workout-form-input-type" class="form__input modal__edit--workout-form-input-type">
                 <option value="running">Running</option>
                 <option value="cycling">Cycling</option>
             </select>
         </div>
         <div class="form__row">
-            <label for="edit__workout--distance" class="form__label">Distance</label>
-            <input id="edit__workout--distance" class="form__input modal__edit--workout-form-input-distance" placeholder="miles"/>
+            <label for="modal__edit--workout-form-input-distance" class="form__label">Distance</label>
+            <input id="modal__edit--workout-form-input-distance" class="form__input modal__edit--workout-form-input-distance" placeholder="miles"/>
         </div>
         <div class="form__row">
-            <label for="edit__workout--duration" class="form__label">Duration</label>
-            <input id="edit__workout--duration" class="form__input modal__edit--workout-form-input-duration" placeholder="minutes"/>
+            <label for="modal__edit--workout-form-input-duration" class="form__label">Duration</label>
+            <input id="modal__edit--workout-form-input-duration" class="form__input modal__edit--workout-form-input-duration" placeholder="minutes"/>
         </div>
-        <div class="form__row modal__edit-cadence-form-row hidden">
-            <label for="edit__workout--cadence" class="form__label">Cadence</label>
-            <input id="edit__workout--cadence" class="form__input modal__edit--workout-form-input-cadence" placeholder="steps/min"/>
+        <div id="modal__edit-cadence-form-row" class="form__row modal__edit-cadence-form-row hidden">
+            <label for="modal__edit--workout-form-input-cadence" class="form__label">Cadence</label>
+            <input id="modal__edit--workout-form-input-cadence" class="form__input modal__edit--workout-form-input-cadence" placeholder="steps/min"/>
         </div>
-        <div class="form__row modal__edit-elevation-form-row hidden">
-            <label for="edit__workout--elevation" class="form__label">Elev. Gain</label>
-            <input id="edit__workout--elevation" class="form__input modal__edit--workout-form-input-elevation" placeholder="meters"/>
+        <div id="modal__edit-elevation-form-row" class="form__row modal__edit-elevation-form-row hidden">
+            <label for="modal__edit--workout-form-input-elevation" class="form__label">Elev. Gain</label>
+            <input id="modal__edit--workout-form-input-elevation" class="form__input modal__edit--workout-form-input-elevation" placeholder="meters"/>
         </div>
         <button class="modal__edit--workout-form-submit-btn">Edit</button>
     </form>

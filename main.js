@@ -67,35 +67,35 @@ class Cycling extends Workout {
 // APPLICATION ARCHITECTURE
 
 // List of workouts in sidebar container & new workout form
-const containerWorkouts = document.querySelector('.workouts');
-const newWorkoutForm = document.querySelector('.new__workout--form');
-const newWorkoutInputType = document.querySelector('.new__workout--form-input-type');
-const newWorkoutInputDistance = document.querySelector('.new__workout--form-input-distance');
-const newWorkoutInputDuration = document.querySelector('.new__workout--form-input-duration');
-const newWorkoutInputCadence = document.querySelector('.new__workout--form-input-cadence');
-const newWorkoutInputElevation = document.querySelector('.new__workout--form-input-elevation');
+const containerWorkouts = document.getElementById('workouts');
+const newWorkoutForm = document.getElementById('new__workout--form');
+const newWorkoutInputType = document.getElementById('new__workout--form-input-type');
+const newWorkoutInputDistance = document.getElementById('new__workout--form-input-distance');
+const newWorkoutInputDuration = document.getElementById('new__workout--form-input-duration');
+const newWorkoutInputCadence = document.getElementById('new__workout--form-input-cadence');
+const newWorkoutInputElevation = document.getElementById('new__workout--form-input-elevation');
 
 // Display delete all workouts button, no workouts listed header & sort option
-const noWorkoutsListedHeader = document.querySelector('.workouts__header--none-listed');
-const containerSortWorkouts = document.querySelector('.sort__workouts');
-const sortWorkoutsOptionsBtn = document.querySelector('.sort__workouts--by-options');
-const deleteAllWorkoutsBtn = document.querySelector('.workouts__modify--delete-all');
+const noWorkoutsListedHeader = document.getElementById('workouts__header--none-listed');
+const containerSortWorkouts = document.getElementById('sort__workouts');
+const sortWorkoutsOptionsBtn = document.getElementById('sort__workouts--by-options');
+const deleteAllWorkoutsBtn = document.getElementById('workouts__modify--delete-all');
 
 // Edit workout modal form
-const editWorkoutModalForm = document.querySelector('.modal__edit--workout-form');
-const editWorkoutInputType = document.querySelector('.modal__edit--workout-form-input-type');
-const editWorkoutInputDistance = document.querySelector('.modal__edit--workout-form-input-distance');
-const editWorkoutInputDuration = document.querySelector('.modal__edit--workout-form-input-duration');
-const editWorkoutInputCadence = document.querySelector('.modal__edit--workout-form-input-cadence');
-const editWorkoutInputElevation = document.querySelector('.modal__edit--workout-form-input-elevation');
+const editWorkoutModalForm = document.getElementById('modal__edit--workout-form');
+const editWorkoutInputType = document.getElementById('modal__edit--workout-form-input-type');
+const editWorkoutInputDistance = document.getElementById('modal__edit--workout-form-input-distance');
+const editWorkoutInputDuration = document.getElementById('modal__edit--workout-form-input-duration');
+const editWorkoutInputCadence = document.getElementById('modal__edit--workout-form-input-cadence');
+const editWorkoutInputElevation = document.getElementById('modal__edit--workout-form-input-elevation');
 
 // Display edit workout form fields
-const editWorkoutCadenceField = document.querySelector('.modal__edit-cadence-form-row');
-const editWorkoutElevationField = document.querySelector('.modal__edit-elevation-form-row');
+const editWorkoutCadenceField = document.getElementById('modal__edit-cadence-form-row');
+const editWorkoutElevationField = document.getElementById('modal__edit-elevation-form-row');
 
 // Close edit workout modal form or new workout form
-const editWorkoutCloseModalBtn = document.querySelector('.modal__edit--workout-close-form-btn');
-const newWorkoutCloseFormBtn = document.querySelector('.new__workout--close-form-btn');
+const editWorkoutCloseModalBtn = document.getElementById('modal__edit--workout-close-form-btn');
+const newWorkoutCloseFormBtn = document.getElementById('new__workout--close-form-btn');
 
 
 class App {
