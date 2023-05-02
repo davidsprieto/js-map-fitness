@@ -105,7 +105,6 @@ class App {
   #workouts = [];
   #workoutElements = [];
   #mapZoomView = 10;
-  #editedWorkout;
   #workoutToEdit;
   #workoutElementToEdit;
   isModalOpen = false;
@@ -144,12 +143,8 @@ class App {
     const {latitude, longitude} = position.coords;
     const coords = [latitude, longitude];
 
-    // If a workout was just edited, then get it from local storage and set the map zoom view to that edited workout marker when the page is done reloading
-    if (this.#editedWorkout) {
-      this.#map = L.map('map').setView(this.#editedWorkout.coords, this.#mapZoomView);
-    } else {
-      this.#map = L.map('map').setView(coords, this.#mapZoomView);
-    }
+    // When the map loads, set the page zoom view
+    this.#map = L.map('map').setView(coords, this.#mapZoomView);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -162,14 +157,6 @@ class App {
     this.#workouts.forEach(workout => {
       this._renderWorkoutMarker(workout);
     });
-
-    // After the map loads, if a workout was just edited then get it from local storage and open the popup bound to it
-    // Then remove it from local storage and set the edited workout variable to undefined
-    if (this.#editedWorkout) {
-      this.#map._layers[this.#editedWorkout.id].openPopup();
-      localStorage.removeItem("editedWorkout");
-      this.#editedWorkout = undefined;
-    }
   }
 
   // After user clicks on the map to create a marker, display the workout form and assign the click to the map event variable
@@ -301,6 +288,17 @@ class App {
       this.#map.removeLayer(this.#placeholderMarker);
       this.#placeholderMarker = undefined;
       this.#mapEvent = undefined;
+    }
+  }
+
+  // If a workout element was just edited, then it already exists in the array of workout elements
+  // So find it and reassign it with the updated values
+  _doesWorkoutElementExist(element) {
+    if (this.#workoutElementToEdit) {
+      const index = this.#workoutElements.findIndex(workoutElement => workoutElement.dataset.id === element.dataset.id);
+      this.#workoutElements[index] = element;
+    } else {
+      this.#workoutElements.push(element);
     }
   }
 
@@ -446,15 +444,15 @@ class App {
 
   // Once a new workout is created or a workout is edited then rendered on the page, query the DOM and attach a click event handler to the edit & delete buttons
   _renderWorkoutEditAndDeleteOperations() {
-    const editSpecificWorkout = document.querySelector('.workout__modify-edit');
+    const editSpecificWorkout = containerWorkouts.querySelector('.workout__modify-edit');
     editSpecificWorkout.addEventListener('click', this._openEditWorkoutModalForm.bind(this));
-    const deleteSpecificWorkout = document.querySelector('.workout__modify-delete');
+    const deleteSpecificWorkout = containerWorkouts.querySelector('.workout__modify-delete');
     deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
   }
 
   // Create workout element
   _renderWorkoutElement(workout) {
-    const element = document.createElement('li');
+    let element = document.createElement('li');
     element.classList.add(`workout`, `workout__${workout.type}`);
     element.setAttribute("data-id", `${workout.id}`);
 
@@ -509,8 +507,8 @@ class App {
     }
     element.innerHTML = html;
 
-    // Add the workout element to the workout elements array
-    this.#workoutElements.push(element);
+    // Check if the workout element already exists
+    this._doesWorkoutElementExist(element);
 
     return element;
   }
@@ -758,13 +756,16 @@ class App {
       .openPopup();
 
     // Update the workout element in the sidebar with the new values
-    this.#workoutElementToEdit = this._renderWorkoutElement(this.#workoutToEdit);
+    const element = this._renderWorkoutElement(this.#workoutToEdit);
+    this.#workoutElementToEdit.replaceWith(element);
 
-    // Assign the edited workout value so that the data can be used after page reload
-    this.#editedWorkout = this.#workoutToEdit;
-
-    // Render edit and delete workout operations since the DOM is updated
-    this._renderWorkoutEditAndDeleteOperations();
+    // Render edit and delete workout operations on the specific edited workout by querying the DOM and finding the element by id
+    // *CAN'T USE document.querySelector() as that finds the FIRST element in the DOM with the specified selector and when editing the element, it is not
+    // rendered on the page as the first element in the sidebar list of workouts (unless the first element is edited of course)
+    const editSpecificWorkout = containerWorkouts.querySelector(`[data-id='${element.dataset.id}']`).querySelector('.workout__modify-edit');
+    editSpecificWorkout.addEventListener('click', this._openEditWorkoutModalForm.bind(this));
+    const deleteSpecificWorkout = containerWorkouts.querySelector(`[data-id='${element.dataset.id}']`).querySelector('.workout__modify-delete');
+    deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
 
     // Reset the local storage of edited workout & workouts so that the workouts array data is updated along with the workout just edited
     // so that on page reload the map view can be set to that marker
@@ -772,23 +773,15 @@ class App {
 
     // Close the edit workout modal
     this._closeModal();
-
-    // Reload the page to display the edits/changes
-    location.reload();
   }
 
   // Store edited workout only if one was just edited & store workouts in local storage
   _setLocalStorage() {
-    if (this.#editedWorkout) {
-      localStorage.setItem("editedWorkout", JSON.stringify(this.#editedWorkout));
-    }
     localStorage.setItem("workouts", JSON.stringify(this.#workouts));
   }
 
-  // Get edited workout & workouts from local storage
+  // Get workouts from local storage
   _getLocalStorage() {
-    this.#editedWorkout = JSON.parse(localStorage.getItem("editedWorkout"));
-
     const data = JSON.parse(localStorage.getItem("workouts"));
 
     if (!data || data.length === 0) {
