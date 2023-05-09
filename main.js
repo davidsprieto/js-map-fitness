@@ -97,6 +97,8 @@ const editWorkoutElevationField = document.getElementById('modal__edit-elevation
 const editWorkoutCloseModalBtn = document.getElementById('modal__edit--workout-close-form-btn');
 const newWorkoutCloseFormBtn = document.getElementById('new__workout--close-form-btn');
 
+// Button to position map to view all the workout markers
+const positionMapToViewAllMarkersBtn = document.getElementById('position__map-to-view-all-markers');
 
 class App {
   #map;
@@ -129,6 +131,7 @@ class App {
     editWorkoutCloseModalBtn.addEventListener('click', this._closeModal);
     editWorkoutModalForm.addEventListener('submit', this._editSpecificWorkout.bind(this));
     editWorkoutInputType.addEventListener('change', this._toggleEditWorkoutTypeField.bind(this));
+    positionMapToViewAllMarkersBtn.addEventListener('click', this._positionMapToFitMarkers.bind(this));
   }
 
   // Function to get user's location
@@ -146,6 +149,7 @@ class App {
     // When the map loads, set the page zoom view
     this.#map = L.map('map').setView(coords, this.#mapZoomView);
 
+    // Add the map layer
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(this.#map);
@@ -326,6 +330,12 @@ class App {
   // Form input validation helper function - function determines if user input is greater than 0
   _allPositive = (...inputs) => {
     return inputs.every(input => input > 0);
+  }
+
+  // Position the map to fit all the markers
+  _positionMapToFitMarkers() {
+    let group = new L.featureGroup(this.#markers);
+    this.#map.fitBounds(group.getBounds());
   }
 
   // If the user clicks on a workout from the sidebar list, have the map navigate and display where that workout marker was created
@@ -813,7 +823,7 @@ const app = new App();
 //  Ability to drag marker to new location and update the workout object's location data to the new dragged location ✅
 //  More error and confirmation messages (confirm deletion of workout with popup) ✅
 //  Ability to sort workouts by a certain field (distance, duration, etc.) ✅
-//  Ability to position the map to show all workouts on the map
+//  Ability to position the map to show all workouts on the map ✅
 //  Ability to draw lines/shapes instead of just points
 //  Geocode location from coordinates ("Run in {insert location from coordinates}")
 //  Display weather data for workout time and place

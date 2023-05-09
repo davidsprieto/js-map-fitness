@@ -412,3 +412,27 @@ a:visited {
     cursor: pointer;
     text-decoration: underline;
 }
+
+#position__map-to-view-all-markers {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px;
+    z-index: 1000;
+}
+
+#position__map-to-view-all-markers {
+    color: #ffb545;
+    background-color: white;
+    border-radius: 5px;
+    border: none;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px;
+}
+
+#position__map-to-view-all-markers:hover {
+    cursor: pointer;
+    background-color: whitesmoke;
+}
