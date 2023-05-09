@@ -422,6 +422,7 @@ a:visited {
 }
 
 #position__map-to-view-all-markers {
+    display: none;
     color: #ffb545;
     background-color: white;
     border-radius: 5px;

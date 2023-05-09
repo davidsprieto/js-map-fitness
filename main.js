@@ -158,9 +158,14 @@ class App {
     this.#map.on('click', this._showForm.bind(this));
 
     // After the map loads, get workouts from local storage and display them on the map
-    this.#workouts.forEach(workout => {
-      this._renderWorkoutMarker(workout);
-    });
+    if (this.#workouts.length !== 0) {
+      this.#workouts.forEach(workout => {
+        this._renderWorkoutMarker(workout);
+      });
+    }
+
+    // Wait until the map completely loads until displaying the view all workout markers button
+    positionMapToViewAllMarkersBtn.style.display = "flex";
   }
 
   // After user clicks on the map to create a marker, display the workout form and assign the click to the map event variable
@@ -334,6 +339,9 @@ class App {
 
   // Position the map to fit all the markers
   _positionMapToFitMarkers() {
+    if (this.#markers.length === 0) {
+      return alert("There are no markers to view!");
+    }
     let group = new L.featureGroup(this.#markers);
     this.#map.fitBounds(group.getBounds());
   }
