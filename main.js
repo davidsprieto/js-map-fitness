@@ -481,6 +481,19 @@ class App {
       await this._getWorkoutCity({lat, lng});
       workout.city = this.city;
 
+      // Update the workout's description and popup content with the new city location where the marker was dragged to
+      const description = workout.description;
+      const date = description.split(" ").splice(-2).join(" ");
+      const type = workout.type[0].toUpperCase() + workout.type.slice(1);
+      const updatedContent = `${type} in ${this.city} on ${date}`;
+
+      marker._popup._content = updatedContent;
+      workout.description = updatedContent;
+
+      // Update the workout element's inner text content with the new city location where the marker was dragged to
+      const workoutElement = this.#workoutElements.find(workoutElement => workoutElement.dataset.id === workout.id);
+      workoutElement.querySelector('.workout__title').innerText = updatedContent;
+
       // Reset local storage to reflect the updated workouts coordinates
       this._setLocalStorage();
     });
