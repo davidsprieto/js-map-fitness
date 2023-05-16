@@ -563,6 +563,8 @@ class App {
       `;
     }
     element.innerHTML = html;
+
+    // Attach event handlers to the edit & delete buttons on the workout element
     this._renderWorkoutEditAndDeleteOperations(element);
 
     // Check if the workout element already exists
