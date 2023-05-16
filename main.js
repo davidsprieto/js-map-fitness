@@ -13,26 +13,19 @@ class Workout {
   duration;
   description;
 
-  constructor(coords, distance, duration) {
+  constructor(city, coords, distance, duration) {
+    this.city = city;
     this.coords = coords; // [lat, lng]
     this.distance = distance; // in miles
     this.duration = duration; // in minutes
   }
 
-  async _getWorkoutCity() {
-    const [lat, lng] = this.coords;
-    const Map_Box_Key = config.MAP_BOX_KEY;
-    let city = await reverseGeocode({lat: lat, lng: lng}, Map_Box_Key);
-    this.city = city.split(',')[1].trim();
-  }
-
   _setDescription() {
     const type = this.type[0].toUpperCase() + this.type.slice(1);
-
     // prettier-ignore
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-    this.description = `${type} on ${months[this.date.getMonth()]} ${this.date.getDate()}`;
+    this.description = `${type} in ${this.city} on ${months[this.date.getMonth()]} ${this.date.getDate()}`;
   }
 }
 
@@ -41,8 +34,8 @@ class Running extends Workout {
   cadence;
   pace;
 
-  constructor(coords, distance, duration, cadence) {
-    super(coords, distance, duration);
+  constructor(city, coords, distance, duration, cadence) {
+    super(city, coords, distance, duration);
     this.cadence = cadence;
     this._calcPace();
     this._setDescription();
@@ -60,8 +53,8 @@ class Cycling extends Workout {
   elevation;
   speed;
 
-  constructor(coords, distance, duration, elevation) {
-    super(coords, distance, duration);
+  constructor(city, coords, distance, duration, elevation) {
+    super(city, coords, distance, duration);
     this.elevation = elevation;
     this._calcSpeed();
     this._setDescription();
@@ -115,15 +108,16 @@ class App {
   #map;
   #mapEvent;
   #markers = [];
+  #placeholderMarker;
   #workouts = [];
-  #workoutElements = [];
-  #mapZoomView = 10;
+  workoutId;
   workoutToEdit;
+  #workoutElements = [];
   workoutElementToEdit;
+  #mapZoomView = 10;
   isModalOpen = false;
   isFormOpen = false;
-  #placeholderMarker;
-  workoutId;
+  city;
 
   constructor() {
     // Get user's location
@@ -179,14 +173,29 @@ class App {
     positionMapToViewAllMarkersBtn.style.display = "flex";
   }
 
+  async _getWorkoutCity(coords) {
+    const {lat, lng} = coords;
+    const Map_Box_Key = config.MAP_BOX_KEY;
+    this.city = await reverseGeocode({lat: lat, lng: lng}, Map_Box_Key)
+      .then((data) => {
+        return data.split(',')[1].trim();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
   // After user clicks on the map to create a marker, display the workout form and assign the click to the map event variable
-  _showForm(mapE) {
+  // Then render a placeholder marker on the map
+  // Then assign a value to the city with the lat & lng coordinates
+  async _showForm(mapE) {
     // First check if the edit workout modal is open when a user decides to add a new workout, if it is then close it
     if (this.isModalOpen) {
       this._closeModal();
     }
     this.#mapEvent = mapE;
     this._renderPlaceholderMarker();
+    await this._getWorkoutCity(this.#mapEvent.latlng);
     newWorkoutForm.classList.remove('hidden');
     newWorkoutInputDistance.focus();
     this.isFormOpen = true;
@@ -456,7 +465,7 @@ class App {
     this.#markers.push(marker);
 
     // Update the coordinates of the selected workout marker on drag end
-    marker.on('dragend', (e) => {
+    marker.on('dragend', async (e) => {
       // Get the new coordinates from when the marker has stopped being dragged event
       const {lat, lng} = e.target._latlng;
 
@@ -467,6 +476,10 @@ class App {
       // Find the workout bound to the dragged marker and update its coordinates
       const workout = this.#workouts.find(workout => workout.id === e.target._leaflet_id);
       workout.coords = [lat, lng];
+
+      // Get the new city from the new coordinates and update the workout's city value
+      await this._getWorkoutCity({lat, lng});
+      workout.city = this.city;
 
       // Reset local storage to reflect the updated workouts coordinates
       this._setLocalStorage();
@@ -557,6 +570,9 @@ class App {
     // Prevent page reload
     e.preventDefault();
 
+    // Get city value
+    const city = this.city;
+
     // Get data from form fields
     const type = newWorkoutInputType.value;
     const distance = +newWorkoutInputDistance.value;
@@ -575,7 +591,7 @@ class App {
       if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
         return alert("Input must be a positive number!");
       }
-      workout = new Running([lat, lng], distance, duration, cadence);
+      workout = new Running(city,[lat, lng], distance, duration, cadence);
     }
 
     // If cycling workout, create a cycling object
@@ -585,8 +601,11 @@ class App {
       if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
         return alert("Input must be a positive number!");
       }
-      workout = new Cycling([lat, lng], distance, duration, elevation);
+      workout = new Cycling(city,[lat, lng], distance, duration, elevation);
     }
+
+    // Assign null to the city variable
+    this.city = null;
 
     // Add new workout object to the workouts array
     this.#workouts.push(workout);
@@ -727,6 +746,7 @@ class App {
     e.preventDefault();
 
     // Get selected workout to be edited id value & coordinates values
+    const city = this.workoutToEdit.city;
     const id = this.workoutToEdit.id;
     const lat = this.workoutToEdit.coords[0];
     const lng = this.workoutToEdit.coords[1];
@@ -752,7 +772,7 @@ class App {
       if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration)) {
         return alert("Input must be a positive number!");
       }
-      this.workoutToEdit = new Running([lat, lng], distance, duration, cadence);
+      this.workoutToEdit = new Running(city,[lat, lng], distance, duration, cadence);
       this.workoutToEdit.id = id;
     } else if (type === "cycling" && this.workoutToEdit.type === "cycling") { // If the user edits a cycling workout, and it remains a cycling workout then edit the distance, duration, and elevation values
       const elevation = +editWorkoutInputElevation.value;
@@ -769,7 +789,7 @@ class App {
       if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
         return alert("Input must be a positive number!");
       }
-      this.workoutToEdit = new Cycling([lat, lng], distance, duration, elevation);
+      this.workoutToEdit = new Cycling(city,[lat, lng], distance, duration, elevation);
       this.workoutToEdit.id = id;
     }
 
@@ -844,6 +864,6 @@ const app = new App();
 //  More error and confirmation messages (confirm deletion of workout with popup) ✅
 //  Ability to sort workouts by a certain field (distance, duration, etc.) ✅
 //  Ability to position the map to show all workouts on the map ✅
-//  Geocode location from coordinates ("Run in {insert location from coordinates}")
+//  Geocode location from coordinates ("Run in {insert location from coordinates}" ✅
 //  Ability to draw lines/shapes instead of just points
 //  Display weather data for workout time and place
