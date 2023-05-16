@@ -22,8 +22,8 @@ class Workout {
   async _getWorkoutCity() {
     const [lat, lng] = this.coords;
     const Map_Box_Key = config.MAP_BOX_KEY;
-    this.city = await reverseGeocode({lat: lat, lng: lng}, Map_Box_Key);
-    this._setDescription();
+    let city = await reverseGeocode({lat: lat, lng: lng}, Map_Box_Key);
+    this.city = city.split(',')[1].trim();
   }
 
   _setDescription() {
