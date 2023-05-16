@@ -367,6 +367,11 @@ class App {
     this.#map.fitBounds(group.getBounds());
   }
 
+  // Function that takes in the workout id and opens the popup bound to it
+  _openPopup(id) {
+    this.#map._layers[id].openPopup();
+  }
+
   // If the user clicks on a workout from the sidebar list, have the map navigate and display where that workout marker was created
   _moveToPopup(e) {
     let id = this.workoutId;
@@ -385,8 +390,8 @@ class App {
         this._closeModal();
       }
 
-      // Open the popup that's been bound to this workout marker
-      this.#map._layers[workout.id].openPopup();
+      // Open the popup that's been bound to the workout marker
+      this._openPopup(workout.id);
 
       // Set the map view on the selected workout
       this.#map.setView(workout.coords, this.#mapZoomView, {
@@ -493,6 +498,9 @@ class App {
       // Update the workout element's inner text content with the new city location where the marker was dragged to
       const workoutElement = this.#workoutElements.find(workoutElement => workoutElement.dataset.id === workout.id);
       workoutElement.querySelector('.workout__title').innerText = updatedContent;
+
+      // Open the popup that's been bound to the workout marker
+      this._openPopup(workout.id);
 
       // Reset local storage to reflect the updated workouts coordinates
       this._setLocalStorage();
