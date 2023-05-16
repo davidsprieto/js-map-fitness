@@ -499,11 +499,11 @@ class App {
     });
   }
 
-  // Once a new workout is created or a workout is edited then rendered on the page, query the DOM and attach a click event handler to the edit & delete buttons
-  _renderWorkoutEditAndDeleteOperations() {
-    const editSpecificWorkout = containerWorkouts.querySelector('.workout__modify-edit');
+  // Once a new workout is created or a workout is edited then attach a click event handler to the edit & delete buttons
+  _renderWorkoutEditAndDeleteOperations(element) {
+    const editSpecificWorkout = element.querySelector('.workout__modify-edit');
     editSpecificWorkout.addEventListener('click', this._openEditWorkoutModalForm.bind(this));
-    const deleteSpecificWorkout = containerWorkouts.querySelector('.workout__modify-delete');
+    const deleteSpecificWorkout = element.querySelector('.workout__modify-delete');
     deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
   }
 
@@ -563,6 +563,7 @@ class App {
       `;
     }
     element.innerHTML = html;
+    this._renderWorkoutEditAndDeleteOperations(element);
 
     // Check if the workout element already exists
     this._doesWorkoutElementExist(element);
@@ -574,8 +575,6 @@ class App {
   _renderWorkoutToPage(workout) {
     const element = this._renderWorkoutElement(workout);
     newWorkoutForm.insertAdjacentElement('afterend', element);
-    // Render edit and delete workout operations since the DOM is updated
-    this._renderWorkoutEditAndDeleteOperations();
   }
 
   // Create a new workout object when the user submits the form
@@ -822,14 +821,6 @@ class App {
     // Update the workout element in the sidebar with the new values
     const element = this._renderWorkoutElement(this.workoutToEdit);
     this.workoutElementToEdit.replaceWith(element);
-
-    // Render edit and delete workout operations on the specific edited workout by querying the DOM and finding the element by id
-    // *CAN'T USE document.querySelector() as that finds the FIRST element in the DOM with the specified selector and when editing the element, it is not
-    // rendered on the page as the first element in the sidebar list of workouts (unless the first element is edited of course)
-    const editSpecificWorkout = containerWorkouts.querySelector(`[data-id='${element.dataset.id}']`).querySelector('.workout__modify-edit');
-    editSpecificWorkout.addEventListener('click', this._openEditWorkoutModalForm.bind(this));
-    const deleteSpecificWorkout = containerWorkouts.querySelector(`[data-id='${element.dataset.id}']`).querySelector('.workout__modify-delete');
-    deleteSpecificWorkout.addEventListener('click', this._deleteSpecificWorkout.bind(this));
 
     // Reset the local storage of edited workout & workouts so that the workouts array data is updated along with the workout just edited
     // so that on page reload the map view can be set to that marker
