@@ -6,6 +6,8 @@
 class Workout {
   id = crypto.randomUUID();
   date = new Date();
+  type;
+  city;
   coords;
   distance;
   duration;
@@ -17,11 +19,20 @@ class Workout {
     this.duration = duration; // in minutes
   }
 
+  async _getWorkoutCity() {
+    const [lat, lng] = this.coords;
+    const Map_Box_Key = config.MAP_BOX_KEY;
+    this.city = await reverseGeocode({lat: lat, lng: lng}, Map_Box_Key);
+    this._setDescription();
+  }
+
   _setDescription() {
+    const type = this.type[0].toUpperCase() + this.type.slice(1);
+
     // prettier-ignore
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-    this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`;
+    this.description = `${type} on ${months[this.date.getMonth()]} ${this.date.getDate()}`;
   }
 }
 
@@ -485,7 +496,7 @@ class App {
           </div>
         </div>
         <div class="workout__details">
-          <span class="workout__icon">${workout.type === "running" ? "🏃" : "🚴‍"}</span>
+          <span class="workout__icon">${workout.type === "running" ? "🏃" : "🚴‍"}</span> 
           <span class="workout__value--distance">${workout.distance}</span>
           <span class="workout__unit">miles</span>
         </div>
@@ -833,6 +844,6 @@ const app = new App();
 //  More error and confirmation messages (confirm deletion of workout with popup) ✅
 //  Ability to sort workouts by a certain field (distance, duration, etc.) ✅
 //  Ability to position the map to show all workouts on the map ✅
-//  Ability to draw lines/shapes instead of just points
 //  Geocode location from coordinates ("Run in {insert location from coordinates}")
+//  Ability to draw lines/shapes instead of just points
 //  Display weather data for workout time and place

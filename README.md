@@ -18,6 +18,10 @@
     Library: Leaflet (An open-source JavaScript library for mobile-friendly interactive maps)
 </p>
 
+<p align="center">
+    API: MapBox (A mapping and location cloud platform for developers)
+</p>
+
 <p align="center" class="copyright">
     &copy; Base Project Created by
     <a class="twitter-link" target="_blank" href="https://twitter.com/jonasschmedtman">Jonas Schmedtmann</a> in the

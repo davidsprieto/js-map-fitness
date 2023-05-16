@@ -10,13 +10,12 @@
     <!-- Leaflet Map CDN CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
           integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
+    <!-- Mapbox JS & CSS CDN Below -->
+    <script defer src='https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css' rel='stylesheet'/>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css' rel='stylesheet'/>
     <!-- Custom CSS File -->
     <link rel="stylesheet" href="./style.css"/>
-    <!-- Leaflet Map CDN JS -->
-    <script defer src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
-            integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
-    <!-- Custom JS File -->
-    <script defer src="./main.js"></script>
     <title>Map Fitness // Map Your Workouts</title>
 </head>
 <body>
@@ -152,8 +151,20 @@
     </form>
 </div>
 
+<!-- The HTML element that serves as the map container -->
 <div id="map" class="map">
     <button id="position__map-to-view-all-markers">View All Markers</button>
 </div>
+
+<!-- Leaflet Map CDN JS -->
+<script defer src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+<!-- Mapbox Geocoder Util Methods: -->
+<script defer rel="script" src="./mapbox-geocoder-utils.js"></script>
+<script defer src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.js'></script>
+<!-- API Key -->
+<script defer type="text/javascript" src="./config.js"></script>
+<!-- Custom JS File -->
+<script defer src="./main.js"></script>
 </body>
 </html>
