@@ -454,7 +454,7 @@ class App {
     // Add the marker to the map and bind a popup to it
     this.#map.addLayer(marker);
     marker.bindPopup(L.popup({
-      maxWidth: 250,
+      maxWidth: 300,
       minWidth: 100,
       className: `${workout.type}-popup`
     }))
@@ -799,7 +799,7 @@ class App {
 
     // Update the marker that's bound to the selected workout to be edited
     this.#map._layers[this.workoutToEdit.id].bindPopup(L.popup({
-      maxWidth: 250,
+      maxWidth: 300,
       minWidth: 100,
       className: `${this.workoutToEdit.type}-popup`
     }))

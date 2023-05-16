@@ -99,7 +99,7 @@ a:visited {
 
 /* SIDEBAR */
 .sidebar {
-    flex-basis: 50rem;
+    flex-basis: 55rem;
     background-color: var(--color-dark--1);
     padding: 3rem 5rem 4rem 5rem;
     display: flex;
@@ -156,7 +156,7 @@ a:visited {
 }
 
 .workout__title {
-    font-size: 1.7rem;
+    font-size: 1.6rem;
     font-weight: 600;
 }
 
@@ -343,7 +343,6 @@ a:visited {
     background-color: var(--color-dark--1);
     color: var(--color-light--2);
     border-radius: 10px;
-    padding-right: 0.6rem;
 }
 
 .leaflet-popup .leaflet-popup-content {
