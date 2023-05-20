@@ -106,7 +106,7 @@ const positionMapToViewAllMarkersBtn = document.getElementById('position__map-to
 
 class App {
     #map;
-    layers = [];
+    drawnLayers = [];
     #mapEvent;
     #markers = [];
     #placeholderMarker;
@@ -175,11 +175,11 @@ class App {
         this.#map.addLayer(drawnFeatures);
 
         this.#map.on("draw:created", (e) => {
-            let layer = e.layer;
-            drawnFeatures.addLayer(layer);
-            let geoJSONLayer = drawnFeatures.toGeoJSON();
-            this.layers.push(geoJSONLayer);
-            localStorage.setItem("layers", JSON.stringify(this.layers));
+            let drawnLayer = e.layer;
+            drawnFeatures.addLayer(drawnLayer);
+            let geoJSONDrawnLayer = drawnFeatures.toGeoJSON();
+            this.drawnLayers.push(geoJSONDrawnLayer);
+            localStorage.setItem("drawnLayers", JSON.stringify(this.drawnLayers));
         });
 
         // After the map loads, get workouts from local storage and display them on the map
@@ -871,8 +871,8 @@ class App {
 
     // Get workouts from local storage
     _getLocalStorage() {
-        const lines = JSON.parse(localStorage.getItem("layers"));
-        console.log(lines);
+        const drawnLayers = JSON.parse(localStorage.getItem("drawnLayers"));
+        console.log(drawnLayers);
 
         const data = JSON.parse(localStorage.getItem("workouts"));
 
