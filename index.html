@@ -7,13 +7,18 @@
     <link rel="shortcut icon" type="image/png" href="./assets/icon.png"/>
     <!-- Google Fonts API -->
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+
     <!-- Leaflet Map CDN CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
           integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
-    <!-- Mapbox JS & CSS CDN Below -->
-    <script defer src='https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js'></script>
+
+    <!-- Leaflet Draw Plugin CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
+
+    <!-- MapBox CSS CDN Below -->
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css' rel='stylesheet'/>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css' rel='stylesheet'/>
+
     <!-- Custom CSS File -->
     <link rel="stylesheet" href="./style.css"/>
     <title>Map Fitness // Map Your Workouts</title>
@@ -22,7 +27,9 @@
 <div id="sidebar" class="sidebar">
     <img src="./assets/map.png" alt="Logo" class="logo"/>
 
-    <div id="workouts__header--none-listed" class="workouts__header--none-listed hidden">Click a location on the map to log where you worked out!</div>
+    <div id="workouts__header--none-listed" class="workouts__header--none-listed hidden">Double click a location on the map to
+        log where you worked out!
+    </div>
 
     <div id="sort__workouts" class="sort__workouts hidden">
         <label for="sort__workouts--by-options" class="sort__workouts--by-label">Sort Workouts By:</label>
@@ -51,72 +58,77 @@
             </div>
             <div class="form__row">
                 <label for="new__workout--form-input-distance" class="form__label">Distance</label>
-                <input id="new__workout--form-input-distance" class="form__input new__workout--form-input-distance" placeholder="miles"/>
+                <input id="new__workout--form-input-distance" class="form__input new__workout--form-input-distance"
+                       placeholder="miles"/>
             </div>
             <div class="form__row">
                 <label for="new__workout--form-input-duration" class="form__label">Duration</label>
-                <input id="new__workout--form-input-duration" class="form__input new__workout--form-input-duration" placeholder="minutes"/>
+                <input id="new__workout--form-input-duration" class="form__input new__workout--form-input-duration"
+                       placeholder="minutes"/>
             </div>
             <div class="form__row">
                 <label for="new__workout--form-input-cadence" class="form__label">Cadence</label>
-                <input id="new__workout--form-input-cadence" class="form__input new__workout--form-input-cadence" placeholder="steps/min"/>
+                <input id="new__workout--form-input-cadence" class="form__input new__workout--form-input-cadence"
+                       placeholder="steps/min"/>
             </div>
             <div class="form__row form__row--hidden">
                 <label for="new__workout--form-input-elevation" class="form__label">Elev. Gain</label>
-                <input id="new__workout--form-input-elevation" class="form__input new__workout--form-input-elevation" placeholder="meters"/>
+                <input id="new__workout--form-input-elevation" class="form__input new__workout--form-input-elevation"
+                       placeholder="meters"/>
             </div>
             <button class="new__workout-form-submit-btn">Add</button>
         </form>
-     <!-- <li class="workout workout--running" data-id="1234567890">
-          <h2 class="workout__title">Running on April 14</h2>
-          <div class="workout__details">
-            <span class="workout__icon">🏃</span>
-            <span class="workout__value">5.2</span>
-            <span class="workout__unit">miles</span>
-          </div>
-          <div class="workout__details">
-            <span class="workout__icon">⏱</span>
-            <span class="workout__value">24</span>
-            <span class="workout__unit">minutes</span>
-          </div>
-          <div class="workout__details">
-            <span class="workout__icon">⚡️</span>
-            <span class="workout__value">4.6</span>
-            <span class="workout__unit">min/mi</span>
-          </div>
-          <div class="workout__details">
-            <span class="workout__icon">🦶🏼</span>
-            <span class="workout__value">178</span>
-            <span class="workout__unit">spm</span>
-          </div>
-        </li>
+        <!-- <li class="workout workout--running" data-id="1234567890">
+             <h2 class="workout__title">Running on April 14</h2>
+             <div class="workout__details">
+               <span class="workout__icon">🏃</span>
+               <span class="workout__value">5.2</span>
+               <span class="workout__unit">miles</span>
+             </div>
+             <div class="workout__details">
+               <span class="workout__icon">⏱</span>
+               <span class="workout__value">24</span>
+               <span class="workout__unit">minutes</span>
+             </div>
+             <div class="workout__details">
+               <span class="workout__icon">⚡️</span>
+               <span class="workout__value">4.6</span>
+               <span class="workout__unit">min/mi</span>
+             </div>
+             <div class="workout__details">
+               <span class="workout__icon">🦶🏼</span>
+               <span class="workout__value">178</span>
+               <span class="workout__unit">spm</span>
+             </div>
+           </li>
 
-        <li class="workout workout--cycling" data-id="1234567891">
-          <h2 class="workout__title">Cycling on April 5</h2>
-          <div class="workout__details">
-            <span class="workout__icon">🚴‍</span>
-            <span class="workout__value">27</span>
-            <span class="workout__unit">miles</span>
-          </div>
-          <div class="workout__details">
-            <span class="workout__icon">⏱</span>
-            <span class="workout__value">95</span>
-            <span class="workout__unit">minutes</span>
-          </div>
-          <div class="workout__details">
-            <span class="workout__icon">⚡️</span>
-            <span class="workout__value">16</span>
-            <span class="workout__unit">mph</span>
-          </div>
-          <div class="workout__details">
-            <span class="workout__icon">⛰</span>
-            <span class="workout__value">223</span>
-            <span class="workout__unit">m</span>
-          </div>
-        </li> -->
+           <li class="workout workout--cycling" data-id="1234567891">
+             <h2 class="workout__title">Cycling on April 5</h2>
+             <div class="workout__details">
+               <span class="workout__icon">🚴‍</span>
+               <span class="workout__value">27</span>
+               <span class="workout__unit">miles</span>
+             </div>
+             <div class="workout__details">
+               <span class="workout__icon">⏱</span>
+               <span class="workout__value">95</span>
+               <span class="workout__unit">minutes</span>
+             </div>
+             <div class="workout__details">
+               <span class="workout__icon">⚡️</span>
+               <span class="workout__value">16</span>
+               <span class="workout__unit">mph</span>
+             </div>
+             <div class="workout__details">
+               <span class="workout__icon">⛰</span>
+               <span class="workout__value">223</span>
+               <span class="workout__unit">m</span>
+             </div>
+           </li> -->
     </ul>
 
-    <button id="workouts__modify--delete-all" class="workouts__modify--delete-all hidden"><span>Delete Workouts</span></button>
+    <button id="workouts__modify--delete-all" class="workouts__modify--delete-all hidden"><span>Delete Workouts</span>
+    </button>
 
     <form id="modal__edit--workout-form" class="modal__edit--workout-form hidden">
         <div class="modal__edit--workout-header-container">
@@ -133,19 +145,23 @@
         </div>
         <div class="form__row">
             <label for="modal__edit--workout-form-input-distance" class="form__label">Distance</label>
-            <input id="modal__edit--workout-form-input-distance" class="form__input modal__edit--workout-form-input-distance" placeholder="miles"/>
+            <input id="modal__edit--workout-form-input-distance"
+                   class="form__input modal__edit--workout-form-input-distance" placeholder="miles"/>
         </div>
         <div class="form__row">
             <label for="modal__edit--workout-form-input-duration" class="form__label">Duration</label>
-            <input id="modal__edit--workout-form-input-duration" class="form__input modal__edit--workout-form-input-duration" placeholder="minutes"/>
+            <input id="modal__edit--workout-form-input-duration"
+                   class="form__input modal__edit--workout-form-input-duration" placeholder="minutes"/>
         </div>
         <div id="modal__edit-cadence-form-row" class="form__row modal__edit-cadence-form-row hidden">
             <label for="modal__edit--workout-form-input-cadence" class="form__label">Cadence</label>
-            <input id="modal__edit--workout-form-input-cadence" class="form__input modal__edit--workout-form-input-cadence" placeholder="steps/min"/>
+            <input id="modal__edit--workout-form-input-cadence"
+                   class="form__input modal__edit--workout-form-input-cadence" placeholder="steps/min"/>
         </div>
         <div id="modal__edit-elevation-form-row" class="form__row modal__edit-elevation-form-row hidden">
             <label for="modal__edit--workout-form-input-elevation" class="form__label">Elev. Gain</label>
-            <input id="modal__edit--workout-form-input-elevation" class="form__input modal__edit--workout-form-input-elevation" placeholder="meters"/>
+            <input id="modal__edit--workout-form-input-elevation"
+                   class="form__input modal__edit--workout-form-input-elevation" placeholder="meters"/>
         </div>
         <button class="modal__edit--workout-form-submit-btn">Edit</button>
     </form>
@@ -159,11 +175,20 @@
 <!-- Leaflet Map CDN JS -->
 <script defer src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
         integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+
+<!-- Leaflet Draw Plugin JS -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+
+<!-- MapBox JS CDN -->
+<script defer src='https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js'></script>
+
 <!-- Mapbox Geocoder Util Methods: -->
 <script defer rel="script" src="./mapbox-geocoder-utils.js"></script>
 <script defer src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.js'></script>
+
 <!-- API Key -->
 <script defer type="text/javascript" src="./config.js"></script>
+
 <!-- Custom JS File -->
 <script defer src="./main.js"></script>
 </body>
