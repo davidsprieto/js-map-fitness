@@ -124,8 +124,11 @@ class App {
         // Get user's location
         this._getPosition();
 
-        // Get data from local storage
-        this._getLocalStorage();
+        // Get workouts from local storage
+        this._getWorkoutsLocalStorage();
+
+        // Get drawn layers from local storage
+        this._getDrawnLayersLocalStorage();
 
         // Attach event handlers
         containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
@@ -169,14 +172,41 @@ class App {
 
         // Function that handles what happens when a layer is drawn on the map:
         // When a user draws a line or shape on the map it is added to the drawn features feature group object variable
-        // Then converted to geoJSON and then added to the drawn layers array variable to be stored in local storage
+        // Then it is converted to geoJSON and then added to the drawn layers array variable to be stored in local storage
         // And retrieved later to be displayed on the map when the user comes back to the app
         this.#map.on("draw:created", (e) => {
             let drawnLayer = e.layer;
+            let geoJSONDrawnLayer = drawnLayer.toGeoJSON();
+            let coords = geoJSONDrawnLayer.geometry.coordinates[0];
+            geoJSONDrawnLayer.id = coords[0] + coords[1];
             drawnFeatures.addLayer(drawnLayer);
-            let geoJSONDrawnLayer = drawnFeatures.toGeoJSON();
             this.drawnLayers.push(geoJSONDrawnLayer);
-            localStorage.setItem("drawnLayers", JSON.stringify(this.drawnLayers));
+            this._setDrawnLayersLocalStorage();
+        });
+
+        // Functions converts the first lat & lng coordinates of the drawn layer to an id to be assigned to the drawn layer object
+        // I used the coordinates as an id because they can be accessed later when updating or deleting the drawn layer object from the
+        // drawn layers array variable that contains all the drawn layers objects
+        function _convertCoordsToId(drawnLayer) {
+            let coords = drawnLayer.features[0].geometry.coordinates[0];
+            return coords[0] + coords[1];
+        }
+
+        // Function that handles what happens when a layer is edited on the map:
+        this.#map.on("draw:edited", (e) => {
+            let drawnLayer = e.layers.toGeoJSON();
+            let id = _convertCoordsToId(drawnLayer);
+            const index = this.drawnLayers.findIndex(drawnLayer => drawnLayer.id === id);
+            this.drawnLayers[index] = drawnLayer;
+            this._setDrawnLayersLocalStorage();
+        });
+
+        // Function that handles what happens when a layer is deleted from the map:
+        this.#map.on("draw:deleted", (e) => {
+            let drawnLayer = e.layers.toGeoJSON();
+            let id = _convertCoordsToId(drawnLayer);
+            this.drawnLayers = this.drawnLayers.filter(drawnLayer => drawnLayer.id !== id);
+            this._setDrawnLayersLocalStorage();
         });
 
         // Enable Leaflet Draw Controls:
@@ -189,6 +219,10 @@ class App {
             edit: {
                 featureGroup: drawnFeatures,
                 edit: true
+            },
+            delete: {
+                featureGroup: drawnFeatures,
+                delete: true
             }
         });
         this.#map.addControl(drawControl);
@@ -539,7 +573,7 @@ class App {
             this._openPopup(workout.id);
 
             // Reset local storage to reflect the updated workouts coordinates
-            this._setLocalStorage();
+            this._setWorkoutsLocalStorage();
         });
     }
 
@@ -678,7 +712,7 @@ class App {
         this._highlightWorkout(workout, this.#workoutElements.at(-1));
 
         // Store workouts in local storage
-        this._setLocalStorage();
+        this._setWorkoutsLocalStorage();
 
         // Clear the form input fields && Hide form
         this._hideForm();
@@ -767,7 +801,7 @@ class App {
             this._areWorkoutsListed();
 
             // Reset the local storage of workouts so that it's updated with the new array of workouts with the deleted workout removed
-            this._setLocalStorage();
+            this._setWorkoutsLocalStorage();
         }
     }
 
@@ -870,7 +904,7 @@ class App {
 
         // Reset the local storage of edited workout & workouts so that the workouts array data is updated along with the workout just edited
         // so that on page reload the map view can be set to that marker
-        this._setLocalStorage();
+        this._setWorkoutsLocalStorage();
 
         // Highlight the edited workout
         this._highlightWorkout(this.workoutToEdit, element);
@@ -879,19 +913,26 @@ class App {
         this._closeModal();
     }
 
-    // Store edited workout only if one was just edited & store workouts in local storage
-    _setLocalStorage() {
+    // Store drawn layers in local storage
+    _setDrawnLayersLocalStorage() {
+        localStorage.setItem("drawnLayers", JSON.stringify(this.drawnLayers));
+    }
+
+    // Store workouts in local storage
+    _setWorkoutsLocalStorage() {
         localStorage.setItem("workouts", JSON.stringify(this.#workouts));
     }
 
-    // Get workouts & drawn layers from local storage
-    _getLocalStorage() {
+    _getDrawnLayersLocalStorage() {
         const drawnLayers = JSON.parse(localStorage.getItem("drawnLayers"));
 
-        if (drawnLayers) {
-            this.drawnLayers = drawnLayers;
+        if (drawnLayers || drawnLayers.length > 0) {
+            return this.drawnLayers = drawnLayers;
         }
+    }
 
+    // Get workouts from local storage
+    _getWorkoutsLocalStorage() {
         const data = JSON.parse(localStorage.getItem("workouts"));
 
         if (!data || data.length === 0) {
@@ -923,3 +964,4 @@ const app = new App();
 //  Geocode location from coordinates ("Run in {insert location from coordinates}" ✅
 //  Ability to draw lines/shapes instead of just points ✅
 //  Allow user to edit and delete drawn lines/shapes ✅
+//  Change alert notifications to modals
