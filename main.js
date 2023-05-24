@@ -176,10 +176,10 @@ class App {
         // And retrieved later to be displayed on the map when the user comes back to the app
         this.#map.on("draw:created", (e) => {
             let drawnLayer = e.layer;
+            drawnFeatures.addLayer(drawnLayer);
             let geoJSONDrawnLayer = drawnLayer.toGeoJSON();
             let coords = geoJSONDrawnLayer.geometry.coordinates[0];
             geoJSONDrawnLayer.id = coords[0] + coords[1];
-            drawnFeatures.addLayer(drawnLayer);
             this.drawnLayers.push(geoJSONDrawnLayer);
             this._setDrawnLayersLocalStorage();
         });
@@ -214,7 +214,7 @@ class App {
         // Enabled edit and delete controls for each drawn line
         let drawControl = new L.Control.Draw({
             draw: {
-                marker: false
+                marker: false,
             },
             edit: {
                 featureGroup: drawnFeatures,
@@ -236,6 +236,9 @@ class App {
 
         // After the map loads, get drawn layers from local storage and display them on the map
         if (this.drawnLayers.length !== 0) {
+            L.geoJSON(this.drawnLayers).eachLayer(layer => {
+                drawnFeatures.addLayer(layer);
+            });
             L.geoJSON(this.drawnLayers).addTo(this.#map);
         }
 
@@ -923,10 +926,11 @@ class App {
         localStorage.setItem("workouts", JSON.stringify(this.#workouts));
     }
 
+    // Get drawn layers from local storage
     _getDrawnLayersLocalStorage() {
         const drawnLayers = JSON.parse(localStorage.getItem("drawnLayers"));
 
-        if (drawnLayers || drawnLayers.length > 0) {
+        if (drawnLayers) {
             return this.drawnLayers = drawnLayers;
         }
     }
