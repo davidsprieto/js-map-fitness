@@ -433,6 +433,9 @@ class App {
     // Position the map to fit all the markers
     _positionMapToFitMarkers(e) {
         e.stopPropagation(); // Prevent a marker from being created on the map when the button is clicked
+        if (this.isModalOpen) {
+            this._closeModal();
+        }
         if (this.#markers.length === 0) {
             return alert("There are no markers to view!");
         }

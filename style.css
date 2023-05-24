@@ -364,8 +364,8 @@ a:visited {
 }
 
 .modal__edit--workout-form {
-    top: 50%;
-    left: 49%;
+    top: 65%;
+    left: 71.5%;
     transform: translate(-50%, -51%);
     z-index: 1000;
     overflow: auto;
