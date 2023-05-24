@@ -237,9 +237,8 @@ class App {
         // After the map loads, get drawn layers from local storage and display them on the map
         if (this.drawnLayers.length !== 0) {
             L.geoJSON(this.drawnLayers).eachLayer(layer => {
-                drawnFeatures.addLayer(layer);
+                drawnFeatures.addLayer(layer).addTo(this.#map);
             });
-            L.geoJSON(this.drawnLayers).addTo(this.#map);
         }
 
         // Wait until the map completely loads until displaying the view all workout markers button
