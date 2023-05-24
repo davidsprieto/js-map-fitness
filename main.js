@@ -163,14 +163,6 @@ class App {
         // Handling double clicks on the map by displaying the new workout form in the sidebar
         this.#map.on('dblclick', this._showForm.bind(this));
 
-        // Enable Leaflet Draw Controls - Removed being able to create a marker as that is performed with a double click on the map
-        let drawControl = new L.Control.Draw({
-            draw: {
-                marker: false
-            }
-        });
-        this.#map.addControl(drawControl);
-
         // Create a new Feature Group object that stores all the editable shapes and add it to the map
         let drawnFeatures = new L.FeatureGroup();
         this.#map.addLayer(drawnFeatures);
@@ -187,7 +179,19 @@ class App {
             localStorage.setItem("drawnLayers", JSON.stringify(this.drawnLayers));
         });
 
-
+        // Enable Leaflet Draw Controls:
+        // Disabled being able to create a marker as that is performed with a double click on the map
+        // Enabled edit and delete controls for each drawn line
+        let drawControl = new L.Control.Draw({
+            draw: {
+                marker: false
+            },
+            edit: {
+                featureGroup: drawnFeatures,
+                edit: true
+            }
+        });
+        this.#map.addControl(drawControl);
 
         // After the map loads, get workouts from local storage and display them on the map
         if (this.#workouts.length !== 0) {
@@ -918,4 +922,4 @@ const app = new App();
 //  Ability to position the map to show all workouts on the map ✅
 //  Geocode location from coordinates ("Run in {insert location from coordinates}" ✅
 //  Ability to draw lines/shapes instead of just points ✅
-//  Allow user to edit and delete drawn lines/shapes
+//  Allow user to edit and delete drawn lines/shapes ✅
