@@ -918,4 +918,4 @@ const app = new App();
 //  Ability to position the map to show all workouts on the map ✅
 //  Geocode location from coordinates ("Run in {insert location from coordinates}" ✅
 //  Ability to draw lines/shapes instead of just points ✅
-//  Display weather data for workout time and place
+//  Allow user to edit and delete drawn lines/shapes
