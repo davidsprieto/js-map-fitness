@@ -160,10 +160,10 @@ class App {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(this.#map);
 
-        // Handling clicks on the map
+        // Handling double clicks on the map by displaying the new workout form in the sidebar
         this.#map.on('dblclick', this._showForm.bind(this));
 
-        // Leaflet Draw Controls
+        // Enable Leaflet Draw Controls - Removed being able to create a marker as that is performed with a double click on the map
         let drawControl = new L.Control.Draw({
             draw: {
                 marker: false
@@ -171,9 +171,14 @@ class App {
         });
         this.#map.addControl(drawControl);
 
+        // Create a new Feature Group object that stores all the editable shapes and add it to the map
         let drawnFeatures = new L.FeatureGroup();
         this.#map.addLayer(drawnFeatures);
 
+        // Function that handles what happens when a layer is drawn on the map:
+        // When a user draws a line or shape on the map it is added to the drawn features feature group object variable
+        // Then converted to geoJSON and then added to the drawn layers array variable to be stored in local storage
+        // And retrieved later to be displayed on the map when the user comes back to the app
         this.#map.on("draw:created", (e) => {
             let drawnLayer = e.layer;
             drawnFeatures.addLayer(drawnLayer);
@@ -187,6 +192,11 @@ class App {
             this.#workouts.forEach(workout => {
                 this._renderWorkoutMarker(workout);
             });
+        }
+
+        // After the map loads, get drawn layers from local storage and display them on the map
+        if (this.drawnLayers.length !== 0) {
+            L.geoJSON(this.drawnLayers).addTo(this.#map);
         }
 
         // Wait until the map completely loads until displaying the view all workout markers button
@@ -483,8 +493,7 @@ class App {
             maxWidth: 300,
             minWidth: 100,
             className: `${workout.type}-popup`
-        }))
-            .setPopupContent(`${workout.type === "running" ? "🏃" : "🚴‍"} ${workout.description}`)
+        })).setPopupContent(`${workout.type === "running" ? "🏃" : "🚴‍"} ${workout.description}`)
             .openPopup();
 
         // Add the marker to the list of markers array
@@ -869,10 +878,13 @@ class App {
         localStorage.setItem("workouts", JSON.stringify(this.#workouts));
     }
 
-    // Get workouts from local storage
+    // Get workouts & drawn layers from local storage
     _getLocalStorage() {
         const drawnLayers = JSON.parse(localStorage.getItem("drawnLayers"));
-        console.log(drawnLayers);
+
+        if (drawnLayers) {
+            this.drawnLayers = drawnLayers;
+        }
 
         const data = JSON.parse(localStorage.getItem("workouts"));
 
