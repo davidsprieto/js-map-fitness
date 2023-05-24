@@ -187,6 +187,8 @@ class App {
             localStorage.setItem("drawnLayers", JSON.stringify(this.drawnLayers));
         });
 
+
+
         // After the map loads, get workouts from local storage and display them on the map
         if (this.#workouts.length !== 0) {
             this.#workouts.forEach(workout => {
