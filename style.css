@@ -42,7 +42,7 @@ a:visited {
 
 .workouts__header--none-listed {
     display: flex;
-    justify-content: center;
+    text-align: center;
     font-size: 1.55rem;
     margin-bottom: 1rem;
 }
@@ -101,7 +101,7 @@ a:visited {
 
 /* SIDEBAR */
 .sidebar {
-    flex-basis: 55rem;
+    flex-basis: 50rem;
     background-color: var(--color-dark--1);
     padding: 3rem 5rem 4rem 5rem;
     display: flex;
