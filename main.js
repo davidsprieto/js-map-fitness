@@ -104,6 +104,13 @@ const newWorkoutCloseFormBtn = document.getElementById('new__workout--close-form
 // Button to position map to view all the workout markers
 const positionMapToViewAllMarkersBtn = document.getElementById('position__map-to-view-all-markers');
 
+// Alert modal && Alert modal close button
+const alertModal = document.getElementById('alert__modal');
+const alertModalCloseBtn = document.getElementById('alert__modal--close-btn');
+
+// Window overlay for the alert modal
+const overlay = document.getElementById('alert__modal--overlay');
+
 class App {
     #map;
     drawnLayers = [];
@@ -141,13 +148,23 @@ class App {
         editWorkoutModalForm.addEventListener('submit', this._editSpecificWorkout.bind(this));
         editWorkoutInputType.addEventListener('change', this._toggleEditWorkoutTypeField.bind(this));
         positionMapToViewAllMarkersBtn.addEventListener('click', this._positionMapToFitMarkers.bind(this));
+        alertModalCloseBtn.addEventListener('click', this._hideAlertModal.bind(this));
+        overlay.addEventListener('click', this._hideAlertModal);
+    }
+
+    _hideAlertModal() {
+        alertModal.classList.remove('active');
+        overlay.classList.remove('active');
+    }
+
+    _showAlertModal() {
+        alertModal.classList.add('active');
+        overlay.classList.add('active');
     }
 
     // Function to get user's location
     _getPosition() {
-        navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), function () {
-            alert('Could not get your location!');
-        });
+        navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), this._showAlertModal.bind(this));
     }
 
     // Function to load leaflet map

@@ -204,8 +204,7 @@ a:visited {
 .workout__value--pace,
 .workout__value--cadence,
 .workout__value--speed,
-.workout__value--elevation
-{
+.workout__value--elevation {
     font-size: 1.5rem;
     margin-right: 0.1rem;
 }
@@ -437,4 +436,64 @@ a:visited {
 #position__map-to-view-all-markers:hover {
     cursor: pointer;
     background-color: whitesmoke;
+}
+
+.alert__modal, .alert__modal::after, .alert__modal::before {
+    box-sizing: border-box;
+}
+
+.alert__modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: 200ms ease-in-out;
+    border: 1px solid black;
+    border-radius: 10px;
+    z-index: 1000;
+    background-color: var(--color-dark--2);
+    width: 500px;
+    max-width: 80%;
+}
+
+.alert__modal.active {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.alert__modal--body {
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.alert__modal--label {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+#alert__modal--close-btn {
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+#alert__modal--close-btn:hover {
+    text-decoration: underline;
+}
+
+.alert__modal--overlay {
+    position: fixed;
+    opacity: 0;
+    transition: 200ms ease-in-out;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+.alert__modal--overlay.active {
+    opacity: 1;
+    pointer-events: all;
 }

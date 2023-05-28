@@ -27,8 +27,8 @@
 <div id="sidebar" class="sidebar">
     <img src="./assets/map.png" alt="Logo" class="logo"/>
 
-    <div id="workouts__header--none-listed" class="workouts__header--none-listed hidden">Double click a location on the map to
-        log where you worked out!
+    <div id="workouts__header--none-listed" class="workouts__header--none-listed hidden">Double click a location on the
+        map to log where you worked out!
     </div>
 
     <div id="sort__workouts" class="sort__workouts hidden">
@@ -166,6 +166,15 @@
         <button class="modal__edit--workout-form-submit-btn">Edit</button>
     </form>
 </div>
+
+<!-- Alert modal for not getting location -->
+<div id="alert__modal" class="alert__modal">
+    <div class="alert__modal--body">
+        <div class="alert__modal--label">Could not get your location!</div>
+        <div id="alert__modal--close-btn">X</div>
+    </div>
+</div>
+<div id="alert__modal--overlay" class="alert__modal--overlay"></div>
 
 <!-- The HTML element that serves as the map container -->
 <div id="map" class="map">
