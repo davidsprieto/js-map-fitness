@@ -152,17 +152,21 @@ class App {
         overlay.addEventListener('click', this._hideAlertModal);
     }
 
+    // Hide alert modal
     _hideAlertModal() {
         alertModal.classList.remove('active');
         overlay.classList.remove('active');
     }
 
+    // Show alert modal
     _showAlertModal() {
         alertModal.classList.add('active');
         overlay.classList.add('active');
     }
 
     // Function to get user's location
+    // If successful: the map will load
+    // If unsuccessful: the alert modal will pop up
     _getPosition() {
         navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), this._showAlertModal.bind(this));
     }
