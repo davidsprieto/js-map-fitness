@@ -467,18 +467,18 @@ a:visited {
     align-items: center;
 }
 
-.alert__modal--label {
+.alert__modal--body-text {
     text-align: center;
     font-size: 2rem;
     font-weight: 600;
 }
 
-.alert__modal--close-btn {
+#alert__modal--close-btn {
     font-size: 2rem;
     cursor: pointer;
 }
 
-.alert__modal--close-btn:hover {
+#alert__modal--close-btn:hover {
     text-decoration: underline;
 }
 

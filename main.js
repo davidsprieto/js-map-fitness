@@ -104,8 +104,13 @@ const newWorkoutCloseFormBtn = document.getElementById('new__workout--close-form
 // Button to position map to view all the workout markers
 const positionMapToViewAllMarkersBtn = document.getElementById('position__map-to-view-all-markers');
 
+// Alert modal, alert modal body text, & alert modal close button
+const alertModal = document.getElementById('alert__modal');
+const alertModalText = document.getElementById('alert__modal--body-text');
+const alertModalCloseBtn = document.getElementById('alert__modal--close-btn');
+
 // Alert modal overlay
-const overlay = document.getElementById('alert__modal--overlay');
+const alertModalOverlay = document.getElementById('alert__modal--overlay');
 
 class App {
     #map;
@@ -145,35 +150,34 @@ class App {
         editWorkoutModalForm.addEventListener('submit', this._editSpecificWorkout.bind(this));
         editWorkoutInputType.addEventListener('change', this._toggleEditWorkoutTypeField.bind(this));
         positionMapToViewAllMarkersBtn.addEventListener('click', this._positionMapToFitMarkers.bind(this));
-        overlay.addEventListener('click', this._hideAlertModal);
+        alertModalCloseBtn.addEventListener('click', this._hideAlertModal);
+        alertModalOverlay.addEventListener('click', this._hideAlertModal);
     }
 
     // Hide alert modal
     _hideAlertModal() {
-        document.querySelector(".alert__modal").classList.remove('active');
-        overlay.classList.remove('active');
-        document.querySelector(".alert__modal").remove();
+        alertModal.classList.remove('active');
+        alertModalOverlay.classList.remove('active');
+        alertModalText.innerText = "";
+        this.isAlertModalOpen = false;
     }
 
-    // Render & show alert modal
-    _renderAlertModal(text) {
-        let modal = document.createElement("div");
-        modal.classList.add("alert__modal");
+    // Show alert modal & change the inner text based on specified alert
+    _showAlertModal(text) {
+        if (text === "geolocation alert") {
+            alertModalText.innerText = "Could not get your location!";
+        } else if (text === "no markers alert") {
+            alertModalText.innerText = "There are no markers to display!";
+        } else if (text === "new workout form alert") {
+            alertModalText.innerText = "Please fill out the workout form or close it before proceeding!";
+        } else if (text === "invalid input alert") {
+            alertModalText.innerText = "Input must be positive!";
+        }
 
-        modal.innerHTML = `
-        <div class="alert__modal--body">
-            <div class="alert__modal--label">${text}</div>
-            <div class="alert__modal--close-btn">X</div>
-        </div>
-        `;
+        alertModal.classList.add('active');
+        alertModalOverlay.classList.add('active');
 
-        const alertModalCloseBtn = modal.querySelector('.alert__modal--close-btn');
-        alertModalCloseBtn.addEventListener('click', this._hideAlertModal);
-
-        overlay.insertAdjacentElement('beforebegin', modal);
-
-        modal.classList.add('active');
-        overlay.classList.add('active');
+        this.isAlertModalOpen = true;
     }
 
     // Function to get user's location
@@ -181,7 +185,7 @@ class App {
     // If unsuccessful: the alert modal will pop up
     _getPosition() {
         navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), () => {
-            return this._renderAlertModal("Could not get your location!");
+            return this._showAlertModal("geolocation alert");
         });
     }
 
@@ -192,6 +196,9 @@ class App {
 
         // When the map loads, set the page zoom view
         this.#map = L.map('map').setView(coords, this.#mapZoomView);
+
+        // Disable double click zoom
+        this.#map.doubleClickZoom.disable();
 
         // Add the map layer
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -301,11 +308,14 @@ class App {
         if (this.isModalOpen) {
             this._closeModal();
         }
+        // Also check if the alert modal is open when a user decides to add a new workout, if it is then close it
+        if (this.isAlertModalOpen) {
+            this._hideAlertModal();
+        }
         this.#mapEvent = mapE;
         this._renderPlaceholderMarker();
         await this._getWorkoutCity(this.#mapEvent.latlng);
         newWorkoutForm.classList.remove('hidden');
-        newWorkoutInputDistance.focus();
         this.isFormOpen = true;
     }
 
@@ -472,7 +482,7 @@ class App {
             this._closeModal();
         }
         if (this.#markers.length === 0) {
-            return this._renderAlertModal("There are no markers to view!");
+            return this._showAlertModal("no markers alert");
         }
         let group = new L.featureGroup(this.#markers);
         this.#map.fitBounds(group.getBounds());
@@ -545,7 +555,7 @@ class App {
     _renderPlaceholderMarker() {
         // First check if the new workout form is open, if it is then alert the user to fill out the form or close it before proceeding
         if (this.isFormOpen) {
-            return this._renderAlertModal("Please fill out the form with your workout data or close the form!");
+            return this._showAlertModal("new workout form alert");
         }
         const {lat, lng} = this.#mapEvent.latlng;
         const coords = [lat, lng];
@@ -721,7 +731,7 @@ class App {
             const cadence = +newWorkoutInputCadence.value;
             // Check if data is valid
             if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
-                return this._renderAlertModal("Input must be a positive number!");
+                return this._showAlertModal("invalid input alert");
             }
             workout = new Running(city, [lat, lng], distance, duration, cadence);
         }
@@ -731,7 +741,7 @@ class App {
             const elevation = +newWorkoutInputElevation.value;
             // Check if data is valid
             if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-                return this._renderAlertModal("Input must be a positive number!");
+                return this._showAlertModal("invalid input alert");
             }
             workout = new Cycling(city, [lat, lng], distance, duration, elevation);
         }
@@ -893,7 +903,7 @@ class App {
             const cadence = +editWorkoutInputCadence.value;
             // Check if data is valid
             if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
-                return this._renderAlertModal("Input must be a positive number!");
+                return this._showAlertModal("invalid input alert");
             }
             this.workoutToEdit.distance = distance;
             this.workoutToEdit.duration = duration;
@@ -902,7 +912,7 @@ class App {
             const cadence = +editWorkoutInputCadence.value;
             // Check if data is valid
             if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration)) {
-                return this._renderAlertModal("Input must be a positive number!");
+                return this._showAlertModal("invalid input alert");
             }
             this.workoutToEdit = new Running(city, [lat, lng], distance, duration, cadence);
             this.workoutToEdit.id = id;
@@ -910,7 +920,7 @@ class App {
             const elevation = +editWorkoutInputElevation.value;
             // Check if data is valid
             if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-                return this._renderAlertModal("Input must be a positive number!");
+                return this._showAlertModal("invalid input alert");
             }
             this.workoutToEdit.distance = distance;
             this.workoutToEdit.duration = duration;
@@ -919,7 +929,7 @@ class App {
             const elevation = +editWorkoutInputElevation.value;
             // Check if data is valid
             if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-                return this._renderAlertModal("Input must be a positive number!");
+                return this._showAlertModal("invalid input alert");
             }
             this.workoutToEdit = new Cycling(city, [lat, lng], distance, duration, elevation);
             this.workoutToEdit.id = id;
@@ -1005,4 +1015,5 @@ const app = new App();
 //  Geocode location from coordinates ("Run in {insert location from coordinates}" ✅
 //  Ability to draw lines/shapes instead of just points ✅
 //  Allow user to edit and delete drawn lines/shapes ✅
-//  Change alert notifications to modals
+//  Change alert notifications to modals ✅
+//  Change confirm notifications to modals
