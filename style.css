@@ -444,15 +444,15 @@ a:visited {
 
 .alert__modal {
     position: fixed;
-    top: 50%;
-    left: 50%;
+    top: 45%;
+    left: 55%;
     transform: translate(-50%, -50%) scale(0);
     transition: 200ms ease-in-out;
     border: 1px solid black;
     border-radius: 10px;
     z-index: 1000;
     background-color: var(--color-dark--2);
-    width: 500px;
+    width: 400px;
     max-width: 80%;
 }
 
@@ -468,16 +468,17 @@ a:visited {
 }
 
 .alert__modal--label {
+    text-align: center;
     font-size: 2rem;
     font-weight: 600;
 }
 
-#alert__modal--close-btn {
+.alert__modal--close-btn {
     font-size: 2rem;
     cursor: pointer;
 }
 
-#alert__modal--close-btn:hover {
+.alert__modal--close-btn:hover {
     text-decoration: underline;
 }
 
