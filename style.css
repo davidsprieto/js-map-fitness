@@ -103,7 +103,7 @@ a:visited {
 .sidebar {
     flex-basis: 50rem;
     background-color: var(--color-dark--1);
-    padding: 3rem 5rem 4rem 5rem;
+    padding: 3rem;
     display: flex;
     flex-direction: column;
 }
@@ -111,7 +111,6 @@ a:visited {
 .logo {
     height: 15.2rem;
     align-self: center;
-    margin-bottom: 2rem;
     background-blend-mode: screen;
 }
 
@@ -435,10 +434,24 @@ a:visited {
     box-sizing: border-box;
 }
 
-.alert__modal, .confirm__delete--modal {
+.alert__modal {
     position: fixed;
-    top: 45%;
-    left: 55%;
+    top: 50%;
+    left: 67%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: 200ms ease-in-out;
+    border: 1px solid black;
+    border-radius: 10px;
+    z-index: 1000;
+    background-color: var(--color-dark--2);
+    width: 400px;
+    max-width: 80%;
+}
+
+.confirm__delete--modal {
+    position: fixed;
+    top: 59%;
+    left: 67%;
     transform: translate(-50%, -50%) scale(0);
     transition: 200ms ease-in-out;
     border: 1px solid black;
@@ -454,25 +467,46 @@ a:visited {
 }
 
 .alert__modal--body, .confirm__delete--modal-body {
-    padding: 10px 15px;
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
-    align-items: center;
+    padding: 10px 15px;
 }
 
 .alert__modal--body-text, .confirm__delete--modal-body-text {
     text-align: center;
     font-size: 2rem;
-    font-weight: 600;
+    font-weight: 500;
 }
 
-#alert__modal--close-btn, #confirm__delete--modal-close-btn {
+#alert__modal--close-btn {
     font-size: 2rem;
     cursor: pointer;
 }
 
-#alert__modal--close-btn:hover, #confirm__delete--modal-close-btn:hover {
+#alert__modal--close-btn:hover {
     text-decoration: underline;
+}
+
+.confirm__delete--modal-buttons-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 10px 15px;
+}
+
+#confirm__delete--modal-yes-btn, #confirm__delete--modal-no-btn {
+    font-size: 1.75rem;
+    padding: 5px 10px;
+    color: #ffb545;
+    background-color: white;
+    border-radius: 5px;
+    border: none;
+}
+
+#confirm__delete--modal-yes-btn:hover, #confirm__delete--modal-no-btn:hover {
+    cursor: pointer;
+    background-color: whitesmoke;
 }
 
 .modal__overlay {

@@ -112,27 +112,33 @@ const alertModalCloseBtn = document.getElementById('alert__modal--close-btn');
 // Confirm delete modal & confirm delete modal body text
 const confirmDeleteModal = document.getElementById('confirm__delete-modal');
 const confirmDeleteModalText = document.getElementById('confirm__delete--modal-body-text');
-const confirmDeleteModalCloseBtn = document.getElementById('confirm__delete--modal-close-btn');
+
+// Confirm delete modal yes & no buttons
+const confirmDeleteYesBtn = document.getElementById('confirm__delete--modal-yes-btn');
+const confirmDeleteNoBtn = document.getElementById('confirm__delete--modal-no-btn');
 
 // Modals overlay
 const modalOverlay = document.getElementById('modal__overlay');
 
 class App {
     #map;
-    drawnLayers = [];
     #mapEvent;
+    drawnLayers = [];
     #markers = [];
     #placeholderMarker;
     #workouts = [];
+    #workoutElements = [];
     workoutId;
     workoutToEdit;
-    #workoutElements = [];
     workoutElementToEdit;
+    workoutToDelete;
+    workoutElementToDelete;
     #mapZoomView = 10;
-    isModalOpen = false;
-    isFormOpen = false;
+    isEditWorkoutModalOpen = false;
+    isNewWorkoutFormOpen = false;
     isAlertModalOpen = false;
     isConfirmDeleteModalOpen = false;
+    confirmDeleteAll = false;
     city;
 
     constructor() {
@@ -148,65 +154,19 @@ class App {
         // Attach event handlers
         containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
         newWorkoutForm.addEventListener('submit', this._newWorkout.bind(this));
-        newWorkoutCloseFormBtn.addEventListener('click', this._hideForm.bind(this));
+        newWorkoutCloseFormBtn.addEventListener('click', this._hideNewWorkoutForm.bind(this));
         newWorkoutInputType.addEventListener('change', this._toggleNewWorkoutTypeField);
         sortWorkoutsOptionsBtn.addEventListener('change', this._sortElements.bind(this));
-        deleteAllWorkoutsBtn.addEventListener('click', this._deleteAllWorkouts);
-        editWorkoutCloseModalBtn.addEventListener('click', this._closeModal);
+        deleteAllWorkoutsBtn.addEventListener('click', this._deleteAllWorkouts.bind(this));
+        editWorkoutCloseModalBtn.addEventListener('click', this._closeEditWorkoutModal);
         editWorkoutModalForm.addEventListener('submit', this._editSpecificWorkout.bind(this));
         editWorkoutInputType.addEventListener('change', this._toggleEditWorkoutTypeField.bind(this));
         positionMapToViewAllMarkersBtn.addEventListener('click', this._positionMapToFitMarkers.bind(this));
-        alertModalCloseBtn.addEventListener('click', this._hideAlertModal);
-        confirmDeleteModalCloseBtn.addEventListener('click', this._hideConfirmDeleteModal);
-        modalOverlay.addEventListener('click', this._hideAlertModal);
-    }
-
-    // Hide alert modal
-    _hideAlertModal() {
-        alertModal.classList.remove('active');
-        modalOverlay.classList.remove('active');
-        alertModalText.innerText = "";
-        this.isAlertModalOpen = false;
-    }
-
-    // Show alert modal & change the inner text based on specified alert
-    _showAlertModal(text) {
-        if (text === "geolocation alert") {
-            alertModalText.innerText = "Could not get your location!";
-        } else if (text === "no markers alert") {
-            alertModalText.innerText = "There are no markers to display!";
-        } else if (text === "new workout form alert") {
-            alertModalText.innerText = "Please fill out the workout form or close it before proceeding!";
-        } else if (text === "invalid input alert") {
-            alertModalText.innerText = "Input must be positive!";
-        }
-
-        alertModal.classList.add('active');
-        modalOverlay.classList.add('active');
-
-        this.isAlertModalOpen = true;
-    }
-
-    // Hide confirm delete modal
-    _hideConfirmDeleteModal() {
-        confirmDeleteModal.classList.remove('active');
-        modalOverlay.classList.remove('active');
-        confirmDeleteModalText.innerText = "";
-        this.isConfirmDeleteModalOpen = false;
-    }
-
-    // Show confirm delete modal & change the inner text based on workout deletion action
-    _showConfirmDeleteModal(text) {
-        if (text === "Confirm specific workout deletion") {
-            confirmDeleteModalText.innerText = "Are you sure you want to delete this workout?";
-        } else if (text === "Confirm all workouts deletion") {
-            confirmDeleteModalText.innerText = "Are you sure you want to delete all of the workouts?";
-        }
-
-        confirmDeleteModal.classList.add('active');
-        modalOverlay.classList.add('active');
-
-        this.isConfirmDeleteModalOpen = true;
+        alertModalCloseBtn.addEventListener('click', this._closeAlertModal);
+        confirmDeleteYesBtn.addEventListener('click', this._confirmDelete.bind(this));
+        confirmDeleteNoBtn.addEventListener('click', this._confirmDelete.bind(this));
+        modalOverlay.addEventListener('click', this._closeAlertModal);
+        modalOverlay.addEventListener('click', this._closeConfirmDeleteModal);
     }
 
     // Function to get user's location
@@ -214,7 +174,7 @@ class App {
     // If unsuccessful: the alert modal will pop up
     _getPosition() {
         navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), () => {
-            return this._showAlertModal("geolocation alert");
+            return this._openAlertModal("geolocation alert");
         });
     }
 
@@ -234,8 +194,8 @@ class App {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(this.#map);
 
-        // Handling double clicks on the map by displaying the new workout form in the sidebar
-        this.#map.on('dblclick', this._showForm.bind(this));
+        // Handling double clicks on the map by showing the new workout form in the sidebar
+        this.#map.on('dblclick', this._showNewWorkoutForm.bind(this));
 
         // Create a new Feature Group object that stores all the editable shapes and add it to the map
         let drawnFeatures = new L.FeatureGroup();
@@ -298,7 +258,7 @@ class App {
         });
         this.#map.addControl(drawControl);
 
-        // After the map loads, get workouts from local storage and display them on the map
+        // After the map loads, get workouts from local storage then render a workout marker for each workout and display them on the map
         if (this.#workouts.length !== 0) {
             this.#workouts.forEach(workout => {
                 this._renderWorkoutMarker(workout);
@@ -329,58 +289,107 @@ class App {
             });
     }
 
-    // After user clicks on the map to create a marker, display the workout form and assign the click to the map event variable
+    // After user clicks on the map to create a marker, show the workout form and assign the click to the map event variable
     // Then render a placeholder marker on the map
     // Then assign a value to the city with the lat & lng coordinates
-    async _showForm(mapE) {
+    async _showNewWorkoutForm(mapE) {
         // First check if the edit workout modal is open when a user decides to add a new workout, if it is then close it
-        if (this.isModalOpen) {
-            this._closeModal();
+        if (this.isEditWorkoutModalOpen) {
+            this._closeEditWorkoutModal();
         }
-        // Also check if the alert modal is open when a user decides to add a new workout, if it is then close it
+        // Then check if the alert modal is open when a user decides to add a new workout, if it is then close it
         if (this.isAlertModalOpen) {
-            this._hideAlertModal();
+            this._closeAlertModal();
+        }
+        // Also check if the confirm delete modal is open when a user decides to add a new workout, if it is then close it
+        if (this.isConfirmDeleteModalOpen) {
+            this._closeConfirmDeleteModal();
         }
         this.#mapEvent = mapE;
         this._renderPlaceholderMarker();
         await this._getWorkoutCity(this.#mapEvent.latlng);
         newWorkoutForm.classList.remove('hidden');
-        this.isFormOpen = true;
+        this.isNewWorkoutFormOpen = true;
     }
 
-    // Hide new workout form, clear the input fields
-    _hideForm() {
-        newWorkoutInputDistance.value = newWorkoutInputDuration.value = newWorkoutInputCadence.value = newWorkoutInputElevation.value = "";
+    // Hide new workout form, clear the input fields, & check if there is a placeholder marker
+    _hideNewWorkoutForm() {
         newWorkoutForm.style.display = "none";
         newWorkoutForm.classList.add('hidden');
-        // Check if a placeholder marker has been created
+        newWorkoutInputDistance.value = newWorkoutInputDuration.value = newWorkoutInputCadence.value = newWorkoutInputElevation.value = "";
         this._isThereAPlaceholderMarker();
         setTimeout(() => {
             newWorkoutForm.style.display = "flex";
         }, 1000);
-        this.isFormOpen = false;
+        this.isNewWorkoutFormOpen = false;
     }
 
-    // open modal when the edit button is clicked
-    _openModal() {
+    // Open edit workout modal when the edit button is clicked
+    _openEditWorkoutModal() {
         // First check if the add new workout form is open when a user decides to edit a workout, if it is then close it
-        if (this.isFormOpen) {
-            this._hideForm();
+        if (this.isNewWorkoutFormOpen) {
+            this._hideNewWorkoutForm();
         }
         editWorkoutModalForm.classList.remove('hidden');
-        this.isModalOpen = true;
+        this.isEditWorkoutModalOpen = true;
     }
 
-    // Hide the edit workout form & clear the input fields
-    _closeModal() {
-        editWorkoutInputDistance.value = editWorkoutInputDuration.value = editWorkoutInputCadence.value = editWorkoutInputElevation.value = "";
-        this.workoutToEdit = this.workoutElementToEdit = undefined;
+    // Close the edit workout form, clear the input fields, & set global variables associated with the workout editing to null
+    _closeEditWorkoutModal() {
         editWorkoutModalForm.style.display = "none";
         editWorkoutModalForm.classList.add('hidden');
+        editWorkoutInputDistance.value = editWorkoutInputDuration.value = editWorkoutInputCadence.value = editWorkoutInputElevation.value = "";
+        this.workoutElementToEdit = this.workoutToEdit = null;
         setTimeout(() => {
             editWorkoutModalForm.style.display = "flex";
         }, 1000);
-        this.isModalOpen = false;
+        this.isEditWorkoutModalOpen = false;
+    }
+
+    // Open alert modal & change the inner text based on specified alert
+    _openAlertModal(text) {
+        if (text === "geolocation alert") {
+            alertModalText.innerText = "Could not get your location!";
+        } else if (text === "no markers alert") {
+            alertModalText.innerText = "There are no markers to view!";
+        } else if (text === "new workout form alert") {
+            alertModalText.innerText = "Please fill out the add workout form or close it before proceeding!";
+        } else if (text === "invalid input alert") {
+            alertModalText.innerText = "Input must be positive!";
+        }
+        alertModal.classList.add('active');
+        modalOverlay.classList.add('active');
+        this.isAlertModalOpen = true;
+    }
+
+    // Close alert modal & clear the text
+    _closeAlertModal() {
+        alertModal.classList.remove('active');
+        modalOverlay.classList.remove('active');
+        alertModalText.innerText = "";
+        this.isAlertModalOpen = false;
+    }
+
+    // Open confirm delete modal & change the inner text based on workout deletion action
+    _openConfirmDeleteModal(text) {
+        if (text === "Confirm specific workout deletion") {
+            confirmDeleteModalText.innerText = "Are you sure you want to delete this workout?";
+        } else if (text === "Confirm all workouts deletion") {
+            confirmDeleteModalText.innerText = "Are you sure you want to delete all of the workouts?";
+        }
+        confirmDeleteModal.classList.add('active');
+        modalOverlay.classList.add('active');
+        this.isConfirmDeleteModalOpen = true;
+    }
+
+    // Close confirm delete modal, clear the text, & set global variables associated with the workout deleting to null or false
+    _closeConfirmDeleteModal() {
+        confirmDeleteModal.classList.remove('active');
+        modalOverlay.classList.remove('active');
+        confirmDeleteModalText.innerText = "";
+        this.workoutElementToDelete = this.workoutToDelete = null;
+        this.confirmDeleteAll = false;
+        this.isConfirmDeleteModalOpen = false;
     }
 
     // For the new workout form:
@@ -405,7 +414,7 @@ class App {
         }
     }
 
-    // Display the delete all workouts button
+    // Show the delete all workouts button
     _showDeleteAllWorkoutsButton() {
         deleteAllWorkoutsBtn.classList.remove('hidden');
     }
@@ -415,7 +424,7 @@ class App {
         deleteAllWorkoutsBtn.classList.add('hidden');
     }
 
-    // Display the no workouts listed header
+    // Show the no workouts listed header
     _showNoWorkoutsListedHeader() {
         noWorkoutsListedHeader.classList.remove('hidden');
     }
@@ -450,7 +459,7 @@ class App {
     }
 
     // If the length of the workouts array is 0 then hide the delete all workouts button and sort workouts by options
-    // as there are no workouts to display, then display the no workouts listed header
+    // as there are no workouts, then show the no workouts listed header
     _areWorkoutsListed() {
         if (this.#workouts.length < 1) {
             this._hideDeleteAllWorkoutsButton();
@@ -459,12 +468,11 @@ class App {
         }
     }
 
-    // If there is a placeholder marker created, remove it from the map & set both the placeholder marker and map event variables to undefined
+    // If there is a placeholder marker created, remove it from the map & set both the placeholder marker and map event variables to null
     _isThereAPlaceholderMarker() {
         if (this.#placeholderMarker) {
             this.#map.removeLayer(this.#placeholderMarker);
-            this.#placeholderMarker = undefined;
-            this.#mapEvent = undefined;
+            this.#placeholderMarker = this.#mapEvent = null;
         }
     }
 
@@ -507,11 +515,17 @@ class App {
     // Position the map to fit all the markers
     _positionMapToFitMarkers(e) {
         e.stopPropagation(); // Prevent a marker from being created on the map when the button is clicked
-        if (this.isModalOpen) {
-            this._closeModal();
+        if (this.isNewWorkoutFormOpen) {
+            this._hideNewWorkoutForm();
+        }
+        if (this.isEditWorkoutModalOpen) {
+            this._closeEditWorkoutModal();
+        }
+        if (this.isConfirmDeleteModalOpen) {
+            this._closeConfirmDeleteModal();
         }
         if (this.#markers.length === 0) {
-            return this._showAlertModal("no markers alert");
+            return this._openAlertModal("no markers alert");
         }
         let group = new L.featureGroup(this.#markers);
         this.#map.fitBounds(group.getBounds());
@@ -532,7 +546,7 @@ class App {
         });
     }
 
-    // If the user clicks on a workout from the sidebar list, have the map navigate and display where that workout marker was created
+    // If the user clicks on a workout from the sidebar list, have the map navigate and show where that workout marker was created
     _moveToPopup(e) {
         let id = this.workoutId;
 
@@ -546,8 +560,8 @@ class App {
             this.workoutId = workout.id;
 
             // If the user clicks on a different workout from the list while the edit workout modal form is open from clicking on a previous workout to edit, then close the modal
-            if (id !== this.workoutId && this.isModalOpen && id !== undefined) {
-                this._closeModal();
+            if (id !== this.workoutId && this.isEditWorkoutModalOpen && id !== undefined) {
+                this._closeEditWorkoutModal();
             }
 
             // Open the popup that's been bound to the workout marker
@@ -588,8 +602,8 @@ class App {
     // Render placeholder marker when user clicks on map
     _renderPlaceholderMarker() {
         // First check if the new workout form is open, if it is then alert the user to fill out the form or close it before proceeding
-        if (this.isFormOpen) {
-            return this._showAlertModal("new workout form alert");
+        if (this.isNewWorkoutFormOpen) {
+            return this._openAlertModal("new workout form alert");
         }
         const {lat, lng} = this.#mapEvent.latlng;
         const coords = [lat, lng];
@@ -776,9 +790,9 @@ class App {
         // If running workout, create a running object
         if (type === 'running') {
             const cadence = +newWorkoutInputCadence.value;
-            // Check if data is valid
+            // Check if input values are valid
             if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
-                return this._showAlertModal("invalid input alert");
+                return this._openAlertModal("invalid input alert");
             }
             workout = new Running(city, [lat, lng], distance, duration, cadence);
         }
@@ -786,9 +800,9 @@ class App {
         // If cycling workout, create a cycling object
         if (type === 'cycling') {
             const elevation = +newWorkoutInputElevation.value;
-            // Check if data is valid
+            // Check if input values are valid
             if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-                return this._showAlertModal("invalid input alert");
+                return this._openAlertModal("invalid input alert");
             }
             workout = new Cycling(city, [lat, lng], distance, duration, elevation);
         }
@@ -811,16 +825,16 @@ class App {
         // Store workouts in local storage
         this._setWorkoutsLocalStorage();
 
-        // Clear the form input fields && Hide form
-        this._hideForm();
+        // Clear the form input fields & Hide form
+        this._hideNewWorkoutForm();
 
         // Hide the no workouts listed header
         this._hideNoWorkoutsListedHeader();
 
-        // Display the delete all workouts button
+        // Show the delete all workouts button
         this._showDeleteAllWorkoutsButton();
 
-        // Display the sort workouts by option
+        // Show the sort workouts by option
         this._showSortWorkoutsByOption();
     }
 
@@ -851,37 +865,41 @@ class App {
         }
     }
 
-    // Delete edited workout & all workouts from local storage
+    // Delete all workouts
     _deleteAllWorkouts() {
-        // Confirm deletion of all workouts
-        const confirmDeletion = confirm("Are you sure you want to delete all of the workouts?");
-        this._showConfirmDeleteModal("Confirm all workouts deletion");
+        this._openConfirmDeleteModal("Confirm all workouts deletion");
+        this.confirmDeleteAll = true;
+    }
 
-        if (confirmDeletion) {
+    // Delete specific workout from the list of workouts
+    _deleteSpecificWorkout(e) {
+        // First check if the edit workout modal is open when a user decides to delete a workout, if it is then close it
+        if (this.isEditWorkoutModalOpen) {
+            this._closeEditWorkoutModal();
+        }
+
+        this.workoutElementToDelete = this._findHTMLWorkoutElement(e);
+        this.workoutToDelete = this._findWorkoutByElementId(this.workoutElementToDelete.dataset.id);
+
+        // Confirm deletion of workout
+        this._openConfirmDeleteModal("Confirm specific workout deletion");
+    }
+
+    // User confirms deletion of specific workout or all workouts
+    _confirmDelete(e) {
+        const confirm = e.target.value === "yes";
+
+        if (confirm && this.confirmDeleteAll) {
+            this._closeConfirmDeleteModal();
             localStorage.removeItem("editedWorkout");
             localStorage.removeItem("workouts");
             location.reload();
-
             this._hideDeleteAllWorkoutsButton();
             this._hideSortWorkoutsByOption();
             this._showNoWorkoutsListedHeader();
-        }
-    }
-
-    // Delete specific workout from the list of entered workouts
-    _deleteSpecificWorkout(e) {
-        // First check if the edit workout modal is open when a user decides to delete a workout, if it is then close it
-        if (this.isModalOpen) {
-            this._closeModal();
-        }
-
-        // Confirm deletion of workout
-        const confirmDeletion = confirm("Are you sure you want to delete this workout?");
-        this._showConfirmDeleteModal("Confirm specific workout deletion");
-
-        if (confirmDeletion) {
-            const workoutElement = this._findHTMLWorkoutElement(e);
-            const workout = this._findWorkoutByElementId(workoutElement.dataset.id);
+        } else if (confirm) {
+            const workoutElement = this.workoutElementToDelete;
+            const workout = this.workoutToDelete;
             const marker = this._findWorkoutMarkerById(workout.id);
 
             // Remove the selected workout to be deleted from the array of workouts
@@ -896,17 +914,22 @@ class App {
             // Remove the selected workout to be deleted from the sidebar list of workouts
             workoutElement.remove();
 
+            // Close confirm delete modal
+            this._closeConfirmDeleteModal();
+
             // Check if the workouts array contains workouts data
             this._areWorkoutsListed();
 
             // Reset the local storage of workouts so that it's updated with the new array of workouts with the deleted workout removed
             this._setWorkoutsLocalStorage();
+        } else {
+            this._closeConfirmDeleteModal();
         }
     }
 
     // Open the edit workout modal form and set the values in the form with the clicked workout data
     _openEditWorkoutModalForm(e) {
-        this._openModal();
+        this._openEditWorkoutModal();
         this.workoutElementToEdit = this._findHTMLWorkoutElement(e);
         this.workoutToEdit = this._findWorkoutByElementId(this.workoutElementToEdit.dataset.id);
 
@@ -929,6 +952,16 @@ class App {
         editWorkoutInputType.value = type;
         editWorkoutInputDistance.value = distance;
         editWorkoutInputDuration.value = duration;
+
+        // Local function that checks if the alert modal is open, if it is then close it
+        const check = () => {
+            if (this.isAlertModalOpen) {
+                return this._closeAlertModal();
+            }
+        }
+
+        // If the user clicks on one of the edit workout modal form input fields then check if the alert modal is open
+        editWorkoutInputType.onfocus = editWorkoutInputDistance.onfocus = editWorkoutInputDuration.onfocus = editWorkoutInputCadence.onfocus = editWorkoutInputElevation.onfocus = () => check();
     }
 
     // Edit a specific workout from the list of entered workouts on form submit
@@ -950,35 +983,35 @@ class App {
         // If the user edits a running workout, and it remains a running workout then edit the distance, duration, and cadence values
         if (type === "running" && this.workoutToEdit.type === "running") {
             const cadence = +editWorkoutInputCadence.value;
-            // Check if data is valid
+            // Check if input values are valid
             if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
-                return this._showAlertModal("invalid input alert");
+                return this._openAlertModal("invalid input alert");
             }
             this.workoutToEdit.distance = distance;
             this.workoutToEdit.duration = duration;
             this.workoutToEdit.cadence = cadence;
         } else if (type === "running" && this.workoutToEdit.type === "cycling") { // If the user edits a cycling workout BUT changes it to a running workout then create a new running workout object while keeping the same id & coords
             const cadence = +editWorkoutInputCadence.value;
-            // Check if data is valid
+            // Check if input values are valid
             if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration)) {
-                return this._showAlertModal("invalid input alert");
+                return this._openAlertModal("invalid input alert");
             }
             this.workoutToEdit = new Running(city, [lat, lng], distance, duration, cadence);
             this.workoutToEdit.id = id;
         } else if (type === "cycling" && this.workoutToEdit.type === "cycling") { // If the user edits a cycling workout, and it remains a cycling workout then edit the distance, duration, and elevation values
             const elevation = +editWorkoutInputElevation.value;
-            // Check if data is valid
+            // Check if input values are valid
             if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-                return this._showAlertModal("invalid input alert");
+                return this._openAlertModal("invalid input alert");
             }
             this.workoutToEdit.distance = distance;
             this.workoutToEdit.duration = duration;
             this.workoutToEdit.elevation = elevation;
         } else if (type === "cycling" && this.workoutToEdit.type === "running") { // If the user edits a running workout BUT changes it to a cycling workout then create a new cycling workout object while keeping the same id & coords
             const elevation = +editWorkoutInputElevation.value;
-            // Check if data is valid
+            // Check if input values are valid
             if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-                return this._showAlertModal("invalid input alert");
+                return this._openAlertModal("invalid input alert");
             }
             this.workoutToEdit = new Cycling(city, [lat, lng], distance, duration, elevation);
             this.workoutToEdit.id = id;
@@ -1009,7 +1042,7 @@ class App {
         this._highlightWorkout(this.workoutToEdit, element);
 
         // Close the edit workout modal
-        this._closeModal();
+        this._closeEditWorkoutModal();
     }
 
     // Store drawn layers in local storage
@@ -1065,4 +1098,4 @@ const app = new App();
 //  Ability to draw lines/shapes instead of just points ✅
 //  Allow user to edit and delete drawn lines/shapes ✅
 //  Change alert notifications to modals ✅
-//  Change confirm notifications to modals
+//  Change confirm notifications to modals ✅
