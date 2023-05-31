@@ -102,15 +102,20 @@ const editWorkoutCloseModalBtn = document.getElementById('modal__edit--workout-c
 const newWorkoutCloseFormBtn = document.getElementById('new__workout--close-form-btn');
 
 // Button to position map to view all the workout markers
-const positionMapToViewAllMarkersBtn = document.getElementById('position__map-to-view-all-markers');
+const positionMapToViewAllMarkersBtn = document.getElementById('position__map--to-view-all-markers');
 
-// Alert modal, alert modal body text, & alert modal close button
+// Alert modal & alert modal body text
 const alertModal = document.getElementById('alert__modal');
 const alertModalText = document.getElementById('alert__modal--body-text');
 const alertModalCloseBtn = document.getElementById('alert__modal--close-btn');
 
-// Alert modal overlay
-const alertModalOverlay = document.getElementById('alert__modal--overlay');
+// Confirm delete modal & confirm delete modal body text
+const confirmDeleteModal = document.getElementById('confirm__delete-modal');
+const confirmDeleteModalText = document.getElementById('confirm__delete--modal-body-text');
+const confirmDeleteModalCloseBtn = document.getElementById('confirm__delete--modal-close-btn');
+
+// Modals overlay
+const modalOverlay = document.getElementById('modal__overlay');
 
 class App {
     #map;
@@ -127,6 +132,7 @@ class App {
     isModalOpen = false;
     isFormOpen = false;
     isAlertModalOpen = false;
+    isConfirmDeleteModalOpen = false;
     city;
 
     constructor() {
@@ -151,13 +157,14 @@ class App {
         editWorkoutInputType.addEventListener('change', this._toggleEditWorkoutTypeField.bind(this));
         positionMapToViewAllMarkersBtn.addEventListener('click', this._positionMapToFitMarkers.bind(this));
         alertModalCloseBtn.addEventListener('click', this._hideAlertModal);
-        alertModalOverlay.addEventListener('click', this._hideAlertModal);
+        confirmDeleteModalCloseBtn.addEventListener('click', this._hideConfirmDeleteModal);
+        modalOverlay.addEventListener('click', this._hideAlertModal);
     }
 
     // Hide alert modal
     _hideAlertModal() {
         alertModal.classList.remove('active');
-        alertModalOverlay.classList.remove('active');
+        modalOverlay.classList.remove('active');
         alertModalText.innerText = "";
         this.isAlertModalOpen = false;
     }
@@ -175,9 +182,31 @@ class App {
         }
 
         alertModal.classList.add('active');
-        alertModalOverlay.classList.add('active');
+        modalOverlay.classList.add('active');
 
         this.isAlertModalOpen = true;
+    }
+
+    // Hide confirm delete modal
+    _hideConfirmDeleteModal() {
+        confirmDeleteModal.classList.remove('active');
+        modalOverlay.classList.remove('active');
+        confirmDeleteModalText.innerText = "";
+        this.isConfirmDeleteModalOpen = false;
+    }
+
+    // Show confirm delete modal & change the inner text based on workout deletion action
+    _showConfirmDeleteModal(text) {
+        if (text === "Confirm specific workout deletion") {
+            confirmDeleteModalText.innerText = "Are you sure you want to delete this workout?";
+        } else if (text === "Confirm all workouts deletion") {
+            confirmDeleteModalText.innerText = "Are you sure you want to delete all of the workouts?";
+        }
+
+        confirmDeleteModal.classList.add('active');
+        modalOverlay.classList.add('active');
+
+        this.isConfirmDeleteModalOpen = true;
     }
 
     // Function to get user's location
@@ -826,6 +855,7 @@ class App {
     _deleteAllWorkouts() {
         // Confirm deletion of all workouts
         const confirmDeletion = confirm("Are you sure you want to delete all of the workouts?");
+        this._showConfirmDeleteModal("Confirm all workouts deletion");
 
         if (confirmDeletion) {
             localStorage.removeItem("editedWorkout");
@@ -847,6 +877,7 @@ class App {
 
         // Confirm deletion of workout
         const confirmDeletion = confirm("Are you sure you want to delete this workout?");
+        this._showConfirmDeleteModal("Confirm specific workout deletion");
 
         if (confirmDeletion) {
             const workoutElement = this._findHTMLWorkoutElement(e);

@@ -413,15 +413,7 @@ a:visited {
     text-decoration: underline;
 }
 
-#position__map-to-view-all-markers {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    padding: 10px;
-    z-index: 1000;
-}
-
-#position__map-to-view-all-markers {
+#position__map--to-view-all-markers {
     display: none;
     color: #ffb545;
     background-color: white;
@@ -431,9 +423,10 @@ a:visited {
     top: 20px;
     right: 20px;
     padding: 10px;
+    z-index: 1000;
 }
 
-#position__map-to-view-all-markers:hover {
+#position__map--to-view-all-markers:hover {
     cursor: pointer;
     background-color: whitesmoke;
 }
@@ -442,7 +435,7 @@ a:visited {
     box-sizing: border-box;
 }
 
-.alert__modal {
+.alert__modal, .confirm__delete--modal {
     position: fixed;
     top: 45%;
     left: 55%;
@@ -456,33 +449,33 @@ a:visited {
     max-width: 80%;
 }
 
-.alert__modal.active {
+.alert__modal.active, .confirm__delete--modal.active {
     transform: translate(-50%, -50%) scale(1);
 }
 
-.alert__modal--body {
+.alert__modal--body, .confirm__delete--modal-body {
     padding: 10px 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.alert__modal--body-text {
+.alert__modal--body-text, .confirm__delete--modal-body-text {
     text-align: center;
     font-size: 2rem;
     font-weight: 600;
 }
 
-#alert__modal--close-btn {
+#alert__modal--close-btn, #confirm__delete--modal-close-btn {
     font-size: 2rem;
     cursor: pointer;
 }
 
-#alert__modal--close-btn:hover {
+#alert__modal--close-btn:hover, #confirm__delete--modal-close-btn:hover {
     text-decoration: underline;
 }
 
-.alert__modal--overlay {
+.modal__overlay {
     position: fixed;
     opacity: 0;
     transition: 200ms ease-in-out;
@@ -494,7 +487,7 @@ a:visited {
     pointer-events: none;
 }
 
-.alert__modal--overlay.active {
+.modal__overlay.active {
     opacity: 1;
     pointer-events: all;
 }
