@@ -493,6 +493,16 @@ class App {
         this.#map._layers[id].openPopup();
     }
 
+    // Set the map view on the selected workout
+    _setMapView(workout) {
+        this.#map.setView(workout.coords, this.#mapZoomView, {
+            animate: true,
+            pan: {
+                duration: 1
+            }
+        });
+    }
+
     // If the user clicks on a workout from the sidebar list, have the map navigate and display where that workout marker was created
     _moveToPopup(e) {
         let id = this.workoutId;
@@ -515,12 +525,7 @@ class App {
             this._openPopup(workout.id);
 
             // Set the map view on the selected workout
-            this.#map.setView(workout.coords, this.#mapZoomView, {
-                animate: true,
-                pan: {
-                    duration: 1
-                }
-            });
+            this._setMapView(workout);
         } catch {
             console.log("Marker removed");
         }
@@ -589,17 +594,27 @@ class App {
         // Add the marker to the list of markers array
         this.#markers.push(marker);
 
+        // If a user clicks a marker on the map then highlight the associated workout element in the sidebar list of workouts
+        // And set the map view on that marker
+        marker.on('click', (e) => {
+            const id = e.target._leaflet_id;
+            const workout = this._findWorkoutByElementId(id);
+            const workoutElement = this.#workoutElements.find(workoutElement => workoutElement.dataset.id === id);
+            this._highlightWorkout(workout, workoutElement);
+            this._setMapView(workout);
+        })
+
         // Update the coordinates of the selected workout marker on drag end
         marker.on('dragend', async (e) => {
             // Get the new coordinates from when the marker has stopped being dragged event
             const {lat, lng} = e.target._latlng;
 
             // Find the marker that was dragged in the array of markers and update its coordinates
-            const marker = this.#markers.find(marker => marker._leaflet_id === e.target._leaflet_id);
+            const marker = this._findWorkoutMarkerById(e.target._leaflet_id)
             marker.coords = [lat, lng];
 
             // Find the workout bound to the dragged marker and update its coordinates
-            const workout = this.#workouts.find(workout => workout.id === e.target._leaflet_id);
+            const workout = this._findWorkoutByElementId(e.target._leaflet_id);
             workout.coords = [lat, lng];
 
             // Get the new city from the new coordinates and update the workout's city value
@@ -618,6 +633,9 @@ class App {
             // Update the workout element's inner text content with the new city location where the marker was dragged to
             const workoutElement = this.#workoutElements.find(workoutElement => workoutElement.dataset.id === workout.id);
             workoutElement.querySelector('.workout__title').innerText = updatedContent;
+
+            // Highlight the associated workout element in the sidebar list of workouts
+            this._highlightWorkout(workout, workoutElement);
 
             // Open the popup that's been bound to the workout marker
             this._openPopup(workout.id);
