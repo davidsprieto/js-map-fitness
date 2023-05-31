@@ -295,8 +295,8 @@ class App {
             .then((data) => {
                 return data.split(',')[1].trim();
             })
-            .catch((error) => {
-                console.log(error);
+            .catch(() => {
+                console.log("Error retrieving city with latitude and longitude!");
             });
     }
 
