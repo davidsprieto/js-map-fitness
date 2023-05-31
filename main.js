@@ -174,7 +174,7 @@ class App {
     // If unsuccessful: the alert modal will pop up
     _getPosition() {
         navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), () => {
-            return this._openAlertModal("geolocation alert");
+            return this._openAlertModal("Geolocation alert");
         });
     }
 
@@ -348,14 +348,16 @@ class App {
 
     // Open alert modal & change the inner text based on specified alert
     _openAlertModal(text) {
-        if (text === "geolocation alert") {
+        if (text === "Geolocation alert") {
             alertModalText.innerText = "Could not get your location!";
-        } else if (text === "no markers alert") {
+        } else if (text === "No markers alert") {
             alertModalText.innerText = "There are no markers to view!";
-        } else if (text === "new workout form alert") {
+        } else if (text === "New workout form alert") {
             alertModalText.innerText = "Please fill out the add workout form or close it before proceeding!";
-        } else if (text === "invalid input alert") {
-            alertModalText.innerText = "Input must be positive!";
+        } else if (text === "Not a number alert") {
+            alertModalText.innerText = "Input must be a number!";
+        } else if (text === "Not a positive number alert") {
+            alertModalText.innerText = "Input must be a positive number!";
         }
         alertModal.classList.add('active');
         modalOverlay.classList.add('active');
@@ -525,7 +527,7 @@ class App {
             this._closeConfirmDeleteModal();
         }
         if (this.#markers.length === 0) {
-            return this._openAlertModal("no markers alert");
+            return this._openAlertModal("No markers alert");
         }
         let group = new L.featureGroup(this.#markers);
         this.#map.fitBounds(group.getBounds());
@@ -603,7 +605,7 @@ class App {
     _renderPlaceholderMarker() {
         // First check if the new workout form is open, if it is then alert the user to fill out the form or close it before proceeding
         if (this.isNewWorkoutFormOpen) {
-            return this._openAlertModal("new workout form alert");
+            return this._openAlertModal("New workout form alert");
         }
         const {lat, lng} = this.#mapEvent.latlng;
         const coords = [lat, lng];
@@ -791,8 +793,10 @@ class App {
         if (type === 'running') {
             const cadence = +newWorkoutInputCadence.value;
             // Check if input values are valid
-            if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
-                return this._openAlertModal("invalid input alert");
+            if (!this._validInputs(distance, duration, cadence)) {
+                return this._openAlertModal("Not a number alert");
+            } else if (!this._allPositive(distance, duration, cadence)) {
+                return this._openAlertModal("Not a positive number alert");
             }
             workout = new Running(city, [lat, lng], distance, duration, cadence);
         }
@@ -801,8 +805,10 @@ class App {
         if (type === 'cycling') {
             const elevation = +newWorkoutInputElevation.value;
             // Check if input values are valid
-            if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-                return this._openAlertModal("invalid input alert");
+            if (!this._validInputs(distance, duration, elevation)) {
+                return this._openAlertModal("Not a number alert");
+            } else if (!this._allPositive(distance, duration)) {
+                return this._openAlertModal("Not a positive number alert");
             }
             workout = new Cycling(city, [lat, lng], distance, duration, elevation);
         }
@@ -984,8 +990,10 @@ class App {
         if (type === "running" && this.workoutToEdit.type === "running") {
             const cadence = +editWorkoutInputCadence.value;
             // Check if input values are valid
-            if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
-                return this._openAlertModal("invalid input alert");
+            if (!this._validInputs(distance, duration, cadence)) {
+                return this._openAlertModal("Not a number alert");
+            } else if (!this._allPositive(distance, duration, cadence)) {
+                return this._openAlertModal("Not a positive number alert");
             }
             this.workoutToEdit.distance = distance;
             this.workoutToEdit.duration = duration;
@@ -993,16 +1001,20 @@ class App {
         } else if (type === "running" && this.workoutToEdit.type === "cycling") { // If the user edits a cycling workout BUT changes it to a running workout then create a new running workout object while keeping the same id & coords
             const cadence = +editWorkoutInputCadence.value;
             // Check if input values are valid
-            if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration)) {
-                return this._openAlertModal("invalid input alert");
+            if (!this._validInputs(distance, duration, cadence)) {
+                return this._openAlertModal("Not a number alert");
+            } else if (!this._allPositive(distance, duration, cadence)) {
+                return this._openAlertModal("Not a positive number alert");
             }
             this.workoutToEdit = new Running(city, [lat, lng], distance, duration, cadence);
             this.workoutToEdit.id = id;
         } else if (type === "cycling" && this.workoutToEdit.type === "cycling") { // If the user edits a cycling workout, and it remains a cycling workout then edit the distance, duration, and elevation values
             const elevation = +editWorkoutInputElevation.value;
             // Check if input values are valid
-            if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-                return this._openAlertModal("invalid input alert");
+            if (!this._validInputs(distance, duration, elevation)) {
+                return this._openAlertModal("Not a number alert");
+            } else if (!this._allPositive(distance, duration)) {
+                return this._openAlertModal("Not a positive number alert");
             }
             this.workoutToEdit.distance = distance;
             this.workoutToEdit.duration = duration;
@@ -1010,8 +1022,10 @@ class App {
         } else if (type === "cycling" && this.workoutToEdit.type === "running") { // If the user edits a running workout BUT changes it to a cycling workout then create a new cycling workout object while keeping the same id & coords
             const elevation = +editWorkoutInputElevation.value;
             // Check if input values are valid
-            if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-                return this._openAlertModal("invalid input alert");
+            if (!this._validInputs(distance, duration, elevation)) {
+                return this._openAlertModal("Not a number alert");
+            } else if (!this._allPositive(distance, duration)) {
+                return this._openAlertModal("Not a positive number alert");
             }
             this.workoutToEdit = new Cycling(city, [lat, lng], distance, duration, elevation);
             this.workoutToEdit.id = id;
@@ -1094,7 +1108,7 @@ const app = new App();
 //  More error and confirmation messages (confirm deletion of workout with popup) ✅
 //  Ability to sort workouts by a certain field (distance, duration, etc.) ✅
 //  Ability to position the map to show all workouts on the map ✅
-//  Geocode location from coordinates ("Run in {insert location from coordinates}" ✅
+//  Geocode location from coordinates ("Run in {insert location from coordinates} on {date}" ✅
 //  Ability to draw lines/shapes instead of just points ✅
 //  Allow user to edit and delete drawn lines/shapes ✅
 //  Change alert notifications to modals ✅
