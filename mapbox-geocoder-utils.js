@@ -51,3 +51,4 @@ function reverseGeocode(coordinates, token) {
       return data.features[0].place_name;
     });
 }
+
