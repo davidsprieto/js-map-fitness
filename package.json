@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "leaflet-draw": "^1.0.4",
-    "sweetalert": "^2.1.2",
     "uuid": "^9.0.0"
   },
   "scripts": {

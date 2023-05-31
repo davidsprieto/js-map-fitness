@@ -355,9 +355,9 @@ class App {
         } else if (text === "New workout form alert") {
             alertModalText.innerText = "Please fill out the add workout form or close it before proceeding!";
         } else if (text === "Not a number alert") {
-            alertModalText.innerText = "Input must be a number!";
+            alertModalText.innerText = "Distance, Duration, and Cadence or Elevation must be a number!";
         } else if (text === "Not a positive number alert") {
-            alertModalText.innerText = "Input must be a positive number!";
+            alertModalText.innerText = "Distance, Duration, and Cadence must be a positive number!";
         }
         alertModal.classList.add('active');
         modalOverlay.classList.add('active');

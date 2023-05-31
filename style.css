@@ -480,6 +480,7 @@ a:visited {
 }
 
 #alert__modal--close-btn {
+    margin-left: 3px;
     font-size: 2rem;
     cursor: pointer;
 }

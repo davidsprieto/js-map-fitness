@@ -10,5 +10,8 @@
     <orderEntry type="library" name="sweetalert" level="application" />
     <orderEntry type="library" name="leaflet" level="application" />
     <orderEntry type="library" name="mapbox-gl" level="application" />
+    <orderEntry type="library" name="leaflet" level="application" />
+    <orderEntry type="library" name="leaflet.draw" level="application" />
+    <orderEntry type="library" name="mapbox-gl" level="application" />
   </component>
 </module>
