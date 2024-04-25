@@ -13,7 +13,7 @@
 <p align="center">
     Programming language: JavaScript
 </p>
-    
+
 <p align="center">
     Library: Leaflet (An open-source JavaScript library for mobile-friendly interactive maps)
 </p>
