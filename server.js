@@ -65,6 +65,7 @@ app.post('/encrypt', (req, res) => {
 app.post('/decrypt', (req, res) => {
     try {
         const { encryptedData, iv } = req.body;
+
         if (!encryptedData || !iv) {
             return res.status(400).json({ error: 'No encrypted data or IV provided' });
         }
@@ -82,6 +83,7 @@ app.post('/decrypt', (req, res) => {
         res.status(500).json({ error: 'Decryption error' });
     }
 });
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

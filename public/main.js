@@ -1105,19 +1105,38 @@ class App {
     async _getDrawnLayersLocalStorage() {
         try {
             const encryptedData = localStorage.getItem("drawnLayers");
+
             if (encryptedData) {
                 const response = await fetch('/decrypt', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({encryptedData}),
+                    body: JSON.stringify({ encryptedData }),
                 });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
                 const result = await response.json();
-                this.drawnLayers = JSON.parse(result.decrypted);
+
+                if (result.decrypted) {
+                    try {
+                        this.drawnLayers = JSON.parse(result.decrypted);
+                    } catch (error) {
+                        console.error('Error parsing JSON:', error);
+                        this.drawnLayers = []; // Or handle as needed
+                    }
+                } else {
+                    this.drawnLayers = []; // Or handle as needed
+                }
+            } else {
+                this.drawnLayers = []; // Or handle as needed
             }
         } catch (error) {
             console.error('Error decrypting and retrieving drawn layers:', error);
+            this.drawnLayers = []; // Or handle as needed
         }
     }
 
@@ -1131,23 +1150,35 @@ class App {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({encryptedData}),
+                    body: JSON.stringify({ encryptedData }),
                 });
-                const result = await response.json();
-                const data = JSON.parse(result.decrypted);
 
-                if (!data || data.length === 0) {
-                    return this._showNoWorkoutsListedHeader();
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
                 }
 
-                this.#workouts = data;
+                const result = await response.json();
+                if (result.decrypted) {
+                    try {
+                        const data = JSON.parse(result.decrypted);
 
-                this.#workouts.forEach(workout => {
-                    this._renderWorkoutToPage(workout);
-                });
+                        if (!data || data.length === 0) {
+                            return this._showNoWorkoutsListedHeader();
+                        }
 
-                this._showDeleteAllWorkoutsButton();
-                this._showSortWorkoutsByOption();
+                        this.#workouts = data;
+                        this.#workouts.forEach(workout => {
+                            this._renderWorkoutToPage(workout);
+                        });
+
+                        this._showDeleteAllWorkoutsButton();
+                        this._showSortWorkoutsByOption();
+                    } catch (error) {
+                        console.error('Error parsing JSON:', error);
+                    }
+                } else {
+                    this._showNoWorkoutsListedHeader();
+                }
             } else {
                 this._showNoWorkoutsListedHeader();
             }
