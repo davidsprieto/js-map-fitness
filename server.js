@@ -18,7 +18,7 @@ app.use(
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "https://unpkg.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://api.mapbox.com", "https://api.tiles.mapbox.com"],
             styleSrc: ["'self'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com", "https://unpkg.com", "https://api.mapbox.com", "https://api.tiles.mapbox.com"],
-            imgSrc: ["'self'", "data:", "https://api.mapbox.com", "https://api.tiles.mapbox.com", "https://tile.openstreetmap.org", "https://cdnjs.cloudflare.com"],
+            imgSrc: ["'self'", "data:", "https://api.mapbox.com", "https://api.tiles.mapbox.com", "https://tile.openstreetmap.org", "https://cdnjs.cloudflare.com", "https://unpkg.com"],
             connectSrc: ["'self'", "https://api.mapbox.com", "https://api.tiles.mapbox.com"],
         },
     })
