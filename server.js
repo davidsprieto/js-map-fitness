@@ -5,8 +5,10 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+require('dotenv').config();
+
 // Use environment variable for the secret key
-const secretKey = process.env.SECRET_KEY;
+const secretKey = process.env.SECRET_KEY || "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
 
 // Rate limiting configuration
 const limiter = rateLimit({
@@ -35,13 +37,16 @@ app.use(
 app.use(express.json());
 app.use(express.static('public'));
 
-// Encrypt Data
+// Encrypt data
 app.post('/encrypt', (req, res) => {
     try {
         const { data } = req.body;
         if (!data) {
             return res.status(400).json({ error: 'No data provided' });
         }
+
+        // Log the incoming data for debugging
+        // console.log('Encrypting data:', data);
 
         const keyBuffer = Buffer.from(secretKey, 'hex');
         const iv = crypto.randomBytes(16); // Generate a random IV
@@ -61,10 +66,14 @@ app.post('/encrypt', (req, res) => {
     }
 });
 
+
 // Decrypt Data
 app.post('/decrypt', (req, res) => {
     try {
         const { encryptedData, iv } = req.body;
+
+        // Log the incoming data for debugging
+        // console.log('Decrypting data:', { encryptedData, iv });
 
         if (!encryptedData || !iv) {
             return res.status(400).json({ error: 'No encrypted data or IV provided' });
@@ -83,8 +92,6 @@ app.post('/decrypt', (req, res) => {
         res.status(500).json({ error: 'Decryption error' });
     }
 });
-
-
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

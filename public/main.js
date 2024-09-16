@@ -1084,10 +1084,13 @@ class App {
 
             const result = await response.json();
 
-            if (result.encrypted) {
-                localStorage.setItem('drawnLayers', result.encrypted);
+            if (result.encrypted && result.iv) {
+                localStorage.setItem('drawnLayers', JSON.stringify({
+                    encryptedData: result.encrypted,
+                    iv: result.iv
+                }));
             } else {
-                console.error('No encrypted data returned from server');
+                console.error('No encrypted data or IV returned from server');
             }
         } catch (error) {
             console.error('Error encrypting and storing drawn layers:', error);
@@ -1111,10 +1114,13 @@ class App {
 
             const result = await response.json();
 
-            if (result.encrypted) {
-                localStorage.setItem('workouts', result.encrypted);
+            if (result.encrypted && result.iv) {
+                localStorage.setItem('workouts', JSON.stringify({
+                    encryptedData: result.encrypted,
+                    iv: result.iv
+                }));
             } else {
-                console.error('No encrypted data returned from server');
+                console.error('No encrypted data or IV returned from server');
             }
         } catch (error) {
             console.error('Error encrypting and storing workouts:', error);
@@ -1124,15 +1130,20 @@ class App {
     // Decrypt and get drawn layers from local storage
     async _getDrawnLayersLocalStorage() {
         try {
-            const encryptedData = localStorage.getItem("drawnLayers");
+            const storedData = localStorage.getItem("drawnLayers");
 
-            if (encryptedData) {
+            if (storedData) {
+                const { encryptedData, iv } = JSON.parse(storedData);
+
+                // Log the data for debugging
+                // console.log('Decrypting drawn layers:', { encryptedData, iv });
+
                 const response = await fetch('/decrypt', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ encryptedData }),
+                    body: JSON.stringify({ encryptedData, iv }),
                 });
 
                 if (!response.ok) {
@@ -1146,32 +1157,37 @@ class App {
                         this.drawnLayers = JSON.parse(result.decrypted);
                     } catch (error) {
                         console.error('Error parsing JSON:', error);
-                        this.drawnLayers = []; // Or handle as needed
+                        this.drawnLayers = [];
                     }
                 } else {
-                    this.drawnLayers = []; // Or handle as needed
+                    this.drawnLayers = [];
                 }
             } else {
-                this.drawnLayers = []; // Or handle as needed
+                this.drawnLayers = [];
             }
         } catch (error) {
             console.error('Error decrypting and retrieving drawn layers:', error);
-            this.drawnLayers = []; // Or handle as needed
+            this.drawnLayers = [];
         }
     }
 
     // Decrypt and get workouts from local storage
     async _getWorkoutsLocalStorage() {
         try {
-            const encryptedData = localStorage.getItem("workouts");
+            const storedData = localStorage.getItem("workouts");
 
-            if (encryptedData) {
+            if (storedData) {
+                const { encryptedData, iv } = JSON.parse(storedData);
+
+                // Log the data for debugging
+                // console.log('Decrypting workouts:', { encryptedData, iv });
+
                 const response = await fetch('/decrypt', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ encryptedData }),
+                    body: JSON.stringify({ encryptedData, iv }),
                 });
 
                 if (!response.ok) {
