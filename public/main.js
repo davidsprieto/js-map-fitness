@@ -146,9 +146,11 @@ class App {
         this._getPosition();
 
         // Get workouts from local storage
+        console.log("Getting workouts....");
         this._getWorkoutsLocalStorage();
 
         // Get drawn layers from local storage
+        console.log("getting drawn layers...");
         this._getDrawnLayersLocalStorage();
 
         // Attach event handlers
@@ -1225,13 +1227,6 @@ class App {
         }
     }
 }
-
-window.addEventListener('storage', (event) => {
-    if (event.key === 'drawnLayers' || event.key === 'workouts') {
-        console.log('Data was changed in another tab/session.');
-        // Add additional security checks or handling
-    }
-});
 
 const app = new App();
 
