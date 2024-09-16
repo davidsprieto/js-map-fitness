@@ -780,10 +780,10 @@ class App {
 
         // Get data from form fields
         const type = DOMPurify.sanitize(newWorkoutInputType.value);
-        let distanceSanitized = DOMPurify.sanitize(editWorkoutInputDistance.value);
-        let durationSanitized = DOMPurify.sanitize(editWorkoutInputDuration.value);
+        let distanceSanitized = DOMPurify.sanitize(newWorkoutInputDistance.value);
+        let durationSanitized = DOMPurify.sanitize(newWorkoutInputDuration.value);
 
-        // Convert sanitized inputs from string to number
+        // Convert sanitized new workout distance and duration inputs from string to number
         const distance = +distanceSanitized;
         const duration = +durationSanitized;
 
@@ -990,7 +990,7 @@ class App {
         let distanceSanitized = DOMPurify.sanitize(editWorkoutInputDistance.value);
         let durationSanitized = DOMPurify.sanitize(editWorkoutInputDuration.value);
 
-        // Convert sanitized inputs from string to number
+        // Convert sanitized edit workout distance and duration inputs from string to number
         const distance = +distanceSanitized;
         const duration = +durationSanitized;
 
