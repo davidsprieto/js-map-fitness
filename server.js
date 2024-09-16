@@ -38,21 +38,37 @@ app.use(express.static('public'));
 
 // Encrypt Data
 app.post('/encrypt', (req, res) => {
-    const {data} = req.body;
-    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(secretKey, 'hex'), Buffer.alloc(16, 0));
-    let encrypted = cipher.update(data, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    res.send({encrypted});
+    try {
+        const { data } = req.body;
+        if (!data) {
+            return res.status(400).json({ error: 'No data provided' });
+        }
+        const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(secretKey, 'hex'), Buffer.alloc(16, 0));
+        let encrypted = cipher.update(data, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+        res.json({ encrypted });
+    } catch (error) {
+        console.error('Encryption error:', error);
+        res.status(500).json({ error: 'Encryption error' });
+    }
 });
 
 // Decrypt Data
 app.post('/decrypt', (req, res) => {
-    const {encryptedData} = req.body;
-    const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(secretKey, 'hex'), Buffer.alloc(16, 0));
-    let decrypted = decipher.update(encryptedData, 'utf8', 'hex');
-    decrypted += decipher.final('hex');
-    res.send({decrypted});
-})
+    try {
+        const { encryptedData } = req.body;
+        if (!encryptedData) {
+            return res.status(400).json({ error: 'No encrypted data provided' });
+        }
+        const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(secretKey, 'hex'), Buffer.alloc(16, 0));
+        let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+        res.json({ decrypted });
+    } catch (error) {
+        console.error('Decryption error:', error);
+        res.status(500).json({ error: 'Decryption error' });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
