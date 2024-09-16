@@ -17,12 +17,16 @@ const limiter = rateLimit({
     message: "Too many requests from this IP, please try again later."
 });
 
-// Middleware
+// Rate limiter
 app.use(limiter);
+
+// Optional: Custom CSP Header Middleware
 app.use((req, res, next) => {
     res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self';");
     next();
 });
+
+// Helmet Content Security Policy Middleware
 app.use(
     helmet.contentSecurityPolicy({
         directives: {
@@ -34,10 +38,14 @@ app.use(
         },
     })
 );
+
+// Parse JSON request bodies
 app.use(express.json());
+
+// Serve static files
 app.use(express.static('public'));
 
-// Encrypt data
+// Encrypt data endpoint
 app.post('/encrypt', (req, res) => {
     try {
         const { data } = req.body;
@@ -67,7 +75,7 @@ app.post('/encrypt', (req, res) => {
 });
 
 
-// Decrypt Data
+// Decrypt Data endpoint
 app.post('/decrypt', (req, res) => {
     try {
         const { encryptedData, iv } = req.body;
@@ -93,6 +101,7 @@ app.post('/decrypt', (req, res) => {
     }
 });
 
+// App listen on specified port
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
