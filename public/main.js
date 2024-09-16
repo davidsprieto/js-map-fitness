@@ -1,5 +1,8 @@
 "use strict";
 
+// Sanitize user input for increased security
+const DOMPurify = require('dompurify');
+
 ///////////////////////////////////////////////////////////////
 // APPLICATION CLASSES
 
@@ -301,7 +304,7 @@ class App {
         if (this.isAlertModalOpen) {
             this._closeAlertModal();
         }
-        // Also check if the confirm delete modal is open when a user decides to add a new workout, if it is then close it
+        // Also check if the confirmation delete modal is open when a user decides to add a new workout, if it is then close it
         if (this.isConfirmDeleteModalOpen) {
             this._closeConfirmDeleteModal();
         }
@@ -779,9 +782,9 @@ class App {
         const city = this.city;
 
         // Get data from form fields
-        const type = newWorkoutInputType.value;
-        const distance = +newWorkoutInputDistance.value;
-        const duration = +newWorkoutInputDuration.value;
+        const type = DOMPurify.sanitize(newWorkoutInputType.value);
+        const distance = DOMPurify.sanitize(+newWorkoutInputDistance.value);
+        const duration = DOMPurify.sanitize(+newWorkoutInputDuration.value);
 
         // Coordinates variables containing coords data when user clicks on the map
         const {lat, lng} = this.#mapEvent.latlng;
@@ -982,9 +985,9 @@ class App {
         const lng = this.workoutToEdit.coords[1];
 
         // Get edit workout modal form values on form submit
-        const type = editWorkoutInputType.value;
-        const distance = +editWorkoutInputDistance.value;
-        const duration = +editWorkoutInputDuration.value;
+        const type = DOMPurify.sanitize(editWorkoutInputType.value);
+        const distance = DOMPurify.sanitize(+editWorkoutInputDistance.value);
+        const duration = DOMPurify.sanitize(+editWorkoutInputDuration.value);
 
         // If the user edits a running workout, and it remains a running workout then edit the distance, duration, and cadence values
         if (type === "running" && this.workoutToEdit.type === "running") {
@@ -1059,44 +1062,102 @@ class App {
         this._closeEditWorkoutModal();
     }
 
-    // Store drawn layers in local storage
-    _setDrawnLayersLocalStorage() {
-        localStorage.setItem("drawnLayers", JSON.stringify(this.drawnLayers));
-    }
-
-    // Store workouts in local storage
-    _setWorkoutsLocalStorage() {
-        localStorage.setItem("workouts", JSON.stringify(this.#workouts));
-    }
-
-    // Get drawn layers from local storage
-    _getDrawnLayersLocalStorage() {
-        const drawnLayers = JSON.parse(localStorage.getItem("drawnLayers"));
-
-        if (drawnLayers) {
-            return this.drawnLayers = drawnLayers;
+    // Encrypt and store drawn layers in local storage
+    async _setDrawnLayersLocalStorage() {
+        try {
+            const response = await fetch('/encrypt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({data: JSON.stringify(this.drawnLayers)})
+            });
+            const result = await response.json();
+            localStorage.setItem('drawnLayers', result.encrypted);
+        } catch (error) {
+            console.error('Error encrypting and storing drawn layers: ', error);
         }
     }
 
-    // Get workouts from local storage
-    _getWorkoutsLocalStorage() {
-        const data = JSON.parse(localStorage.getItem("workouts"));
-
-        if (!data || data.length === 0) {
-            return this._showNoWorkoutsListedHeader();
+    // Encrypt and store workouts in local storage
+    async _setWorkoutsLocalStorage() {
+        try {
+            const response = await fetch('/encrypt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({data: JSON.stringify(this.#workouts)}),
+            });
+            const result = await response.json();
+            localStorage.setItem('workouts', result.encrypted);
+        } catch (error) {
+            console.error('Error encrypting and storing workouts: ', error);
         }
+    }
 
-        this.#workouts = data;
+    // Decrypt and get drawn layers from local storage
+    async _getDrawnLayersLocalStorage() {
+        try {
+            const encryptedData = localStorage.getItem("drawnLayers");
+            if (encryptedData) {
+                const response = await fetch('/decrypt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({encryptedData}),
+                });
+                const result = await response.json();
+                this.drawnLayers = JSON.parse(result.decrypted);
+            }
+        } catch (error) {
+            console.error('Error decrypting and retrieving drawn layers:', error);
+        }
+    }
 
-        this.#workouts.forEach(workout => {
-            this._renderWorkoutToPage(workout);
-        });
+    // Decrypt and get workouts from local storage
+    async _getWorkoutsLocalStorage() {
+        try {
+            const encryptedData = localStorage.getItem("workouts");
+            if (encryptedData) {
+                const response = await fetch('/decrypt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({encryptedData}),
+                });
+                const result = await response.json();
+                const data = JSON.parse(result.decrypted);
 
-        this._showDeleteAllWorkoutsButton();
+                if (!data || data.length === 0) {
+                    return this._showNoWorkoutsListedHeader();
+                }
 
-        this._showSortWorkoutsByOption();
+                this.#workouts = data;
+
+                this.#workouts.forEach(workout => {
+                    this._renderWorkoutToPage(workout);
+                });
+
+                this._showDeleteAllWorkoutsButton();
+                this._showSortWorkoutsByOption();
+            } else {
+                this._showNoWorkoutsListedHeader();
+            }
+        } catch (error) {
+            console.error('Error decrypting and retrieving workouts:', error);
+        }
     }
 }
+
+window.addEventListener('storage', (event) => {
+    if (event.key === 'drawnLayers' || event.key === 'workouts') {
+        console.log('Data was changed in another tab/session.');
+        // Add additional security checks or handling
+    }
+});
 
 const app = new App();
 
