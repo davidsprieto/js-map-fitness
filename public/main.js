@@ -141,15 +141,15 @@ class App {
     confirmDeleteAll = false;
     city;
 
-    constructor() {
+    async constructor() {
         // Get user's location
         this._getPosition();
 
         // Get workouts from local storage
-        this._getWorkoutsLocalStorage();
+        await this._getWorkoutsLocalStorage();
 
         // Get drawn layers from local storage
-        this._getDrawnLayersLocalStorage();
+        await this._getDrawnLayersLocalStorage();
 
         // Attach event handlers
         containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
@@ -205,14 +205,14 @@ class App {
         // When a user draws a line or shape on the map it is added to the drawn features feature group object variable
         // Then it is converted to geoJSON and then added to the drawn layers array variable to be stored in local storage
         // And retrieved later to be displayed on the map when the user comes back to the app
-        this.#map.on("draw:created", (e) => {
+        this.#map.on("draw:created", async (e) => {
             let drawnLayer = e.layer;
             drawnFeatures.addLayer(drawnLayer);
             let geoJSONDrawnLayer = drawnLayer.toGeoJSON();
             let coords = geoJSONDrawnLayer.geometry.coordinates[0];
             geoJSONDrawnLayer.id = coords[0] + coords[1];
             this.drawnLayers.push(geoJSONDrawnLayer);
-            this._setDrawnLayersLocalStorage();
+            await this._setDrawnLayersLocalStorage();
         });
 
         // Functions converts the first lat & lng coordinates of the drawn layer to an id to be assigned to the drawn layer object
@@ -224,20 +224,20 @@ class App {
         }
 
         // Function that handles what happens when a layer is edited on the map:
-        this.#map.on("draw:edited", (e) => {
+        this.#map.on("draw:edited", async (e) => {
             let drawnLayer = e.layers.toGeoJSON();
             let id = _convertCoordsToId(drawnLayer);
             const index = this.drawnLayers.findIndex(drawnLayer => drawnLayer.id === id);
             this.drawnLayers[index] = drawnLayer;
-            this._setDrawnLayersLocalStorage();
+            await this._setDrawnLayersLocalStorage();
         });
 
         // Function that handles what happens when a layer is deleted from the map:
-        this.#map.on("draw:deleted", (e) => {
+        this.#map.on("draw:deleted", async (e) => {
             let drawnLayer = e.layers.toGeoJSON();
             let id = _convertCoordsToId(drawnLayer);
             this.drawnLayers = this.drawnLayers.filter(drawnLayer => drawnLayer.id !== id);
-            this._setDrawnLayersLocalStorage();
+            await this._setDrawnLayersLocalStorage();
         });
 
         // Enable Leaflet Draw Controls:
@@ -771,7 +771,7 @@ class App {
     }
 
     // Create a new workout object when the user submits the form
-    _newWorkout(e) {
+    async _newWorkout(e) {
         // Prevent page reload
         e.preventDefault();
 
@@ -833,7 +833,7 @@ class App {
         this._highlightWorkout(workout, this.#workoutElements.at(-1));
 
         // Store workouts in local storage
-        this._setWorkoutsLocalStorage();
+        await this._setWorkoutsLocalStorage();
 
         // Clear the form input fields & Hide form
         this._hideNewWorkoutForm();
@@ -896,7 +896,7 @@ class App {
     }
 
     // User confirms deletion of specific workout or all workouts
-    _confirmDelete(e) {
+    async _confirmDelete(e) {
         const confirm = e.target.value === "yes";
 
         if (confirm && this.confirmDeleteAll) {
@@ -931,7 +931,7 @@ class App {
             this._areWorkoutsListed();
 
             // Reset the local storage of workouts so that it's updated with the new array of workouts with the deleted workout removed
-            this._setWorkoutsLocalStorage();
+            await this._setWorkoutsLocalStorage();
         } else {
             this._closeConfirmDeleteModal();
         }
@@ -975,7 +975,7 @@ class App {
     }
 
     // Edit a specific workout from the list of entered workouts on form submit
-    _editSpecificWorkout(e) {
+    async _editSpecificWorkout(e) {
         // Prevent page reload
         e.preventDefault();
 
@@ -1058,7 +1058,7 @@ class App {
 
         // Reset the local storage of edited workout & workouts so that the workouts array data is updated along with the workout just edited
         // so that on page reload the map view can be set to that marker
-        this._setWorkoutsLocalStorage();
+        await this._setWorkoutsLocalStorage();
 
         // Highlight the edited workout
         this._highlightWorkout(this.workoutToEdit, element);
