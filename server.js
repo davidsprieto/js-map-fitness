@@ -1,13 +1,22 @@
 const express = require('express');
 const crypto = require('crypto');
 const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Use environment variable for the secret key
 const secretKey = process.env.SECRET_KEY;
 
+// Rate limiting configuration
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: "Too many requests from this IP, please try again later."
+});
+
 // Middleware
+app.use(limiter);
 app.use((req, res, next) => {
     res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self';");
     next();
