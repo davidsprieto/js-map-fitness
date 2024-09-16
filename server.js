@@ -8,13 +8,23 @@ const PORT = process.env.PORT || 8080;
 const secretKey = process.env.SECRET_KEY;
 
 // Middleware
-app.use(express.json());
-app.use(helmet());
-app.use(express.static('public'));
 app.use((req, res, next) => {
     res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self';");
     next();
 });
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "https://unpkg.com", "https://cdnjs.cloudflare.com", "https://api.mapbox.com", "https://api.tiles.mapbox.com"],
+            styleSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+            imgSrc: ["'self'", "data:", "https://*.tiles.mapbox.com"],
+            connectSrc: ["'self'", "https://api.mapbox.com"],
+        }
+    }
+}));
+app.use(express.json());
+app.use(express.static('public'));
 
 
 // Encrypt Data

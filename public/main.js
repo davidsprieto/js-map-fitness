@@ -1,7 +1,7 @@
 "use strict";
 
 // Sanitize user input for increased security
-const DOMPurify = require('dompurify');
+import DOMPurify from 'dompurify';
 
 ///////////////////////////////////////////////////////////////
 // APPLICATION CLASSES
