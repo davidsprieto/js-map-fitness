@@ -141,15 +141,15 @@ class App {
     confirmDeleteAll = false;
     city;
 
-    async constructor() {
+    constructor() {
         // Get user's location
         this._getPosition();
 
         // Get workouts from local storage
-        await this._getWorkoutsLocalStorage();
+        this._getWorkoutsLocalStorage();
 
         // Get drawn layers from local storage
-        await this._getDrawnLayersLocalStorage();
+        this._getDrawnLayersLocalStorage();
 
         // Attach event handlers
         containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
