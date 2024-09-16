@@ -780,8 +780,8 @@ class App {
 
         // Get data from form fields
         const type = DOMPurify.sanitize(newWorkoutInputType.value);
-        const distance = DOMPurify.sanitize(+newWorkoutInputDistance.value);
-        const duration = DOMPurify.sanitize(+newWorkoutInputDuration.value);
+        const distance = DOMPurify.sanitize(Number(newWorkoutInputDistance.value));
+        const duration = DOMPurify.sanitize(Number(newWorkoutInputDuration.value));
 
         // Coordinates variables containing coords data when user clicks on the map
         const {lat, lng} = this.#mapEvent.latlng;
@@ -983,8 +983,8 @@ class App {
 
         // Get edit workout modal form values on form submit
         const type = DOMPurify.sanitize(editWorkoutInputType.value);
-        const distance = DOMPurify.sanitize(+editWorkoutInputDistance.value);
-        const duration = DOMPurify.sanitize(+editWorkoutInputDuration.value);
+        const distance = DOMPurify.sanitize(Number(editWorkoutInputDistance.value));
+        const duration = DOMPurify.sanitize(Number(editWorkoutInputDuration.value));
 
         // If the user edits a running workout, and it remains a running workout then edit the distance, duration, and cadence values
         if (type === "running" && this.workoutToEdit.type === "running") {
