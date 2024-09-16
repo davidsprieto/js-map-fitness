@@ -16,5 +16,6 @@
     <orderEntry type="library" name="leaflet" level="application" />
     <orderEntry type="library" name="leaflet.draw" level="application" />
     <orderEntry type="library" name="mapbox-gl" level="application" />
+    <orderEntry type="library" name="dompurify" level="application" />
   </component>
 </module>

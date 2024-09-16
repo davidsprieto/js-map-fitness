@@ -17,7 +17,7 @@ app.use(helmet({
         directives: {
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "https://unpkg.com", "https://cdnjs.cloudflare.com", "https://api.mapbox.com", "https://api.tiles.mapbox.com"],
-            styleSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+            styleSrc: ["'self'", "https://fonts.googleapis.com", "https://unpkg.com", "https://cdnjs.cloudflare.com", "https://api.mapbox.com", "https://api.tiles.mapbox.com"],
             imgSrc: ["'self'", "data:", "https://*.tiles.mapbox.com"],
             connectSrc: ["'self'", "https://api.mapbox.com"],
         }

@@ -1,8 +1,5 @@
 "use strict";
 
-// Sanitize user input for increased security
-import DOMPurify from 'dompurify';
-
 ///////////////////////////////////////////////////////////////
 // APPLICATION CLASSES
 
