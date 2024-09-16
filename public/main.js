@@ -146,11 +146,9 @@ class App {
         this._getPosition();
 
         // Get workouts from local storage
-        console.log("Getting workouts....");
         this._getWorkoutsLocalStorage();
 
         // Get drawn layers from local storage
-        console.log("getting drawn layers...");
         this._getDrawnLayersLocalStorage();
 
         // Attach event handlers
@@ -1209,6 +1207,7 @@ class App {
                         this.#workouts = data;
                         this.#workouts.forEach(workout => {
                             this._renderWorkoutToPage(workout);
+                            this._renderWorkoutMarker(workout);
                         });
 
                         this._showDeleteAllWorkoutsButton();
