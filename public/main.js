@@ -1075,12 +1075,22 @@ class App {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({data: JSON.stringify(this.drawnLayers)})
+                body: JSON.stringify({ data: JSON.stringify(this.drawnLayers) })
             });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
             const result = await response.json();
-            localStorage.setItem('drawnLayers', result.encrypted);
+
+            if (result.encrypted) {
+                localStorage.setItem('drawnLayers', result.encrypted);
+            } else {
+                console.error('No encrypted data returned from server');
+            }
         } catch (error) {
-            console.error('Error encrypting and storing drawn layers: ', error);
+            console.error('Error encrypting and storing drawn layers:', error);
         }
     }
 
@@ -1092,12 +1102,22 @@ class App {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({data: JSON.stringify(this.#workouts)}),
+                body: JSON.stringify({ data: JSON.stringify(this.#workouts) })
             });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
             const result = await response.json();
-            localStorage.setItem('workouts', result.encrypted);
+
+            if (result.encrypted) {
+                localStorage.setItem('workouts', result.encrypted);
+            } else {
+                console.error('No encrypted data returned from server');
+            }
         } catch (error) {
-            console.error('Error encrypting and storing workouts: ', error);
+            console.error('Error encrypting and storing workouts:', error);
         }
     }
 
@@ -1144,6 +1164,7 @@ class App {
     async _getWorkoutsLocalStorage() {
         try {
             const encryptedData = localStorage.getItem("workouts");
+
             if (encryptedData) {
                 const response = await fetch('/decrypt', {
                     method: 'POST',
@@ -1158,6 +1179,7 @@ class App {
                 }
 
                 const result = await response.json();
+
                 if (result.decrypted) {
                     try {
                         const data = JSON.parse(result.decrypted);
