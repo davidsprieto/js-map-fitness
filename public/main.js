@@ -1079,7 +1079,7 @@ class App {
             });
 
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                console.error('Network response was not ok, error setting drawn layer(s) to local storage.');
             }
 
             const result = await response.json();
@@ -1109,7 +1109,7 @@ class App {
             });
 
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                console.error('Network response was not ok, error setting workout(s) to local storage.');
             }
 
             const result = await response.json();
@@ -1147,7 +1147,7 @@ class App {
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    console.error('Network response was not ok, error getting drawn layer(s) from local storage.');
                 }
 
                 const result = await response.json();
@@ -1191,7 +1191,7 @@ class App {
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    console.error('Network response was not ok, error getting workout(s) from local storage.');
                 }
 
                 const result = await response.json();
