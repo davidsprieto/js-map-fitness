@@ -686,7 +686,7 @@ class App {
             this._openPopup(workout.id);
 
             // Reset local storage to reflect the updated workouts coordinates
-            this._setWorkoutsLocalStorage();
+            await this._setWorkoutsLocalStorage();
         });
     }
 
