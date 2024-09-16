@@ -35,7 +35,6 @@ app.use(
 app.use(express.json());
 app.use(express.static('public'));
 
-
 // Encrypt Data
 app.post('/encrypt', (req, res) => {
     try {
@@ -43,10 +42,19 @@ app.post('/encrypt', (req, res) => {
         if (!data) {
             return res.status(400).json({ error: 'No data provided' });
         }
-        const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(secretKey, 'hex'), Buffer.alloc(16, 0));
+
+        const keyBuffer = Buffer.from(secretKey, 'hex');
+        const iv = crypto.randomBytes(16); // Generate a random IV
+        const cipher = crypto.createCipheriv('aes-256-cbc', keyBuffer, iv);
+
         let encrypted = cipher.update(data, 'utf8', 'hex');
         encrypted += cipher.final('hex');
-        res.json({ encrypted });
+
+        // Send IV along with encrypted data
+        res.json({
+            encrypted,
+            iv: iv.toString('hex') // Send IV as hex string
+        });
     } catch (error) {
         console.error('Encryption error:', error);
         res.status(500).json({ error: 'Encryption error' });
@@ -56,19 +64,25 @@ app.post('/encrypt', (req, res) => {
 // Decrypt Data
 app.post('/decrypt', (req, res) => {
     try {
-        const { encryptedData } = req.body;
-        if (!encryptedData) {
-            return res.status(400).json({ error: 'No encrypted data provided' });
+        const { encryptedData, iv } = req.body;
+        if (!encryptedData || !iv) {
+            return res.status(400).json({ error: 'No encrypted data or IV provided' });
         }
-        const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(secretKey, 'hex'), Buffer.alloc(16, 0));
+
+        const keyBuffer = Buffer.from(secretKey, 'hex');
+        const ivBuffer = Buffer.from(iv, 'hex'); // Convert IV back to buffer
+        const decipher = crypto.createDecipheriv('aes-256-cbc', keyBuffer, ivBuffer);
+
         let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
         decrypted += decipher.final('utf8');
+
         res.json({ decrypted });
     } catch (error) {
         console.error('Decryption error:', error);
         res.status(500).json({ error: 'Decryption error' });
     }
 });
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
