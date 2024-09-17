@@ -279,7 +279,7 @@ class App {
     // Function that uses MapBox API to send latitude & longitude coordinates and returns the city
     async _getWorkoutCity(coords) {
         const {lat, lng} = coords;
-        const Map_Box_Key = config.MAP_BOX_KEY;
+        const Map_Box_Key = process.env.MAP_BOX_KEY;
         this.city = await reverseGeocode({lat: lat, lng: lng}, Map_Box_Key)
             .then((data) => {
                 return data.split(',')[1].trim();
