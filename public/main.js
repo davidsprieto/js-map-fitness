@@ -145,12 +145,6 @@ class App {
         // Get user's location
         this._getPosition();
 
-        // Get workouts from local storage
-        this._getWorkoutsLocalStorage();
-
-        // Get drawn layers from local storage
-        this._getDrawnLayersLocalStorage();
-
         // Attach event handlers
         containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
         newWorkoutForm.addEventListener('submit', this._newWorkout.bind(this));
@@ -179,7 +173,7 @@ class App {
     }
 
     // Function to load leaflet map
-    _loadMap(position) {
+    async _loadMap(position) {
         const {latitude, longitude} = position.coords;
         const coords = [latitude, longitude];
 
@@ -200,6 +194,26 @@ class App {
         // Create a new Feature Group object that stores all the editable shapes and add it to the map
         let drawnFeatures = new L.FeatureGroup();
         this.#map.addLayer(drawnFeatures);
+
+        // Get workouts from local storage
+        await this._getWorkoutsLocalStorage();
+
+        // Get drawn layers from local storage
+        await this._getDrawnLayersLocalStorage();
+
+        // After the map loads, get workouts from local storage then render a workout marker for each workout and display them on the map
+        if (this.#workouts.length !== 0) {
+            this.#workouts.forEach(workout => {
+                this._renderWorkoutMarker(workout);
+            });
+        }
+
+        // After the map loads, get drawn layers from local storage and display them on the map
+        if (this.drawnLayers.length !== 0) {
+            L.geoJSON(this.drawnLayers).eachLayer(layer => {
+                drawnFeatures.addLayer(layer).addTo(this.#map);
+            });
+        }
 
         // Function that handles what happens when a layer is drawn on the map:
         // When a user draws a line or shape on the map it is added to the drawn features feature group object variable
@@ -257,20 +271,6 @@ class App {
             }
         });
         this.#map.addControl(drawControl);
-
-        // After the map loads, get workouts from local storage then render a workout marker for each workout and display them on the map
-        if (this.#workouts.length !== 0) {
-            this.#workouts.forEach(workout => {
-                this._renderWorkoutMarker(workout);
-            });
-        }
-
-        // After the map loads, get drawn layers from local storage and display them on the map
-        if (this.drawnLayers.length !== 0) {
-            L.geoJSON(this.drawnLayers).eachLayer(layer => {
-                drawnFeatures.addLayer(layer).addTo(this.#map);
-            });
-        }
 
         // Wait until the map completely loads until displaying the view all workout markers button
         positionMapToViewAllMarkersBtn.style.display = "flex";
@@ -1075,7 +1075,7 @@ class App {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ data: JSON.stringify(this.drawnLayers) })
+                body: JSON.stringify({data: JSON.stringify(this.drawnLayers)})
             });
 
             if (!response.ok) {
@@ -1105,7 +1105,7 @@ class App {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ data: JSON.stringify(this.#workouts) })
+                body: JSON.stringify({data: JSON.stringify(this.#workouts)})
             });
 
             if (!response.ok) {
@@ -1133,7 +1133,7 @@ class App {
             const storedData = localStorage.getItem("drawnLayers");
 
             if (storedData) {
-                const { encryptedData, iv } = JSON.parse(storedData);
+                const {encryptedData, iv} = JSON.parse(storedData);
 
                 // Log the data for debugging
                 // console.log('Decrypting drawn layers:', { encryptedData, iv });
@@ -1143,7 +1143,7 @@ class App {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ encryptedData, iv }),
+                    body: JSON.stringify({encryptedData, iv}),
                 });
 
                 if (!response.ok) {
@@ -1177,7 +1177,7 @@ class App {
             const storedData = localStorage.getItem("workouts");
 
             if (storedData) {
-                const { encryptedData, iv } = JSON.parse(storedData);
+                const {encryptedData, iv} = JSON.parse(storedData);
 
                 // Log the data for debugging
                 // console.log('Decrypting workouts:', { encryptedData, iv });
@@ -1187,7 +1187,7 @@ class App {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ encryptedData, iv }),
+                    body: JSON.stringify({encryptedData, iv}),
                 });
 
                 if (!response.ok) {
@@ -1207,7 +1207,6 @@ class App {
                         this.#workouts = data;
                         this.#workouts.forEach(workout => {
                             this._renderWorkoutToPage(workout);
-                            this._renderWorkoutMarker(workout);
                         });
 
                         this._showDeleteAllWorkoutsButton();
