@@ -3,18 +3,24 @@ const crypto = require('crypto');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const app = express();
+
+// Environment Variables
 const PORT = process.env.PORT || 8080;
+const secretKey = process.env.SECRET_KEY || "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
+const MAP_BOX_KEY = process.env.MAP_BOX_KEY;
 
 require('dotenv').config();
-
-// Use environment variable for the secret key
-const secretKey = process.env.SECRET_KEY || "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
 
 // Rate limiting configuration
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
     message: "Too many requests from this IP, please try again later."
+});
+
+// Retrieve Map Box API Key
+app.get('/config', (req, res) => {
+    res.json({ mapBoxKey: MAP_BOX_KEY });
 });
 
 // Rate limiter

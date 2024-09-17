@@ -3,8 +3,6 @@
 ///////////////////////////////////////////////////////////////
 // APPLICATION CLASSES
 
-require('dotenv').config();
-
 class Workout {
     id = crypto.randomUUID();
     date = new Date();
@@ -278,17 +276,38 @@ class App {
         positionMapToViewAllMarkersBtn.style.display = "flex";
     }
 
-    // Function that uses MapBox API to send latitude & longitude coordinates and returns the city
+    // Function that retrieves the MapBox API key from the server
+    async _getMapBoxKey() {
+        try {
+            const response = await fetch('/config');
+            const data = await response.json();
+            return data.mapBoxKey;
+        } catch (error) {
+            console.error('Error fetching the MapBox key:', error);
+            return null; // Return null if there's an error
+        }
+    }
+
+    // Function that uses the MapBox API to send latitude & longitude coordinates and returns the city
     async _getWorkoutCity(coords) {
         const {lat, lng} = coords;
-        const Map_Box_Key = process.env.MAP_BOX_KEY;
-        this.city = await reverseGeocode({lat: lat, lng: lng}, Map_Box_Key)
-            .then((data) => {
-                return data.split(',')[1].trim();
-            })
-            .catch(() => {
-                console.log("Error retrieving city with latitude and longitude!");
-            });
+
+        // Get the MapBox API key
+        const mapBoxKey = await this._getMapBoxKey();
+
+        // Check if the key was retrieved successfully
+        if (!mapBoxKey) {
+            console.error('Failed to retrieve the MapBox API key.');
+            return;
+        }
+
+        // Perform the reverse geocoding request
+        try {
+            const cityData = await reverseGeocode({lat, lng}, mapBoxKey);
+            this.city = cityData.split(',')[1].trim(); // Assuming city is in the second part of the response
+        } catch (error) {
+            console.log("Error retrieving city with latitude and longitude!", error);
+        }
     }
 
     // After user clicks on the map to create a marker, show the workout form and assign the click to the map event variable
