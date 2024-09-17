@@ -3,6 +3,8 @@
 ///////////////////////////////////////////////////////////////
 // APPLICATION CLASSES
 
+require('dotenv').config();
+
 class Workout {
     id = crypto.randomUUID();
     date = new Date();
