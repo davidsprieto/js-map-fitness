@@ -304,7 +304,7 @@ class App {
         // Perform the reverse geocoding request
         try {
             const cityData = await reverseGeocode({lat, lng}, mapBoxKey);
-            this.city = cityData.split(',')[1].trim(); // Assuming city is in the second part of the response
+            this.city = cityData.split(',')[1].trim();
         } catch (error) {
             console.log("Error retrieving city with latitude and longitude!", error);
         }
