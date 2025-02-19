@@ -1,6 +1,6 @@
 <h1 align="center">Map Fitness - Track Your Workouts by Location on a Map!</h1>
 
-<h3 align="center">Single-page web application developed using:</h2>
+<h3 align="center">Single-page web application developed using:</h3>
 
 <p align="center">
     Markup Language: HTML
