@@ -1,4 +1,4 @@
-Map Fitness - Track Your Workouts by Location on a Map!
+# Map Fitness - Track Your Workouts by Location on a Map!
 
 Single-page web application developed using:
 
