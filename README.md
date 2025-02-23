@@ -1,6 +1,6 @@
 <h1 align=center>Map Fitness - Track Your Workouts by Location on a Map</h1>
 
-Web application developed using:
+Web application developed with:
 
 - HTML
 - CSS
